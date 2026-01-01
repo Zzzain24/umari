@@ -32,22 +32,17 @@ export function StickyFooter() {
     <AnimatePresence>
       {isAtBottom && (
         <motion.div
-          className="fixed z-50 bottom-0 left-0 w-full flex justify-center items-center py-4 px-4 sm:px-8"
-          style={{ backgroundColor: "#e78a53" }}
+          className="fixed z-50 bottom-0 left-0 w-full flex justify-center items-center py-4 px-4 sm:px-8 bg-primary"
           initial={{ y: "100%" }}
           animate={{ y: 0 }}
           exit={{ y: "100%" }}
           transition={{ duration: 0.3, ease: "easeOut" }}
         >
-          <div
-            className="w-full max-w-7xl flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-4 text-xs sm:text-sm"
-            style={{ color: "#121113" }}
-          >
+          <div className="w-full max-w-7xl flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-4 text-xs sm:text-sm text-foreground">
             {/* Left: Email */}
             <a
               href="mailto:umarigroup@gmail.com"
-              className="hover:underline transition-colors"
-              style={{ color: "#121113" }}
+              className="hover:underline transition-colors text-foreground"
             >
               umarigroup@gmail.com
             </a>
@@ -56,7 +51,7 @@ export function StickyFooter() {
             <div className="text-center">© 2026 Umari All rights reserved</div>
 
             {/* Right: Phone */}
-            <a href="tel:832-216-3553" className="hover:underline transition-colors" style={{ color: "#121113" }}>
+            <a href="tel:832-216-3553" className="hover:underline transition-colors text-foreground">
               832-216-3553
             </a>
           </div>

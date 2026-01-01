@@ -35,7 +35,7 @@ export default function Features() {
       >
         <h2
           className={cn(
-            "via-foreground mb-8 bg-gradient-to-b from-zinc-800 to-zinc-700 bg-clip-text text-center text-4xl font-semibold tracking-tighter text-transparent md:text-[54px] md:leading-[60px]",
+            "via-foreground mb-8 bg-gradient-to-b from-neutral-800 to-neutral-700 bg-clip-text text-center text-4xl font-semibold tracking-tighter text-transparent md:text-[54px] md:leading-[60px]",
             geist.className,
           )}
         >
@@ -74,12 +74,12 @@ export default function Features() {
                     {/* Menu Template Card */}
                     <div className="absolute inset-0 m-1 bg-white rounded-2xl shadow-xl overflow-hidden">
                       {/* Background gradient */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-orange-50 via-white to-orange-50"></div>
+                      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-primary/5"></div>
 
                       {/* Content */}
                       <div className="relative h-full p-6 flex flex-col">
                         {/* Menu Title */}
-                        <h3 className="text-2xl font-bold text-gray-800 mb-4">
+                        <h3 className="text-2xl font-bold text-neutral-800 mb-4">
                           Umari Coffee Cart
                         </h3>
 
@@ -92,27 +92,27 @@ export default function Features() {
                           ].map((item, index) => (
                             <div
                               key={index}
-                              className="flex items-center justify-between p-3 rounded-lg bg-white/60 backdrop-blur-sm border border-gray-200/50"
+                              className="flex items-center justify-between p-3 rounded-lg bg-white/60 backdrop-blur-sm border border-neutral-200/50"
                             >
                               <div className="flex items-center gap-3">
                                 <span className="text-xl">{item.emoji}</span>
-                                <span className="text-sm font-medium text-gray-700">{item.name}</span>
+                                <span className="text-sm font-medium text-neutral-700">{item.name}</span>
                               </div>
-                              <span className="text-sm font-semibold text-[#e78a53]">{item.price}</span>
+                              <span className="text-sm font-semibold text-primary">{item.price}</span>
                             </div>
                           ))}
                         </div>
 
                         {/* QR Code */}
                         <div className="mt-4 flex justify-center">
-                          <div className="bg-white p-3 rounded-xl shadow-lg border-2 border-gray-200">
+                          <div className="bg-white p-3 rounded-xl shadow-lg border-2 border-neutral-200">
                             {/* QR Code Image */}
                             <img
                               src="/images/qr_code.png"
                               alt="QR Code"
                               className="w-16 h-16 rounded"
                             />
-                            <p className="text-[8px] text-center mt-1 text-gray-500">Scan to Order</p>
+                            <p className="text-[8px] text-center mt-1 text-neutral-500">Scan to Order</p>
                           </div>
                         </div>
                       </div>
@@ -148,54 +148,54 @@ export default function Features() {
                     <div className="relative rounded-2xl border border-white/10 bg-black/5 dark:bg-white/5 backdrop-blur-sm">
                       <div className="p-6 space-y-4">
                         <motion.div
-                          className="flex items-center justify-between p-4 rounded-lg bg-green-500/10 border border-green-500/30"
+                          className="flex items-center justify-between p-4 rounded-lg bg-success/10 border border-success/30"
                           initial={{ opacity: 0, x: -20 }}
                           animate={isFeature3Hovering ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
                           transition={{ duration: 0.5, delay: 0.1 }}
                         >
                           <div className="flex items-center gap-3">
-                            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                            <div className="w-2 h-2 rounded-full bg-success animate-pulse"></div>
                             <span className="text-sm font-medium">Order #1234</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <span className="text-sm text-black">$15.50</span>
-                            <button className="px-2 py-1 text-xs bg-green-500/30 hover:bg-green-500/50 border border-green-500/50 rounded text-black transition-colors">
+                            <span className="text-sm text-foreground">$15.50</span>
+                            <button className="px-2 py-1 text-xs bg-success/30 hover:bg-success/50 border border-success/50 rounded text-foreground transition-colors">
                               Send SMS
                             </button>
                           </div>
                         </motion.div>
 
                         <motion.div
-                          className="flex items-center justify-between p-4 rounded-lg bg-blue-500/20 border border-blue-500/30"
+                          className="flex items-center justify-between p-4 rounded-lg bg-info/20 border border-info/30"
                           initial={{ opacity: 0, x: -20 }}
                           animate={isFeature3Hovering ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
                           transition={{ duration: 0.5, delay: 0.2 }}
                         >
                           <div className="flex items-center gap-3">
-                            <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+                            <div className="w-2 h-2 rounded-full bg-info animate-pulse"></div>
                             <span className="text-sm font-medium">Order #1235</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <span className="text-sm text-black">$22.00</span>
-                            <button className="px-2 py-1 text-xs bg-blue-500/30 hover:bg-blue-500/50 border border-blue-500/50 rounded text-black transition-colors">
+                            <span className="text-sm text-foreground">$22.00</span>
+                            <button className="px-2 py-1 text-xs bg-info/30 hover:bg-info/50 border border-info/50 rounded text-foreground transition-colors">
                               Send SMS
                             </button>
                           </div>
                         </motion.div>
 
                         <motion.div
-                          className="flex items-center justify-between p-4 rounded-lg bg-yellow-500/20 border border-yellow-500/30"
+                          className="flex items-center justify-between p-4 rounded-lg bg-warning/20 border border-warning/30"
                           initial={{ opacity: 0, x: -20 }}
                           animate={isFeature3Hovering ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
                           transition={{ duration: 0.5, delay: 0.3 }}
                         >
                           <div className="flex items-center gap-3">
-                            <div className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></div>
+                            <div className="w-2 h-2 rounded-full bg-warning animate-pulse"></div>
                             <span className="text-sm font-medium">Order #1236</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <span className="text-sm text-black">$8.75</span>
-                            <button className="px-2 py-1 text-xs bg-yellow-500/30 hover:bg-yellow-500/50 border border-yellow-500/50 rounded text-black transition-colors">
+                            <span className="text-sm text-foreground">$8.75</span>
+                            <button className="px-2 py-1 text-xs bg-warning/30 hover:bg-warning/50 border border-warning/50 rounded text-foreground transition-colors">
                               Send SMS
                             </button>
                           </div>
@@ -232,7 +232,7 @@ export default function Features() {
                 <div className="flex grow items-center justify-center select-none relative min-h-[300px] p-4">
                   <div className="w-full max-w-[200px]">
                     <motion.div
-                      className="relative rounded-2xl border-4 border-gray-800 bg-black shadow-2xl overflow-hidden"
+                      className="relative rounded-2xl border-4 border-neutral-800 bg-black shadow-2xl overflow-hidden"
                       style={{ aspectRatio: "9/19.5" }}
                       initial={{ rotateY: 0 }}
                       animate={isFeature4Hovering ? { rotateY: [0, 5, -5, 0] } : { rotateY: 0 }}
@@ -242,10 +242,10 @@ export default function Features() {
                       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-4 bg-black rounded-b-xl z-10"></div>
 
                       {/* Phone screen */}
-                      <div className="w-full h-full bg-gradient-to-b from-gray-900 to-black p-2">
+                      <div className="w-full h-full bg-gradient-to-b from-neutral-900 to-black p-2">
                         <div className="mt-4 space-y-2">
                           <motion.div
-                            className="bg-green-500/20 border border-green-500/40 rounded-xl p-2 ml-auto max-w-[85%]"
+                            className="bg-success/20 border border-success/40 rounded-xl p-2 ml-auto max-w-[85%]"
                             initial={{ opacity: 0, x: 20 }}
                             animate={isFeature4Hovering ? { opacity: 1, x: 0 } : { opacity: 0, x: 20 }}
                             transition={{ duration: 0.5, delay: 0.3 }}
@@ -254,7 +254,7 @@ export default function Features() {
                           </motion.div>
 
                           <motion.div
-                            className="bg-green-500/20 border border-green-500/40 rounded-xl p-2 ml-auto max-w-[85%]"
+                            className="bg-success/20 border border-success/40 rounded-xl p-2 ml-auto max-w-[85%]"
                             initial={{ opacity: 0, x: 20 }}
                             animate={isFeature4Hovering ? { opacity: 1, x: 0 } : { opacity: 0, x: 20 }}
                             transition={{ duration: 0.5, delay: 0.6 }}
@@ -263,13 +263,13 @@ export default function Features() {
                           </motion.div>
 
                           <motion.div
-                            className="flex items-center gap-1 text-[10px] text-gray-500 justify-end"
+                            className="flex items-center gap-1 text-[10px] text-neutral-500 justify-end"
                             initial={{ opacity: 0 }}
                             animate={isFeature4Hovering ? { opacity: 1 } : { opacity: 0 }}
                             transition={{ duration: 0.5, delay: 0.9 }}
                           >
                             <span>Delivered</span>
-                            <svg className="w-3 h-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                            <svg className="w-3 h-3 text-success" fill="currentColor" viewBox="0 0 20 20">
                               <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" />
                             </svg>
                           </motion.div>

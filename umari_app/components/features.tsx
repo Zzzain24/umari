@@ -87,8 +87,7 @@ export default function Features() {
                   <h3 className="text-2xl leading-none font-semibold tracking-tight">Easy Menu Creation</h3>
                   <div className="text-md text-muted-foreground flex flex-col gap-2 text-sm">
                     <p className="max-w-[460px]">
-                      Create and customize your menu in minutes. Add items, prices, and photos with an intuitive
-                      interface designed for speed.
+                      Create and customize a menu in minutes with your items and prices. Recieve a shareable link and qr code with each menu you create. 
                     </p>
                   </div>
                 </div>
@@ -97,147 +96,52 @@ export default function Features() {
                     className="relative w-full h-[400px] rounded-xl overflow-hidden"
                     style={{ borderRadius: "20px" }}
                   >
-                    {/* Background Image */}
-                    <div className="absolute inset-0">
-                      <img
-                        src="https://framerusercontent.com/images/UjqUIiBHmIcSH9vos9HlG2BF4bo.png"
-                        alt="Menu Creation Interface"
-                        className="w-full h-full object-cover rounded-xl"
-                      />
-                    </div>
+                    {/* Menu Template Card */}
+                    <div className="absolute inset-0 m-4 bg-white rounded-2xl shadow-xl overflow-hidden">
+                      {/* Background gradient */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-orange-50 via-white to-orange-50"></div>
 
-                    {/* Animated SVG Connecting Lines */}
-                    <motion.div
-                      className="absolute inset-0 flex items-center justify-center"
-                      initial={{ opacity: 0 }}
-                      animate={isCliHovering ? { opacity: 1 } : { opacity: 0 }}
-                      transition={{ duration: 0.5 }}
-                    >
-                      <svg width="100%" height="100%" viewBox="0 0 121 94" className="absolute">
-                        <motion.path
-                          d="M 60.688 1.59 L 60.688 92.449 M 60.688 92.449 L 119.368 92.449 M 60.688 92.449 L 1.414 92.449"
-                          stroke="rgb(255,222,213)"
-                          fill="transparent"
-                          strokeDasharray="2 2"
-                          initial={{ pathLength: 0 }}
-                          animate={isCliHovering ? { pathLength: 1 } : { pathLength: 0 }}
-                          transition={{
-                            duration: 2,
-                            ease: "easeInOut",
-                          }}
-                        />
-                      </svg>
-                      <svg width="100%" height="100%" viewBox="0 0 121 94" className="absolute">
-                        <motion.path
-                          d="M 60.688 92.449 L 60.688 1.59 M 60.688 1.59 L 119.368 1.59 M 60.688 1.59 L 1.414 1.59"
-                          stroke="rgb(255,222,213)"
-                          fill="transparent"
-                          strokeDasharray="2 2"
-                          initial={{ pathLength: 0 }}
-                          animate={isCliHovering ? { pathLength: 1 } : { pathLength: 0 }}
-                          transition={{
-                            duration: 2,
-                            delay: 0.5,
-                            ease: "easeInOut",
-                          }}
-                        />
-                      </svg>
-                    </motion.div>
+                      {/* Content */}
+                      <div className="relative h-full p-2 flex flex-col">
+                        {/* Menu Title */}
+                        <h3 className="text-2xl font-bold text-gray-800 mb-4">
+                          Umari Coffee Cart
+                        </h3>
 
-                    {/* Animated Purple Blur Effect */}
-                    <motion.div
-                      className="absolute top-1/2 left-1/2 w-16 h-16 bg-purple-500 rounded-full blur-[74px] opacity-65 transform -translate-x-1/2 -translate-y-1/2"
-                      initial={{ scale: 1 }}
-                      animate={isCliHovering ? { scale: [1, 1.342, 1, 1.342] } : { scale: 1 }}
-                      transition={{
-                        duration: 3,
-                        ease: "easeInOut",
-                        repeat: isCliHovering ? Number.POSITIVE_INFINITY : 0,
-                        repeatType: "loop",
-                      }}
-                    />
-
-                    {/* Main Content Container with Staggered Animations */}
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="flex items-center gap-8">
-                        {/* Left Column */}
-                        <div className="flex flex-col gap-3">
-                          {["Coffee ☕", "Pastries 🥐", "Smoothies 🥤"].map((item, index) => (
-                            <motion.div
-                              key={`left-${index}`}
-                              className="bg-white rounded px-3 py-2 flex items-center gap-2 text-black text-sm font-medium shadow-sm"
-                              initial={{ opacity: 1, x: 0 }}
-                              animate={isCliHovering ? { x: [-20, 0] } : { x: 0 }}
-                              transition={{
-                                duration: 0.5,
-                                delay: index * 0.1,
-                              }}
-                              whileHover={{ scale: 1.05 }}
+                        {/* Menu Items */}
+                        <div className="flex-1 space-y-3">
+                          {[
+                            { name: "Espresso", price: "$3.50", emoji: "☕" },
+                            { name: "Croissant", price: "$3.00", emoji: "🥐" },
+                            { name: "Avocado Toast", price: "$8.00", emoji: "🥑" },
+                          ].map((item, index) => (
+                            <div
+                              key={index}
+                              className="flex items-center justify-between p-3 rounded-lg bg-white/60 backdrop-blur-sm border border-gray-200/50"
                             >
-                              {item}
-                            </motion.div>
+                              <div className="flex items-center gap-3">
+                                <span className="text-xl">{item.emoji}</span>
+                                <span className="text-sm font-medium text-gray-700">{item.name}</span>
+                              </div>
+                              <span className="text-sm font-semibold text-[#e78a53]">{item.price}</span>
+                            </div>
                           ))}
                         </div>
 
-                        {/* Center Logo */}
-                        <motion.div
-                          className="w-16 h-16 border border-gray-300 rounded-lg overflow-hidden shadow-lg flex items-center justify-center bg-white text-4xl"
-                          initial={{ opacity: 1, scale: 1 }}
-                          animate={isCliHovering ? { scale: [1, 1.1, 1] } : { scale: 1 }}
-                          transition={{ duration: 0.6, ease: "easeOut" }}
-                          whileHover={{ scale: 1.1, rotate: 5 }}
-                        >
-                          🍽️
-                        </motion.div>
-
-                        {/* Right Column */}
-                        <div className="flex flex-col gap-3">
-                          {["Sandwiches 🥪", "Salads 🥗", "Desserts 🍰"].map((item, index) => (
-                            <motion.div
-                              key={`right-${index}`}
-                              className="bg-white rounded px-3 py-2 flex items-center gap-2 text-black text-sm font-medium shadow-sm"
-                              initial={{ opacity: 1, x: 0 }}
-                              animate={isCliHovering ? { x: [20, 0] } : { x: 0 }}
-                              transition={{
-                                duration: 0.5,
-                                delay: index * 0.1,
-                              }}
-                              whileHover={{ scale: 1.05 }}
-                            >
-                              {item}
-                            </motion.div>
-                          ))}
+                        {/* QR Code */}
+                        <div className="mt-4 flex justify-center">
+                          <div className="bg-white p-3 rounded-xl shadow-lg border-2 border-gray-200">
+                            {/* QR Code Image */}
+                            <img
+                              src="/images/qr_code.png"
+                              alt="QR Code"
+                              className="w-16 h-16 rounded"
+                            />
+                            <p className="text-[8px] text-center mt-1 text-gray-500">Scan to Order</p>
+                          </div>
                         </div>
                       </div>
                     </div>
-
-                    {/* Animated Circular Border */}
-                    <motion.div
-                      className="absolute inset-0 flex items-center justify-center"
-                      initial={{ opacity: 0 }}
-                      animate={isCliHovering ? { opacity: 1 } : { opacity: 0 }}
-                      transition={{ duration: 0.5 }}
-                    >
-                      <svg width="350" height="350" viewBox="0 0 350 350" className="opacity-40">
-                        <motion.path
-                          d="M 175 1.159 C 271.01 1.159 348.841 78.99 348.841 175 C 348.841 271.01 271.01 348.841 175 348.841 C 78.99 348.841 1.159 271.01 1.159 175 C 1.159 78.99 78.99 1.159 175 1.159 Z"
-                          stroke="rgba(255, 255, 255, 0.38)"
-                          strokeWidth="1.16"
-                          fill="transparent"
-                          strokeDasharray="4 4"
-                          initial={{ pathLength: 0, rotate: 0 }}
-                          animate={isCliHovering ? { pathLength: 1, rotate: 360 } : { pathLength: 0, rotate: 0 }}
-                          transition={{
-                            pathLength: { duration: 3, ease: "easeInOut" },
-                            rotate: {
-                              duration: 20,
-                              repeat: isCliHovering ? Number.POSITIVE_INFINITY : 0,
-                              ease: "linear",
-                            },
-                          }}
-                        />
-                      </svg>
-                    </motion.div>
                   </div>
                 </div>
               </motion.div>

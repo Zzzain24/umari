@@ -67,13 +67,11 @@ export function FAQSection() {
           {faqs.map((faq, index) => (
             <motion.div
               key={index}
-              className="rounded-2xl border border-secondary/40 bg-secondary p-6 shadow-[0px_2px_0px_0px_rgba(255,255,255,0.1)_inset] transition-all duration-300 hover:border-secondary/60 cursor-pointer"
+              className="rounded-2xl border border-secondary/40 bg-secondary p-6 cursor-pointer"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
               viewport={{ once: true }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
               onClick={() => toggleItem(index)}
               role="button"
               tabIndex={0}
@@ -89,7 +87,7 @@ export function FAQSection() {
                 <h3 className="m-0 font-medium pr-4">{faq.question}</h3>
                 <motion.div
                   animate={{ rotate: openItems.includes(index) ? 180 : 0 }}
-                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                  transition={{ duration: 0.15, ease: "easeInOut" }}
                   className=""
                 >
                   {openItems.includes(index) ? (
@@ -107,9 +105,9 @@ export function FAQSection() {
                     animate={{ opacity: 1, height: "auto", marginTop: 16 }}
                     exit={{ opacity: 0, height: 0, marginTop: 0 }}
                     transition={{
-                      duration: 0.4,
+                      duration: 0.2,
                       ease: "easeInOut",
-                      opacity: { duration: 0.2 },
+                      opacity: { duration: 0.1 },
                     }}
                   >
                     {faq.answer}

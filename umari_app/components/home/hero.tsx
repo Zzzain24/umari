@@ -72,8 +72,8 @@ export default function Hero() {
               {/* Get started button */}
               <div className="flex items-center justify-center">
                 <a href="/docs/components/theme-toggle-animations">
-                  <div className="group cursor-pointer border border-border bg-card gap-2 h-[60px] flex items-center p-[10px] rounded-full">
-                    <div className="border border-border bg-primary h-[40px] rounded-full flex items-center justify-center text-primary-foreground">
+                  <div className="group cursor-pointer border-2 border-black bg-secondary gap-2 h-[60px] flex items-center p-[10px] rounded-full">
+                    <div className="border-2 border-black bg-primary h-[40px] rounded-full flex items-center justify-center text-black">
                       <p className="font-medium tracking-tight mr-3 ml-3 flex items-center gap-2 justify-center text-base">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -81,7 +81,7 @@ export default function Hero() {
                           height="18"
                           viewBox="0 0 24 24"
                           fill="none"
-                          stroke="currentColor"
+                          stroke="black"
                           strokeWidth="2"
                           strokeLinecap="round"
                           strokeLinejoin="round"
@@ -94,14 +94,14 @@ export default function Hero() {
                         Get started
                       </p>
                     </div>
-                    <div className="text-muted-foreground group-hover:ml-4 ease-in-out transition-all size-[24px] flex items-center justify-center rounded-full border-2 border-border">
+                    <div className="text-black group-hover:ml-4 ease-in-out transition-all size-[24px] flex items-center justify-center rounded-full border-2 border-black">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="14"
                         height="14"
                         viewBox="0 0 24 24"
                         fill="none"
-                        stroke="currentColor"
+                        stroke="black"
                         strokeWidth="2"
                         strokeLinecap="round"
                         strokeLinejoin="round"

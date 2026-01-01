@@ -62,8 +62,8 @@ export default function Features() {
                 transition={{ duration: 0.5, delay: 0.5 }}
                 whileHover={{
                   scale: 1.02,
-                  borderColor: "rgba(231, 138, 83, 0.6)",
-                  boxShadow: "0 0 30px rgba(231, 138, 83, 0.2)",
+                  borderColor: "rgba(100, 120, 130, 0.6)",
+                  boxShadow: "0 0 30px rgba(100, 120, 130, 0.2)",
                 }}
                 style={{ transition: "all 0s ease-in-out" }}
               >
@@ -139,8 +139,8 @@ export default function Features() {
                 transition={{ duration: 0.5, delay: 1.0 }}
                 whileHover={{
                   scale: 1.02,
-                  borderColor: "rgba(231, 138, 83, 0.5)",
-                  boxShadow: "0 0 30px rgba(231, 138, 83, 0.2)",
+                  borderColor: "rgba(100, 120, 130, 0.6)",
+                  boxShadow: "0 0 30px rgba(100, 120, 130, 0.2)",
                 }}
                 style={{ transition: "all 0s ease-in-out" }}
               >
@@ -224,8 +224,8 @@ export default function Features() {
                 transition={{ duration: 0.5, delay: 1.0 }}
                 whileHover={{
                   scale: 1.02,
-                  borderColor: "rgba(231, 138, 83, 0.5)",
-                  boxShadow: "0 0 30px rgba(231, 138, 83, 0.2)",
+                  borderColor: "rgba(100, 120, 130, 0.6)",
+                  boxShadow: "0 0 30px rgba(100, 120, 130, 0.2)",
                 }}
                 style={{ transition: "all 0s ease-in-out" }}
               >

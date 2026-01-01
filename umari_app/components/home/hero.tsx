@@ -26,8 +26,13 @@ export default function Hero() {
               transition={{ duration: 0.5, delay: 0.1 }}
               className="mb-8"
             >
-              <h1 id="main-title" className="text-4xl font-bold tracking-tight text-foreground sm:text-6xl lg:text-7xl">
-                Umari <br />
+              <h1 id="main-title" className="text-4xl font-bold tracking-tight text-foreground sm:text-6xl lg:text-7xl flex items-center justify-center">
+                <img 
+                  src="/images/umari-logo.png" 
+                  alt="Umari Logo" 
+                  className="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 object-contain block -mr-2"
+                />
+                <span>Umari</span>
               </h1>
             </motion.div>
 

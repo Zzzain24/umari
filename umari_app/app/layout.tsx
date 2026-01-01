@@ -7,6 +7,10 @@ export const metadata: Metadata = {
   description:
     "Create beautiful menus, accept orders, and get paid instantly. Perfect for coffee carts, food vendors, and small businesses.",
   generator: "v0.app",
+  icons: {
+    icon: "/images/umari-logo.png",
+    apple: "/images/umari-logo.png",
+  },
 }
 
 export default function RootLayout({

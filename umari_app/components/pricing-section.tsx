@@ -15,6 +15,7 @@ const pricingPlans = [
   },
   {
     name: "Pro",
+    id: "pro-fixed",
     monthlyPrice: 25,
     annualPrice: 20,
     description: "For small businesses that want to work smarter",
@@ -29,10 +30,11 @@ const pricingPlans = [
   },
   {
     name: "Pro",
+    id: "pro-rate",
     monthlyPercent: 7,
     annualPercent: 5,
     isPercentage: true,
-    description: "Includes everything in Pro at a discounted price",
+    description: "For small businesses that want to work smarter",
     features: [
       "Ulimited menu creations",
       "Access to payment processing",
@@ -111,7 +113,7 @@ export function PricingSection() {
         <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
           {pricingPlans.map((plan, index) => (
             <motion.div
-              key={plan.name}
+              key={plan.id || plan.name + index}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -141,7 +143,7 @@ export function PricingSection() {
                       <span className="text-4xl font-bold text-white">
                         {isAnnual ? plan.annualPercent : plan.monthlyPercent}%
                       </span>
-                      <span className="text-white/60 text-lg">{isAnnual ? "/transaction" : "/transaction"}</span>
+                      <span className="text-white/60 text-lg">/transaction</span>
                     </>
                   ) : (
                     <>

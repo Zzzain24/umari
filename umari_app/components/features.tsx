@@ -97,12 +97,12 @@ export default function Features() {
                     style={{ borderRadius: "20px" }}
                   >
                     {/* Menu Template Card */}
-                    <div className="absolute inset-0 m-4 bg-white rounded-2xl shadow-xl overflow-hidden">
+                    <div className="absolute inset-0 m-1 bg-white rounded-2xl shadow-xl overflow-hidden">
                       {/* Background gradient */}
                       <div className="absolute inset-0 bg-gradient-to-br from-orange-50 via-white to-orange-50"></div>
 
                       {/* Content */}
-                      <div className="relative h-full p-2 flex flex-col">
+                      <div className="relative h-full p-6 flex flex-col">
                         {/* Menu Title */}
                         <h3 className="text-2xl font-bold text-gray-800 mb-4">
                           Umari Coffee Cart
@@ -111,7 +111,7 @@ export default function Features() {
                         {/* Menu Items */}
                         <div className="flex-1 space-y-3">
                           {[
-                            { name: "Espresso", price: "$3.50", emoji: "☕" },
+                            { name: "Latte", price: "$8.00", emoji: "☕️" },
                             { name: "Croissant", price: "$3.00", emoji: "🥐" },
                             { name: "Avocado Toast", price: "$8.00", emoji: "🥑" },
                           ].map((item, index) => (

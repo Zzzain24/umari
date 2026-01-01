@@ -8,42 +8,39 @@ const pricingPlans = [
   {
     name: "Starter",
     price: "Free",
-    description: "Perfect for getting started with v0",
-    features: ["5 components per month", "Basic templates", "Community support", "Standard components"],
+    description: "Perfect for getting started with Umari and menu creation",
+    features: ["5 free menu generations", "No access to payment processing", "No acecss to order management", "Limited support"],
     popular: false,
     cta: "Get Started",
   },
   {
     name: "Pro",
-    monthlyPrice: 29,
-    annualPrice: 24,
-    description: "For professionals building serious projects",
+    monthlyPrice: 25,
+    annualPrice: 20,
+    description: "For small businesses that want to work smarter",
     features: [
-      "Unlimited components",
-      "Premium templates",
+      "Ulimited menu creations",
+      "Access to payment processing",
+      "Access to order management",
       "Priority support",
-      "Advanced animations",
-      "Custom themes",
-      "Export to GitHub",
     ],
     popular: true,
     cta: "Start Free Trial",
   },
   {
-    name: "Team",
-    monthlyPrice: 99,
-    annualPrice: 79,
-    description: "For teams collaborating on projects",
+    name: "Pro",
+    monthlyPercent: 7,
+    annualPercent: 5,
+    isPercentage: true,
+    description: "Includes everything in Pro at a discounted price",
     features: [
-      "Everything in Pro",
-      "Team collaboration",
-      "Shared component library",
-      "Advanced analytics",
-      "Custom integrations",
-      "Dedicated support",
+      "Ulimited menu creations",
+      "Access to payment processing",
+      "Access to order management",
+      "Priority support",
     ],
     popular: false,
-    cta: "Contact Sales",
+    cta: "Start Free Trial",
   },
 ]
 
@@ -139,6 +136,13 @@ export function PricingSection() {
                 <div className="flex items-baseline justify-center gap-1 mb-2">
                   {plan.price ? (
                     <span className="text-4xl font-bold text-white">{plan.price}</span>
+                  ) : plan.isPercentage ? (
+                    <>
+                      <span className="text-4xl font-bold text-white">
+                        {isAnnual ? plan.annualPercent : plan.monthlyPercent}%
+                      </span>
+                      <span className="text-white/60 text-lg">{isAnnual ? "/transaction" : "/transaction"}</span>
+                    </>
                   ) : (
                     <>
                       <span className="text-4xl font-bold text-white">
@@ -184,13 +188,14 @@ export function PricingSection() {
           className="text-center mt-16"
         >
           <p className="text-white/60 mb-4">Need a custom solution? We're here to help.</p>
-          <motion.button
+          <motion.a
+            href="mailto:umarigroup@gmail.com"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="text-[#e78a53] hover:text-[#e78a53]/80 font-medium transition-colors"
+            className="inline-block text-[#e78a53] hover:text-[#e78a53]/80 font-medium transition-colors"
           >
             Contact our sales team →
-          </motion.button>
+          </motion.a>
         </motion.div>
       </div>
     </section>

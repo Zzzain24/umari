@@ -43,7 +43,7 @@ export default function Hero() {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="mx-auto mb-12 max-w-2xl text-lg text-muted-foreground"
             >
-              Create beautiful menus, accept orders, and get paid instantly. Perfect for coffee carts, food vendors, and
+              Create simple menus, accept orders, and get paid instantly. Perfect for coffee carts, food vendors, and
               small businesses.
             </motion.p>
 

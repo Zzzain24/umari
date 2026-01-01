@@ -5,7 +5,7 @@ import "./globals.css"
 export const metadata: Metadata = {
   title: "Umari - Menu & Orders, Simplified",
   description:
-    "Create beautiful menus, accept orders, and get paid instantly. Perfect for coffee carts, food vendors, and small businesses.",
+    "Create simple menus, accept orders, and get paid instantly. Perfect for coffee carts, food vendors, and small businesses.",
   generator: "v0.app",
   icons: {
     icon: "/images/umari-logo.png",

@@ -144,7 +144,7 @@ export default function Home() {
 
           <a
             href="/signup"
-            className="rounded-md font-bold relative cursor-pointer hover:-translate-y-0.5 transition duration-200 inline-block text-center bg-gradient-to-b from-primary to-primary/80 text-primary-foreground shadow-[0px_2px_0px_0px_rgba(255,255,255,0.3)_inset] px-4 py-2 text-sm"
+            className="rounded-md font-bold relative cursor-pointer hover:-translate-y-0.5 transition duration-200 inline-block text-center bg-primary text-black px-4 py-2 text-sm"
           >
             Sign Up
           </a>
@@ -209,7 +209,7 @@ export default function Home() {
                 </a>
                 <a
                   href="/signup"
-                  className="px-4 py-3 text-lg font-bold text-center bg-gradient-to-b from-primary to-primary/80 text-primary-foreground rounded-lg shadow-lg hover:-translate-y-0.5 transition-all duration-200"
+                  className="px-4 py-3 text-lg font-bold text-center bg-primary text-black rounded-lg hover:-translate-y-0.5 transition-all duration-200"
                 >
                   Sign Up
                 </a>

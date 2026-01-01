@@ -13,23 +13,20 @@ export function FAQSection() {
 
   const faqs = [
     {
-      question: "What is Umari simply?",
-      answer:
-        "It’s a simple way for businesses to let customers view a menu, place an order, and pay all from their phone, no app required.",
-    },
-    {
-      question: "Do I or my customers need to download an app?",
-      answer:
-        "No. Customers can simply scan a QR code or use a shareable link to view your menu and place an order.",
-    },
-    {
-      question: "How do I get paid?",
-      answer:
-        "Payments are processed securely through Stripe and deposited directly into your bank account. No waiting, no manual transfers",
+      question: "What is Umari?",
+      answer: "It’s a simple way for businesses to let customers view a menu, place an order, and pay all from their phone, no app required.",
     },
     {
       question: "Who is Umari for?",
-      answer: "No. It works great for pop-ups, coffee carts, bakeries, markets, and any small business selling in person."
+      answer: "Umari is great for pop-ups, coffee carts, bakeries, markets, and any small business selling in person."
+    },
+    {
+      question: "Do I or my customers need to download an app?",
+      answer:"No. Customers can simply scan a QR code or use a shareable link to view your menu and place an order.",
+    },
+    {
+      question: "How do I get paid?",
+      answer:"Payments are processed securely through Stripe and deposited directly into your bank account. No waiting, no manual transfers",
     },
   ]
 

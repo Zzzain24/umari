@@ -88,7 +88,7 @@ export default function Features() {
                           {[
                             { name: "Latte", price: "$8.00", emoji: "☕️" },
                             { name: "Croissant", price: "$3.00", emoji: "🥐" },
-                            { name: "Avocado Toast", price: "$8.00", emoji: "🥑" },
+                            { name: "Avocado Toast", price: "$6.00", emoji: "🥑" },
                           ].map((item, index) => (
                             <div
                               key={index}

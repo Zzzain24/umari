@@ -2,7 +2,6 @@
 
 import type React from "react"
 
-import { FollowerPointerCard } from "./ui/following-pointer"
 import { motion, useInView } from "framer-motion"
 import { useEffect, useRef, useState } from "react"
 import { geist } from "@/lib/fonts"
@@ -42,16 +41,8 @@ export default function Features() {
         >
           Features
         </h2>
-        <FollowerPointerCard
-          title={
-            <div className="flex items-center gap-2">
-              <span>✨</span>
-              <span>Interactive Features</span>
-            </div>
-          }
-        >
-          <div className="cursor-none">
-            <div className="grid grid-cols-12 gap-4 justify-center">
+        <div>
+          <div className="grid grid-cols-12 gap-4 justify-center">
               <motion.div
                 className="group border-secondary/40 text-card-foreground relative col-span-12 flex flex-col overflow-hidden rounded-xl border-2 p-6 shadow-xl transition-all ease-in-out md:col-span-6 xl:col-span-6 xl:col-start-1"
                 onMouseEnter={() => setIsCliHovering(true)}
@@ -154,10 +145,10 @@ export default function Features() {
                 </div>
                 <div className="flex grow items-center justify-center select-none relative min-h-[400px] p-4">
                   <div className="w-full max-w-lg">
-                    <div className="relative rounded-2xl border border-white/10 bg-black/20 dark:bg-white/5 backdrop-blur-sm">
+                    <div className="relative rounded-2xl border border-white/10 bg-black/5 dark:bg-white/5 backdrop-blur-sm">
                       <div className="p-6 space-y-4">
                         <motion.div
-                          className="flex items-center justify-between p-4 rounded-lg bg-green-500/20 border border-green-500/30"
+                          className="flex items-center justify-between p-4 rounded-lg bg-green-500/10 border border-green-500/30"
                           initial={{ opacity: 0, x: -20 }}
                           animate={isFeature3Hovering ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
                           transition={{ duration: 0.5, delay: 0.1 }}
@@ -167,8 +158,8 @@ export default function Features() {
                             <span className="text-sm font-medium">Order #1234</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <span className="text-sm text-green-400">$15.50</span>
-                            <button className="px-2 py-1 text-xs bg-green-500/30 hover:bg-green-500/50 border border-green-500/50 rounded text-green-200 transition-colors">
+                            <span className="text-sm text-black">$15.50</span>
+                            <button className="px-2 py-1 text-xs bg-green-500/30 hover:bg-green-500/50 border border-green-500/50 rounded text-black transition-colors">
                               Send SMS
                             </button>
                           </div>
@@ -185,8 +176,8 @@ export default function Features() {
                             <span className="text-sm font-medium">Order #1235</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <span className="text-sm text-blue-400">$22.00</span>
-                            <button className="px-2 py-1 text-xs bg-blue-500/30 hover:bg-blue-500/50 border border-blue-500/50 rounded text-blue-200 transition-colors">
+                            <span className="text-sm text-black">$22.00</span>
+                            <button className="px-2 py-1 text-xs bg-blue-500/30 hover:bg-blue-500/50 border border-blue-500/50 rounded text-black transition-colors">
                               Send SMS
                             </button>
                           </div>
@@ -203,8 +194,8 @@ export default function Features() {
                             <span className="text-sm font-medium">Order #1236</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <span className="text-sm text-yellow-400">$8.75</span>
-                            <button className="px-2 py-1 text-xs bg-yellow-500/30 hover:bg-yellow-500/50 border border-yellow-500/50 rounded text-yellow-200 transition-colors">
+                            <span className="text-sm text-black">$8.75</span>
+                            <button className="px-2 py-1 text-xs bg-yellow-500/30 hover:bg-yellow-500/50 border border-yellow-500/50 rounded text-black transition-colors">
                               Send SMS
                             </button>
                           </div>
@@ -290,7 +281,6 @@ export default function Features() {
               </motion.div>
             </div>
           </div>
-        </FollowerPointerCard>
       </motion.div>
     </section>
   )

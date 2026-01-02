@@ -14,11 +14,11 @@ export function FAQSection() {
   const faqs = [
     {
       question: "What is Umari?",
-      answer: "It’s a simple way for businesses to let customers view a menu, place an order, and pay all from their phone, no app required.",
+      answer: "It's a simple way for businesses to let customers view a menu, place an order, and pay all from their phone, no app required.",
     },
     {
       question: "Who is Umari for?",
-      answer: "Umari is great for pop-ups, coffee carts, bakeries, markets, and any small business selling in person."
+      answer: "Umari is great for pop-ups, coffee carts, bakeries, markets, and any small business selling in person.",
     },
     {
       question: "Do I or my customers need to download an app?",
@@ -121,3 +121,4 @@ export function FAQSection() {
     </section>
   )
 }
+

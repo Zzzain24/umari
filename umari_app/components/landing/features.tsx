@@ -369,7 +369,7 @@ export default function Features() {
                       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-4 bg-black rounded-b-xl z-10"></div>
 
                       {/* Phone screen */}
-                      <div className="w-full h-full bg-gradient-to-b from-neutral-900 to-black p-2">
+                      <div className="w-full h-full bg-gradient-to-b from-blue-900 to-blue-950 p-2">
                         <div className="mt-4 space-y-2">
                           <motion.div
                             className="bg-success/20 border border-success/40 rounded-xl p-2 ml-auto max-w-[85%]"
@@ -412,3 +412,4 @@ export default function Features() {
     </section>
   )
 }
+

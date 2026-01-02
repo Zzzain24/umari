@@ -13,6 +13,8 @@ export default function Features() {
   const [isCliHovering, setIsCliHovering] = useState(false)
   const [isFeature3Hovering, setIsFeature3Hovering] = useState(false)
   const [hasFeature3Shown, setHasFeature3Shown] = useState(false)
+  const [isCartHovering, setIsCartHovering] = useState(false)
+  const [hasCartShown, setHasCartShown] = useState(false)
   const [isFeature4Hovering, setIsFeature4Hovering] = useState(false)
   const [hasFeature4Shown, setHasFeature4Shown] = useState(false)
   const [inputValue, setInputValue] = useState("")
@@ -44,7 +46,7 @@ export default function Features() {
           Features
         </h2>
         <div>
-          <div className="grid grid-cols-12 gap-4 justify-center">
+            <div className="grid grid-cols-12 gap-4 justify-center">
               <motion.div
                 className="group border-secondary/40 text-card-foreground relative col-span-12 flex flex-col overflow-hidden rounded-xl border-2 p-6 shadow-xl transition-all ease-in-out md:col-span-6 xl:col-span-6 xl:col-start-1"
                 onMouseEnter={() => setIsCliHovering(true)}
@@ -212,7 +214,124 @@ export default function Features() {
               </motion.div>
 
               <motion.div
-                className="group border-secondary/40 text-card-foreground relative col-span-12 flex flex-col overflow-hidden rounded-xl border-2 p-6 shadow-xl transition-all ease-in-out md:col-span-6 xl:col-span-6 xl:col-start-4"
+                className="group border-secondary/40 text-card-foreground relative col-span-12 flex flex-col overflow-hidden rounded-xl border-2 p-6 shadow-xl transition-all ease-in-out md:col-span-6 xl:col-span-6 xl:col-start-1"
+                onMouseEnter={() => {
+                  setIsCartHovering(true)
+                  setHasCartShown(true)
+                }}
+                onMouseLeave={() => setIsCartHovering(false)}
+                initial={{ opacity: 0, y: 50 }}
+                animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+                transition={{ duration: 0.5, delay: 1.5 }}
+                whileHover={{
+                  scale: 1.02,
+                  borderColor: "rgba(100, 120, 130, 0.6)",
+                  boxShadow: "0 0 30px rgba(100, 120, 130, 0.2)",
+                  transition: { duration: 0.2 }
+                }}
+              >
+                <div className="flex flex-col gap-4">
+                  <h3 className="text-2xl leading-none font-semibold tracking-tight">
+                    Simple Cart & Checkout
+                  </h3>
+                  <div className="text-md text-muted-foreground flex flex-col gap-2 text-sm">
+                    <p className="max-w-[460px]">
+                      Customers can easily add items, adjust quantities, and checkout with just a few taps. Seamless ordering experience.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex grow items-center justify-center select-none relative min-h-[400px] p-4">
+                  <div className="w-full max-w-md">
+                    <div className="relative rounded-2xl border-2 border-neutral-200 bg-background shadow-xl overflow-hidden">
+                      {/* Cart Header */}
+                      <div className="bg-primary p-4 flex items-center justify-between">
+                        <h4 className="text-lg font-bold text-foreground">Your Cart</h4>
+                        <div className="bg-foreground text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
+                          3
+                        </div>
+                      </div>
+
+                      {/* Cart Items */}
+                      <div className="p-4 space-y-3">
+                        {/* Item 1 */}
+                        <motion.div
+                          className="flex items-center justify-between p-3 rounded-lg bg-card border border-neutral-200"
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={hasCartShown ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
+                          transition={{ duration: 0.4, delay: 0.1 }}
+                        >
+                          <div className="flex items-center gap-3 flex-1">
+                            <div className="text-2xl">☕️</div>
+                            <div className="flex-1">
+                              <p className="text-sm font-medium text-foreground">Latte</p>
+                              <p className="text-xs text-muted-foreground">$8.00</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button className="w-6 h-6 rounded-full bg-neutral-200 hover:bg-neutral-300 flex items-center justify-center text-xs font-bold">
+                              -
+                            </button>
+                            <span className="text-sm font-medium w-6 text-center">2</span>
+                            <button className="w-6 h-6 rounded-full bg-primary hover:bg-primary/80 flex items-center justify-center text-xs font-bold">
+                              +
+                            </button>
+                          </div>
+                        </motion.div>
+
+                        {/* Item 2 */}
+                        <motion.div
+                          className="flex items-center justify-between p-3 rounded-lg bg-card border border-neutral-200"
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={hasCartShown ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
+                          transition={{ duration: 0.4, delay: 0.2 }}
+                        >
+                          <div className="flex items-center gap-3 flex-1">
+                            <div className="text-2xl">🥐</div>
+                            <div className="flex-1">
+                              <p className="text-sm font-medium text-foreground">Croissant</p>
+                              <p className="text-xs text-muted-foreground">$3.00</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button className="w-6 h-6 rounded-full bg-neutral-200 hover:bg-neutral-300 flex items-center justify-center text-xs font-bold">
+                              -
+                            </button>
+                            <span className="text-sm font-medium w-6 text-center">1</span>
+                            <button className="w-6 h-6 rounded-full bg-primary hover:bg-primary/80 flex items-center justify-center text-xs font-bold">
+                              +
+                            </button>
+                          </div>
+                        </motion.div>
+
+                        {/* Total */}
+                        <motion.div
+                          className="pt-3 border-t-2 border-neutral-200 flex items-center justify-between"
+                          initial={{ opacity: 0 }}
+                          animate={hasCartShown ? { opacity: 1 } : { opacity: 0 }}
+                          transition={{ duration: 0.4, delay: 0.3 }}
+                        >
+                          <span className="text-base font-bold text-foreground">Total</span>
+                          <span className="text-lg font-bold text-primary">$19.00</span>
+                        </motion.div>
+
+                        {/* Continue Button */}
+                        <motion.button
+                          className="w-full bg-primary hover:bg-primary/90 text-foreground font-bold py-3 rounded-lg transition-colors mt-2"
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={hasCartShown ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+                          transition={{ duration: 0.4, delay: 0.4 }}
+                        >
+                          Continue to Checkout →
+                        </motion.button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+              <motion.div
+                className="group border-secondary/40 text-card-foreground relative col-span-12 flex flex-col overflow-hidden rounded-xl border-2 p-6 shadow-xl transition-all ease-in-out md:col-span-6 xl:col-span-6 xl:col-start-7"
                 onMouseEnter={() => {
                   setIsFeature4Hovering(true)
                   setHasFeature4Shown(true)
@@ -220,13 +339,13 @@ export default function Features() {
                 onMouseLeave={() => setIsFeature4Hovering(false)}
                 initial={{ opacity: 0, y: 50 }}
                 animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-                transition={{ duration: 0.5, delay: 1.0 }}
+                transition={{ duration: 0.5, delay: 2.0 }}
                 whileHover={{
                   scale: 1.02,
                   borderColor: "rgba(100, 120, 130, 0.6)",
                   boxShadow: "0 0 30px rgba(100, 120, 130, 0.2)",
+                  transition: { duration: 0.2 }
                 }}
-                style={{ transition: "all 0s ease-in-out" }}
               >
                 <div className="flex flex-col gap-4">
                   <h3 className="text-2xl leading-none font-semibold tracking-tight">SMS Order Notifications</h3>

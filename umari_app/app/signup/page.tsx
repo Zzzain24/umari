@@ -72,7 +72,7 @@ export default function SignupPage() {
             </div>
           </Link>
           <h1 className="text-3xl font-bold text-foreground mb-2">Create account</h1>
-          <p className="text-muted-foreground">Join thousands of developers building with v0</p>
+          <p className="text-muted-foreground">Increase your productivity with Umari</p>
         </div>
 
         {/* Signup Form */}

@@ -149,7 +149,7 @@ export default function LoginPage() {
           <div className="mt-6 grid grid-cols-1">
             <Button
               variant="outline"
-              className="bg-background border-border text-foreground hover:bg-accent hover:text-accent-foreground transition-all duration-200 group"
+              className="bg-secondary border-secondary/40 text-secondary-foreground hover:bg-secondary/90 hover:border-secondary/60 hover:text-white transition-all duration-200 group"
             >
               <svg
                 className="w-5 h-5 mr-2 transition-colors duration-200"

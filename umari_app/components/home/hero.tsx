@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion"
 import { useState, useEffect } from "react"
+import Link from "next/link"
 
 export default function Hero() {
   const [mounted, setMounted] = useState(false)
@@ -71,7 +72,7 @@ export default function Hero() {
 
               {/* Get started button */}
               <div className="flex items-center justify-center">
-                <a href="/docs/components/theme-toggle-animations">
+                <Link href="/signup">
                   <div className="group cursor-pointer border-2 border-foreground bg-secondary gap-2 h-[60px] flex items-center p-[10px] rounded-full">
                     <div className="border-2 border-foreground bg-primary h-[40px] rounded-full flex items-center justify-center text-foreground">
                       <p className="font-medium tracking-tight mr-3 ml-3 flex items-center gap-2 justify-center text-base">
@@ -112,7 +113,7 @@ export default function Hero() {
                       </svg>
                     </div>
                   </div>
-                </a>
+                </Link>
               </div>
             </motion.div>
           </div>

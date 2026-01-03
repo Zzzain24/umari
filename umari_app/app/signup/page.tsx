@@ -5,9 +5,11 @@ import type React from "react"
 import { useState } from "react"
 import { motion } from "framer-motion"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { createClient } from "@/lib/supabase/client"
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
@@ -17,6 +19,9 @@ export default function SignupPage() {
     confirmPassword: "",
   })
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
+  const supabase = createClient()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({
@@ -27,15 +32,55 @@ export default function SignupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError(null)
+    
     if (formData.password !== formData.confirmPassword) {
-      console.log("[v0] Password mismatch")
+      setError("Passwords don't match")
       return
     }
+
+    if (formData.password.length < 6) {
+      setError("Password must be at least 6 characters")
+      return
+    }
+
     setIsLoading(true)
-    // Simulate signup process
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    setIsLoading(false)
-    console.log("[v0] Signup attempt:", formData)
+    
+    try {
+      const { error } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          data: {
+            name: formData.name,
+          },
+        },
+      })
+
+      if (error) throw error
+
+      // Redirect to home page after successful signup
+      router.push('/home')
+      router.refresh()
+    } catch (error: any) {
+      setError(error.message || 'An error occurred during sign up')
+      setIsLoading(false)
+    }
+  }
+
+  const handleGoogleSignIn = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${location.origin}/auth/callback`,
+        },
+      })
+
+      if (error) throw error
+    } catch (error: any) {
+      setError(error.message || 'An error occurred during Google sign in')
+    }
   }
 
   return (
@@ -166,6 +211,12 @@ export default function SignupPage() {
               </label>
             </div>
 
+            {error && (
+              <div className="bg-destructive/10 border border-destructive/20 text-destructive text-sm p-3 rounded-lg">
+                {error}
+              </div>
+            )}
+
             <Button
               type="submit"
               disabled={isLoading}
@@ -204,6 +255,8 @@ export default function SignupPage() {
           <div className="mt-6 grid grid-cols-1">
             <Button
               variant="outline"
+              onClick={handleGoogleSignIn}
+              disabled={isLoading}
               className="bg-secondary border-secondary/40 text-secondary-foreground hover:bg-secondary/90 hover:border-secondary/60 hover:text-white transition-all duration-200 group"
             >
               <svg

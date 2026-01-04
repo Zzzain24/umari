@@ -3,10 +3,12 @@
 import type React from "react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
+import { StickyFooter } from "@/components/landing/sticky-footer"
 
 export function HomeContent() {
   return (
-    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pb-36">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -131,6 +133,10 @@ export function HomeContent() {
         </motion.div>
       </motion.div>
     </main>
+
+      {/* Sticky Footer */}
+      <StickyFooter />
+    </>
   )
 }
 

@@ -46,7 +46,11 @@ const pricingPlans = [
   },
 ]
 
-export function PricingSection() {
+interface PricingSectionProps {
+  showCTA?: boolean
+}
+
+export function PricingSection({ showCTA = true }: PricingSectionProps) {
   const [isAnnual, setIsAnnual] = useState(false)
 
   return (
@@ -166,39 +170,43 @@ export function PricingSection() {
                 ))}
               </ul>
 
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className={`w-full py-3 px-6 rounded-lg font-medium transition-all duration-200 ${
-                  plan.popular
-                    ? "bg-gradient-to-r from-primary to-primary/80 text-white shadow-lg shadow-primary/25 hover:shadow-primary/40"
-                    : "bg-neutral-200 text-foreground border border-neutral-300 hover:bg-neutral-300"
-                }`}
-              >
-                {plan.cta}
-              </motion.button>
+              {showCTA && (
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className={`w-full py-3 px-6 rounded-lg font-medium transition-all duration-200 ${
+                    plan.popular
+                      ? "bg-gradient-to-r from-primary to-primary/80 text-white shadow-lg shadow-primary/25 hover:shadow-primary/40"
+                      : "bg-neutral-200 text-foreground border border-neutral-300 hover:bg-neutral-300"
+                  }`}
+                >
+                  {plan.cta}
+                </motion.button>
+              )}
             </motion.div>
           ))}
         </div>
 
         {/* Bottom CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="text-center mt-16"
-        >
-          <p className="text-foreground/60 mb-4">Need a custom solution? We're here to help.</p>
-          <motion.a
-            href="mailto:umarigroup@gmail.com"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="inline-block text-primary hover:text-primary/80 font-medium transition-colors"
+        {showCTA && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="text-center mt-16"
           >
-            Contact our sales team →
-          </motion.a>
-        </motion.div>
+            <p className="text-foreground/60 mb-4">Need a custom solution? We're here to help.</p>
+            <motion.a
+              href="mailto:umarigroup@gmail.com"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="inline-block text-primary hover:text-primary/80 font-medium transition-colors"
+            >
+              Contact our sales team →
+            </motion.a>
+          </motion.div>
+        )}
       </div>
     </section>
   )

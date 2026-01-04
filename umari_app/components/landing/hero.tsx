@@ -4,7 +4,11 @@ import { motion } from "framer-motion"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 
-export default function Hero() {
+interface HeroProps {
+  showCTA?: boolean
+}
+
+export default function Hero({ showCTA = true }: HeroProps) {
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -71,50 +75,52 @@ export default function Hero() {
               </svg>
 
               {/* Get started button */}
-              <div className="flex items-center justify-center">
-                <Link href="/signup">
-                  <div className="group cursor-pointer border-2 border-foreground bg-secondary gap-2 h-[60px] flex items-center p-[10px] rounded-full">
-                    <div className="border-2 border-foreground bg-primary h-[40px] rounded-full flex items-center justify-center text-foreground">
-                      <p className="font-medium tracking-tight mr-3 ml-3 flex items-center gap-2 justify-center text-base">
+              {showCTA && (
+                <div className="flex items-center justify-center">
+                  <Link href="/signup">
+                    <div className="group cursor-pointer border-2 border-foreground bg-secondary gap-2 h-[60px] flex items-center p-[10px] rounded-full">
+                      <div className="border-2 border-foreground bg-primary h-[40px] rounded-full flex items-center justify-center text-foreground">
+                        <p className="font-medium tracking-tight mr-3 ml-3 flex items-center gap-2 justify-center text-base">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="18"
+                            height="18"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="lucide lucide-globe animate-spin"
+                          >
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
+                            <path d="m12 5 7 7-7 7"></path>
+                          </svg>
+                          Get started
+                        </p>
+                      </div>
+                      <div className="text-foreground group-hover:ml-4 ease-in-out transition-all size-[24px] flex items-center justify-center rounded-full border-2 border-foreground">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
-                          width="18"
-                          height="18"
+                          width="14"
+                          height="14"
                           viewBox="0 0 24 24"
                           fill="none"
                           stroke="currentColor"
                           strokeWidth="2"
                           strokeLinecap="round"
                           strokeLinejoin="round"
-                          className="lucide lucide-globe animate-spin"
+                          className="lucide lucide-arrow-right group-hover:rotate-180 ease-in-out transition-all"
                         >
-                          <circle cx="12" cy="12" r="10"></circle>
-                          <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
+                          <path d="M5 12h14"></path>
                           <path d="m12 5 7 7-7 7"></path>
                         </svg>
-                        Get started
-                      </p>
+                      </div>
                     </div>
-                    <div className="text-foreground group-hover:ml-4 ease-in-out transition-all size-[24px] flex items-center justify-center rounded-full border-2 border-foreground">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="lucide lucide-arrow-right group-hover:rotate-180 ease-in-out transition-all"
-                      >
-                        <path d="M5 12h14"></path>
-                        <path d="m12 5 7 7-7 7"></path>
-                      </svg>
-                    </div>
-                  </div>
-                </Link>
-              </div>
+                  </Link>
+                </div>
+              )}
             </motion.div>
           </div>
         </div>

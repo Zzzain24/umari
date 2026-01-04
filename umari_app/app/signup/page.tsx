@@ -40,8 +40,17 @@ export default function SignupPage() {
       return
     }
 
-    if (formData.password.length < 6) {
-      setError("Password must be at least 6 characters")
+    if (formData.password.length < 8) {
+      setError("Password must be at least 8 characters")
+      return
+    }
+
+    // Check if password contains both letters and digits
+    const hasLetters = /[a-zA-Z]/.test(formData.password)
+    const hasDigits = /\d/.test(formData.password)
+    
+    if (!hasLetters || !hasDigits) {
+      setError("Password must contain both letters and numbers")
       return
     }
 

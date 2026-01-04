@@ -51,6 +51,7 @@ export default function SignupPage() {
         email: formData.email,
         password: formData.password,
         options: {
+          emailRedirectTo: `${location.origin}/auth/callback?next=/home`,
           data: {
             name: formData.name,
           },
@@ -59,8 +60,8 @@ export default function SignupPage() {
 
       if (error) throw error
 
-      // Redirect to home page after successful signup
-      router.push('/home')
+      // Redirect to confirm email page after successful signup
+      router.push(`/confirm-email?email=${encodeURIComponent(formData.email)}`)
       router.refresh()
     } catch (error: any) {
       setError(error.message || 'An error occurred during sign up')

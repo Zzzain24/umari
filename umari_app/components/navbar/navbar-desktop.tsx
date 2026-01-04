@@ -50,9 +50,12 @@ export function NavbarDesktop() {
       {/* Right side: Account PFP + Hamburger Menu */}
       <div className="flex items-center gap-2">
         {/* Account Profile Picture */}
-        <div className="flex items-center">
+        <Link
+          href="/profile"
+          className="flex items-center hover:opacity-80 transition-opacity cursor-pointer"
+        >
           <CircleUserRound className="w-6 h-6 text-foreground" />
-        </div>
+        </Link>
 
         {/* Hamburger Menu Dropdown */}
         <DropdownMenu>

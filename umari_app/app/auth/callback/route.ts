@@ -1,14 +1,16 @@
-import { createClient } from '@/lib/supabase/server'
-import { NextResponse } from 'next/server'
+import { createServerClient } from '@supabase/ssr'
+import { type NextRequest, NextResponse } from 'next/server'
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
-  
+
   // Check for error parameters first (Supabase redirects with errors for expired/invalid links)
   const error = searchParams.get('error')
   const errorCode = searchParams.get('error_code')
-  
+  const errorDescription = searchParams.get('error_description')
+
   if (error || errorCode) {
+    console.error('Auth callback error:', { error, errorCode, errorDescription })
     // If this is an email confirmation error, redirect to confirm email page
     // Otherwise, redirect to auth error page
     if (errorCode === 'otp_expired' || errorCode === 'email_not_confirmed') {
@@ -16,24 +18,49 @@ export async function GET(request: Request) {
     }
     return NextResponse.redirect(`${origin}/auth/auth-code-error`)
   }
-  
+
   const code = searchParams.get('code')
   const next = searchParams.get('next') ?? '/home'
 
   if (code) {
-    const supabase = await createClient()
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
-    if (!error) {
-      return NextResponse.redirect(`${origin}${next}`)
-    }
-    
-    // If exchange fails and it's an email confirmation, redirect to confirm email page
-    if (error.message?.includes('email') || error.message?.includes('expired')) {
+    // Create response object first
+    const response = NextResponse.redirect(`${origin}${next}`)
+
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll()
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              response.cookies.set(name, value, options)
+            )
+          },
+        },
+      }
+    )
+
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+
+    if (error) {
+      console.error('Error exchanging code for session:', error)
       return NextResponse.redirect(`${origin}/confirm-email?error=invalid_token`)
     }
+
+    if (data?.session) {
+      console.log('Session created successfully for user:', data.user?.email)
+      // Return response with cookies set
+      return response
+    }
+
+    console.error('No session data returned from exchangeCodeForSession')
+    return NextResponse.redirect(`${origin}/confirm-email?error=invalid_token`)
   }
 
-  // Return the user to an error page with instructions
+  // Return the user to an error page with instructions if no code
   return NextResponse.redirect(`${origin}/auth/auth-code-error`)
 }
 

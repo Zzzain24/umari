@@ -13,7 +13,8 @@ import { createClient } from "@/lib/supabase/client"
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
-    name: "",
+    firstName: "",
+    lastName: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -45,20 +46,44 @@ export default function SignupPage() {
     }
 
     setIsLoading(true)
-    
+
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
         options: {
           emailRedirectTo: `${location.origin}/auth/callback?next=/home`,
           data: {
-            name: formData.name,
+            first_name: formData.firstName,
+            last_name: formData.lastName,
           },
         },
       })
 
-      if (error) throw error
+      if (error) {
+        // Check for duplicate email error
+        if (error.message?.toLowerCase().includes('already registered') ||
+            error.message?.toLowerCase().includes('already exists') ||
+            error.message?.toLowerCase().includes('user already registered')) {
+          setError('This email is already registered. Please sign in instead.')
+          setIsLoading(false)
+          return
+        }
+        throw error
+      }
+
+      // Check if user already exists (Supabase returns existing user for duplicate signups)
+      if (data?.user && !data?.user?.identities?.length) {
+        setError('This email is already registered. Please sign in instead.')
+        setIsLoading(false)
+        return
+      }
+
+      // Check if email confirmations are disabled (user is auto-confirmed)
+      if (data?.user?.confirmed_at) {
+        router.push('/home')
+        return
+      }
 
       // Redirect to confirm email page after successful signup
       router.push(`/confirm-email?email=${encodeURIComponent(formData.email)}`)
@@ -129,20 +154,37 @@ export default function SignupPage() {
           className="bg-card backdrop-blur-xl border border-border rounded-2xl p-8 shadow-lg"
         >
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="name" className="text-foreground">
-                Full Name
-              </Label>
-              <Input
-                id="name"
-                name="name"
-                type="text"
-                placeholder="Enter your full name"
-                value={formData.name}
-                onChange={handleChange}
-                className="bg-background border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20"
-                required
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="firstName" className="text-foreground">
+                  First Name
+                </Label>
+                <Input
+                  id="firstName"
+                  name="firstName"
+                  type="text"
+                  placeholder="First name"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  className="bg-background border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="lastName" className="text-foreground">
+                  Last Name
+                </Label>
+                <Input
+                  id="lastName"
+                  name="lastName"
+                  type="text"
+                  placeholder="Last name"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  className="bg-background border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20"
+                  required
+                />
+              </div>
             </div>
 
             <div className="space-y-2">

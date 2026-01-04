@@ -3,6 +3,7 @@
 import type React from "react"
 import type { Menu } from "@/lib/types"
 import { motion } from "framer-motion"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { StickyFooter } from "@/components/landing/sticky-footer"
 import { MenuCarouselSection } from "./menu-carousel-section"
@@ -32,7 +33,7 @@ export function HomeContent({ menus }: HomeContentProps) {
 
         {/* Dashboard Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {/* Menu Management Card */}
+          {/* Profile Card */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -40,19 +41,21 @@ export function HomeContent({ menus }: HomeContentProps) {
             className="bg-card border-2 border-secondary/40 hover:border-secondary/60 rounded-xl p-6 shadow-lg transition-all duration-200"
           >
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-foreground">Menu Management</h2>
+              <h2 className="text-xl font-semibold text-foreground">Profile</h2>
               <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
                 <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
               </div>
             </div>
             <p className="text-muted-foreground mb-4">
-              Create and manage your menu items with ease.
+              Manage your account settings and profile information.
             </p>
-            <Button className="w-full bg-secondary hover:bg-secondary/90 text-secondary-foreground">
-              Manage Menus
-            </Button>
+            <Link href="/profile">
+              <Button className="w-full bg-secondary hover:bg-secondary/90 text-secondary-foreground">
+                View Profile
+              </Button>
+            </Link>
           </motion.div>
 
           {/* Orders Card */}

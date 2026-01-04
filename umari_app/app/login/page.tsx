@@ -5,22 +5,54 @@ import type React from "react"
 import { useState } from "react"
 import { motion } from "framer-motion"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { createClient } from "@/lib/supabase/client"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
+  const supabase = createClient()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError(null)
     setIsLoading(true)
-    // Simulate login process
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    setIsLoading(false)
-    console.log("[v0] Login attempt:", { email, password })
+    
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+
+      if (error) throw error
+
+      router.push('/home')
+      router.refresh()
+    } catch (error: any) {
+      setError(error.message || 'An error occurred during sign in')
+      setIsLoading(false)
+    }
+  }
+
+  const handleGoogleSignIn = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${location.origin}/auth/callback`,
+        },
+      })
+
+      if (error) throw error
+    } catch (error: any) {
+      setError(error.message || 'An error occurred during Google sign in')
+    }
   }
 
   return (
@@ -111,6 +143,12 @@ export default function LoginPage() {
               </Link>
             </div>
 
+            {error && (
+              <div className="bg-destructive/10 border border-destructive/20 text-destructive text-sm p-3 rounded-lg">
+                {error}
+              </div>
+            )}
+
             <Button
               type="submit"
               disabled={isLoading}
@@ -149,6 +187,8 @@ export default function LoginPage() {
           <div className="mt-6 grid grid-cols-1">
             <Button
               variant="outline"
+              onClick={handleGoogleSignIn}
+              disabled={isLoading}
               className="bg-secondary border-secondary/40 text-secondary-foreground hover:bg-secondary/90 hover:border-secondary/60 hover:text-white transition-all duration-200 group"
             >
               <svg

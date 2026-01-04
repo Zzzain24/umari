@@ -5,18 +5,24 @@ import type React from "react"
 import { useState } from "react"
 import { motion } from "framer-motion"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { createClient } from "@/lib/supabase/client"
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
-    name: "",
+    firstName: "",
+    lastName: "",
     email: "",
     password: "",
     confirmPassword: "",
   })
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
+  const supabase = createClient()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({
@@ -27,15 +33,89 @@ export default function SignupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError(null)
+    
     if (formData.password !== formData.confirmPassword) {
-      console.log("[v0] Password mismatch")
+      setError("Passwords don't match")
       return
     }
+
+    if (formData.password.length < 8) {
+      setError("Password must be at least 8 characters")
+      return
+    }
+
+    // Check if password contains both letters and digits
+    const hasLetters = /[a-zA-Z]/.test(formData.password)
+    const hasDigits = /\d/.test(formData.password)
+    
+    if (!hasLetters || !hasDigits) {
+      setError("Password must contain both letters and numbers")
+      return
+    }
+
     setIsLoading(true)
-    // Simulate signup process
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    setIsLoading(false)
-    console.log("[v0] Signup attempt:", formData)
+
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          emailRedirectTo: `${location.origin}/auth/callback?next=/home`,
+          data: {
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+          },
+        },
+      })
+
+      if (error) {
+        // Check for duplicate email error
+        if (error.message?.toLowerCase().includes('already registered') ||
+            error.message?.toLowerCase().includes('already exists') ||
+            error.message?.toLowerCase().includes('user already registered')) {
+          setError('This email is already registered. Please sign in instead.')
+          setIsLoading(false)
+          return
+        }
+        throw error
+      }
+
+      // Check if user already exists (Supabase returns existing user for duplicate signups)
+      if (data?.user && !data?.user?.identities?.length) {
+        setError('This email is already registered. Please sign in instead.')
+        setIsLoading(false)
+        return
+      }
+
+      // Check if email confirmations are disabled (user is auto-confirmed)
+      if (data?.user?.confirmed_at) {
+        router.push('/home')
+        return
+      }
+
+      // Redirect to confirm email page after successful signup
+      router.push(`/confirm-email?email=${encodeURIComponent(formData.email)}`)
+      router.refresh()
+    } catch (error: any) {
+      setError(error.message || 'An error occurred during sign up')
+      setIsLoading(false)
+    }
+  }
+
+  const handleGoogleSignIn = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${location.origin}/auth/callback`,
+        },
+      })
+
+      if (error) throw error
+    } catch (error: any) {
+      setError(error.message || 'An error occurred during Google sign in')
+    }
   }
 
   return (
@@ -83,20 +163,37 @@ export default function SignupPage() {
           className="bg-card backdrop-blur-xl border border-border rounded-2xl p-8 shadow-lg"
         >
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="name" className="text-foreground">
-                Full Name
-              </Label>
-              <Input
-                id="name"
-                name="name"
-                type="text"
-                placeholder="Enter your full name"
-                value={formData.name}
-                onChange={handleChange}
-                className="bg-background border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20"
-                required
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="firstName" className="text-foreground">
+                  First Name
+                </Label>
+                <Input
+                  id="firstName"
+                  name="firstName"
+                  type="text"
+                  placeholder="First name"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  className="bg-background border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="lastName" className="text-foreground">
+                  Last Name
+                </Label>
+                <Input
+                  id="lastName"
+                  name="lastName"
+                  type="text"
+                  placeholder="Last name"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  className="bg-background border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20"
+                  required
+                />
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -166,6 +263,12 @@ export default function SignupPage() {
               </label>
             </div>
 
+            {error && (
+              <div className="bg-destructive/10 border border-destructive/20 text-destructive text-sm p-3 rounded-lg">
+                {error}
+              </div>
+            )}
+
             <Button
               type="submit"
               disabled={isLoading}
@@ -204,6 +307,8 @@ export default function SignupPage() {
           <div className="mt-6 grid grid-cols-1">
             <Button
               variant="outline"
+              onClick={handleGoogleSignIn}
+              disabled={isLoading}
               className="bg-secondary border-secondary/40 text-secondary-foreground hover:bg-secondary/90 hover:border-secondary/60 hover:text-white transition-all duration-200 group"
             >
               <svg

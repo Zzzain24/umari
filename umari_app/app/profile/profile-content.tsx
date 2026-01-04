@@ -11,8 +11,10 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { createClient } from "@/lib/supabase/client"
 import { useToast } from "@/hooks/use-toast"
+import { DeleteAccountDialog } from "./delete-account-dialog"
 
 interface UserData {
+  id: string
   first_name: string
   last_name: string
   email: string
@@ -117,14 +119,24 @@ export function ProfileContent({ userData }: ProfileContentProps) {
           className="bg-card backdrop-blur-xl border border-border rounded-2xl p-8 shadow-lg"
         >
           {/* Header */}
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-              <User className="w-6 h-6 text-primary" />
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                <User className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-foreground">Profile Settings</h1>
+                <p className="text-sm text-muted-foreground">Manage your account information</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">Profile Settings</h1>
-              <p className="text-sm text-muted-foreground">Manage your account information</p>
-            </div>
+            {!isEditing && (
+              <Button
+                onClick={handleEdit}
+                className="bg-primary hover:bg-primary/90 text-primary-foreground"
+              >
+                Edit Profile
+              </Button>
+            )}
           </div>
 
           <Separator className="mb-6" />
@@ -212,37 +224,54 @@ export function ProfileContent({ userData }: ProfileContentProps) {
             </div>
           </div>
 
-          <Separator className="my-6" />
-
-          {/* Action Buttons */}
-          <div className="flex gap-3 justify-end">
-            {!isEditing ? (
+          {/* Edit Mode Action Buttons */}
+          {isEditing && (
+            <div className="flex gap-3 justify-end">
               <Button
-                onClick={handleEdit}
+                variant="outline"
+                onClick={handleCancel}
+                disabled={isLoading}
+                className="border-border hover:bg-secondary/10"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSave}
+                disabled={isLoading}
                 className="bg-primary hover:bg-primary/90 text-primary-foreground"
               >
-                Edit Profile
+                {isLoading ? "Saving..." : "Save Changes"}
               </Button>
-            ) : (
-              <>
-                <Button
-                  variant="outline"
-                  onClick={handleCancel}
-                  disabled={isLoading}
-                  className="border-border hover:bg-secondary/10"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleSave}
-                  disabled={isLoading}
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground"
-                >
-                  {isLoading ? "Saving..." : "Save Changes"}
-                </Button>
-              </>
-            )}
-          </div>
+            </div>
+          )}
+
+          {/* Delete Account Section */}
+          {!isEditing && (
+            <>
+              <Separator className="my-6" />
+
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-sm font-semibold text-destructive">Delete Account</h3>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Irreversible actions
+                  </p>
+                </div>
+
+                <div className="bg-destructive/5 border border-destructive/20 rounded-lg p-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                      <h4 className="text-sm font-medium text-foreground">Delete Account</h4>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Permanently delete your account and all associated data
+                      </p>
+                    </div>
+                    <DeleteAccountDialog userId={userData.id} />
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
         </motion.div>
       </motion.div>
     </div>

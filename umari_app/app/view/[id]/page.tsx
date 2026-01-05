@@ -69,7 +69,7 @@ export default async function ViewMenuPage({ params }: PageProps) {
 
   return (
     <div className="min-h-screen bg-background">
-      <MenuView menuName={menu.name} items={itemsWithOptions} />
+      <MenuView menuName={menu.name} items={itemsWithOptions} menuId={menu.id} />
     </div>
   )
 }

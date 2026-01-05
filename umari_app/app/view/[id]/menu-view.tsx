@@ -1,7 +1,10 @@
 "use client"
 
 import type React from "react"
+import { useState, useEffect } from "react"
 import { MenuItemView } from "./menu-item-view"
+import { QRCodeDisplay } from "@/components/ui/qr-code-display"
+import { Separator } from "@/components/ui/separator"
 
 interface MenuItem {
   id: string
@@ -18,9 +21,16 @@ interface MenuItem {
 interface MenuViewProps {
   menuName: string
   items: MenuItem[]
+  menuId: string
 }
 
-export function MenuView({ menuName, items }: MenuViewProps) {
+export function MenuView({ menuName, items, menuId }: MenuViewProps) {
+  const [fullUrl, setFullUrl] = useState('')
+
+  useEffect(() => {
+    setFullUrl(`${window.location.origin}/view/${menuId}`)
+  }, [menuId])
+
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="bg-card border-2 border-secondary/40 rounded-xl p-8 shadow-lg">
@@ -37,6 +47,21 @@ export function MenuView({ menuName, items }: MenuViewProps) {
             items.map((item) => (
               <MenuItemView key={item.id} item={item} />
             ))
+          )}
+        </div>
+
+        <Separator className="my-8" />
+
+        <div className="flex flex-col items-center space-y-4">
+          <h2 className="text-lg font-semibold text-foreground">
+            Scan to View Menu
+          </h2>
+          {fullUrl && (
+            <QRCodeDisplay
+              url={fullUrl}
+              menuName={menuName}
+              size={200}
+            />
           )}
         </div>
       </div>

@@ -53,7 +53,7 @@ export function MenuCard({ menu, onDelete }: MenuCardProps) {
       
       <div className="flex flex-col gap-2 mt-auto">
         <div className="flex gap-2">
-          <Link href={`/view/${menu.id}`} className="flex-1">
+          <Link href={`/view/${menu.id}`} target="_blank" rel="noopener noreferrer" className="flex-1">
             <Button
               variant="outline"
               size="sm"

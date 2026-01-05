@@ -1,19 +1,21 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { motion } from "framer-motion"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Separator } from "@/components/ui/separator"
 import { Plus, ArrowLeft } from "lucide-react"
 import { createMenu } from "./actions"
 import { updateMenu } from "../[id]/edit/actions"
 import { MenuItemEditor } from "./menu-item-editor"
 import type { MenuItemOption } from "@/lib/types"
 import { useToast } from "@/hooks/use-toast"
+import { QRCodeDisplay } from "@/components/ui/qr-code-display"
 
 interface MenuItem {
   id?: string
@@ -49,6 +51,13 @@ export function MenuForm({ menuId, initialMenuName = '', initialItems }: MenuFor
   )
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [qrUrl, setQrUrl] = useState('')
+
+  useEffect(() => {
+    if (menuId) {
+      setQrUrl(`${window.location.origin}/view/${menuId}`)
+    }
+  }, [menuId])
 
   const handleAddItem = () => {
     setItems([
@@ -298,6 +307,30 @@ export function MenuForm({ menuId, initialMenuName = '', initialItems }: MenuFor
               </Button>
             </div>
           </form>
+
+          <Separator className="my-8" />
+
+          {isEditMode && menuId && qrUrl ? (
+            <div className="flex flex-col items-center space-y-4 pb-8">
+              <h2 className="text-lg font-semibold text-foreground">
+                QR Code for Menu
+              </h2>
+              <p className="text-sm text-muted-foreground text-center">
+                Share this QR code to let customers view your menu
+              </p>
+              <QRCodeDisplay
+                url={qrUrl}
+                menuName={menuName}
+                size={180}
+              />
+            </div>
+          ) : (
+            <div className="flex flex-col items-center space-y-2 pb-8">
+              <p className="text-sm text-muted-foreground text-center">
+                A shareable QR code will be generated once your menu is created
+              </p>
+            </div>
+          )}
         </motion.div>
       </div>
     </div>

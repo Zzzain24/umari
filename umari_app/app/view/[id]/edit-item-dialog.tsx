@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import {
   Dialog,
   DialogContent,
@@ -11,9 +11,10 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { useCart } from "@/contexts/cart-context"
-import { calculateItemPrice } from "@/lib/cart-utils"
+import { calculateItemPrice, validateRequiredOptions } from "@/lib/cart-utils"
 import type { CartItem, SelectedOption } from "@/lib/types"
 import { QuantitySelector } from "./quantity-selector"
+import { MenuItemOptions } from "./menu-item-options"
 
 interface EditItemDialogProps {
   item: CartItem
@@ -22,11 +23,14 @@ interface EditItemDialogProps {
 }
 
 export function EditItemDialog({ item, isOpen, onClose }: EditItemDialogProps) {
-  const { updateCartItem } = useCart()
+  const { updateCartItem, getMenuItem } = useCart()
   const [quantity, setQuantity] = useState(item.quantity)
   const [selectedOptions, setSelectedOptions] = useState<SelectedOption[]>(
     item.selectedOptions
   )
+
+  // Get the full menu item with all available options
+  const menuItem = getMenuItem(item.menuItemId)
 
   // Reset local state when item changes
   useEffect(() => {
@@ -34,9 +38,20 @@ export function EditItemDialog({ item, isOpen, onClose }: EditItemDialogProps) {
     setSelectedOptions(item.selectedOptions)
   }, [item])
 
+  // Validate that all required options are selected
+  const isValid = useMemo(() => {
+    if (!menuItem?.options || menuItem.options.length === 0) {
+      return true
+    }
+    return validateRequiredOptions(menuItem.options, selectedOptions)
+  }, [menuItem?.options, selectedOptions])
+
   const totalPrice = calculateItemPrice(item.basePrice, selectedOptions, quantity)
 
   const handleSave = () => {
+    if (!isValid) {
+      return
+    }
     updateCartItem(item.id, {
       quantity,
       selectedOptions,
@@ -54,32 +69,19 @@ export function EditItemDialog({ item, isOpen, onClose }: EditItemDialogProps) {
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-          {/* Note: For full option editing, we'd need to recreate MenuItemOptions here
-              with the original menu item options structure. For now, we'll just allow
-              quantity editing. To fully implement option editing, we'd need to pass
-              the original menu item structure to the cart or fetch it here. */}
+          {/* Options Selector */}
+          {menuItem?.options && menuItem.options.length > 0 && (
+            <MenuItemOptions
+              options={menuItem.options}
+              selectedOptions={selectedOptions}
+              onChange={setSelectedOptions}
+            />
+          )}
 
           <div className="space-y-2">
             <p className="text-sm font-medium text-foreground">Quantity</p>
             <QuantitySelector quantity={quantity} onChange={setQuantity} />
           </div>
-
-          {/* Display selected options (read-only for now) */}
-          {selectedOptions.length > 0 && (
-            <div className="space-y-2">
-              <p className="text-sm font-medium text-foreground">Selected Options</p>
-              <div className="space-y-1">
-                {selectedOptions.map((option, idx) => (
-                  <div key={idx} className="text-sm text-muted-foreground">
-                    {option.optionName}: {option.selectedValue}
-                    {option.additionalPrice > 0 && (
-                      <span className="ml-2">+${option.additionalPrice.toFixed(2)}</span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
 
           <div className="flex items-center justify-between pt-4 border-t border-border">
             <span className="text-base font-medium">Total</span>
@@ -91,7 +93,9 @@ export function EditItemDialog({ item, isOpen, onClose }: EditItemDialogProps) {
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button onClick={handleSave}>Save Changes</Button>
+          <Button onClick={handleSave} disabled={!isValid}>
+            {!isValid ? "Select required options" : "Save Changes"}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -8,22 +8,11 @@ import { Separator } from "@/components/ui/separator"
 import { CartProvider } from "@/contexts/cart-context"
 import { FloatingCartButton } from "./floating-cart-button"
 import { CartSheet } from "./cart-sheet"
-
-interface MenuItem {
-  id: string
-  name: string
-  price: number
-  options?: Array<{
-    id: string
-    name: string
-    options: Array<{ value: string; price?: number }>
-    is_required: boolean
-  }>
-}
+import type { MenuItemForCart } from "@/lib/types"
 
 interface MenuViewProps {
   menuName: string
-  items: MenuItem[]
+  items: MenuItemForCart[]
   menuId: string
 }
 
@@ -35,7 +24,7 @@ export function MenuView({ menuName, items, menuId }: MenuViewProps) {
   }, [menuId])
 
   return (
-    <CartProvider menuId={menuId}>
+    <CartProvider menuId={menuId} menuItems={items}>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="bg-card border-2 border-secondary/40 rounded-xl p-8 shadow-lg">
           <h1 className="text-4xl font-bold text-foreground mb-8 text-center">

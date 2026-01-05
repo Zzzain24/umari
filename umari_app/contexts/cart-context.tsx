@@ -1,7 +1,7 @@
 "use client"
 
 import React, { createContext, useContext, useState, useEffect, useMemo } from "react"
-import type { CartItem, CartContextType } from "@/lib/types"
+import type { CartItem, CartContextType, MenuItemForCart } from "@/lib/types"
 import { generateCartItemId, isLocalStorageAvailable } from "@/lib/cart-utils"
 import { useToast } from "@/hooks/use-toast"
 
@@ -10,14 +10,20 @@ const CartContext = createContext<CartContextType | undefined>(undefined)
 interface CartProviderProps {
   children: React.ReactNode
   menuId: string
+  menuItems: MenuItemForCart[]
 }
 
-export function CartProvider({ children, menuId }: CartProviderProps) {
+export function CartProvider({ children, menuId, menuItems }: CartProviderProps) {
   const [cart, setCart] = useState<CartItem[]>([])
   const [isCartOpen, setIsCartOpen] = useState(false)
   const { toast } = useToast()
 
   const storageKey = `umari-cart-${menuId}`
+
+  // Get menu item by ID
+  const getMenuItem = (menuItemId: string): MenuItemForCart | undefined => {
+    return menuItems.find(item => item.id === menuItemId)
+  }
 
   // Load cart from localStorage on mount
   useEffect(() => {
@@ -135,6 +141,7 @@ export function CartProvider({ children, menuId }: CartProviderProps) {
     isCartOpen,
     totalItems,
     subtotal,
+    getMenuItem,
     addToCart,
     removeFromCart,
     updateCartItem,

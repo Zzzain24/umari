@@ -49,11 +49,19 @@ export interface CartItem {
   totalPrice: number
 }
 
+export interface MenuItemForCart {
+  id: string
+  name: string
+  price: number
+  options?: MenuItemOption[]
+}
+
 export interface CartContextType {
   cart: CartItem[]
   isCartOpen: boolean
   totalItems: number
   subtotal: number
+  getMenuItem: (menuItemId: string) => MenuItemForCart | undefined
   addToCart: (item: Omit<CartItem, 'id'>) => void
   removeFromCart: (itemId: string) => void
   updateCartItem: (itemId: string, updates: Partial<CartItem>) => void

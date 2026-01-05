@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { LayoutGrid } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -15,9 +16,11 @@ export function MenuCarouselEmpty() {
       <p className="text-sm text-muted-foreground mb-6 max-w-sm">
         Create your first menu to get started with managing your offerings
       </p>
-      <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
-        Create Your First Menu
-      </Button>
+      <Link href="/menus/new">
+        <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
+          Create Your First Menu
+        </Button>
+      </Link>
     </div>
   )
 }

@@ -4,19 +4,20 @@ import { createClient } from "@/lib/supabase/server"
 import { MenuView } from "./menu-view"
 
 interface PageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default async function ViewMenuPage({ params }: PageProps) {
+  const { id } = await params
   const supabase = await createClient()
 
   // Fetch menu (public access - no user check needed)
   const { data: menu, error: menuError } = await supabase
     .from('menus')
     .select('id, name')
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
 
   if (menuError || !menu) {
@@ -27,7 +28,7 @@ export default async function ViewMenuPage({ params }: PageProps) {
   const { data: menuItems, error: itemsError } = await supabase
     .from('menu_items')
     .select('id, name, price')
-    .eq('menu_id', params.id)
+    .eq('menu_id', id)
     .order('created_at', { ascending: true })
 
   if (itemsError || !menuItems) {
@@ -37,7 +38,7 @@ export default async function ViewMenuPage({ params }: PageProps) {
   // Fetch menu item options
   let menuItemOptions = null
   
-  if (menuItems.length > 0) {
+  if (menuItems && menuItems.length > 0) {
     const { data: options, error: optionsError } = await supabase
       .from('menu_item_options')
       .select('id, menu_item_id, name, options, is_required')

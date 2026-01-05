@@ -4,11 +4,12 @@ import type { Menu } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import { Pencil, Trash2, Eye, Share2 } from "lucide-react"
 import Link from "next/link"
+import { motion } from "framer-motion"
 import { useToast } from "@/hooks/use-toast"
 
 interface MenuCardProps {
   menu: Menu
-  onDelete?: (menuId: string) => void
+  onDelete: (menuId: string) => void
 }
 
 export function MenuCard({ menu, onDelete }: MenuCardProps) {
@@ -40,8 +41,12 @@ export function MenuCard({ menu, onDelete }: MenuCardProps) {
   }
 
   return (
-    <div className="bg-card border border-secondary/40 hover:border-secondary/60 rounded-xl p-4 transition-all duration-200 h-full flex flex-col">
-      <h3 className="text-lg font-semibold text-foreground mb-2">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="bg-card border-2 border-secondary/40 hover:border-secondary/60 rounded-xl p-6 transition-all duration-200 h-full flex flex-col shadow-lg"
+    >
+      <h3 className="text-xl font-semibold text-foreground mb-2">
         {menu.name}
       </h3>
       <p className="text-sm text-muted-foreground mb-2">
@@ -56,20 +61,18 @@ export function MenuCard({ menu, onDelete }: MenuCardProps) {
           <Link href={`/view/${menu.id}`} target="_blank" rel="noopener noreferrer" className="flex-1">
             <Button
               variant="outline"
-              size="sm"
-              className="w-full border-secondary/40 hover:border-secondary/60 text-foreground text-xs"
+              className="w-full border-secondary/40 hover:border-secondary/60 text-foreground"
             >
-              <Eye className="w-3 h-3 mr-1" />
+              <Eye className="w-4 h-4 mr-2" />
               View
             </Button>
           </Link>
           <Link href={`/menus/${menu.id}/edit`} className="flex-1">
             <Button
               variant="outline"
-              size="sm"
-              className="w-full border-secondary/40 hover:border-secondary/60 text-foreground text-xs"
+              className="w-full border-secondary/40 hover:border-secondary/60 text-foreground"
             >
-              <Pencil className="w-3 h-3 mr-1" />
+              <Pencil className="w-4 h-4 mr-2" />
               Edit
             </Button>
           </Link>
@@ -77,25 +80,22 @@ export function MenuCard({ menu, onDelete }: MenuCardProps) {
         <div className="flex gap-2">
           <Button
             variant="outline"
-            size="sm"
             onClick={handleShare}
-            className="flex-1 border-secondary/40 hover:border-secondary/60 text-foreground text-xs"
+            className="flex-1 border-secondary/40 hover:border-secondary/60 text-foreground"
           >
-            <Share2 className="w-3 h-3 mr-1" />
+            <Share2 className="w-4 h-4 mr-2" />
             Share
           </Button>
-          {onDelete && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onDelete(menu.id)}
-              className="border-destructive/40 hover:border-destructive/60 text-destructive hover:text-destructive text-xs"
-            >
-              <Trash2 className="w-3 h-3" />
-            </Button>
-          )}
+          <Button
+            variant="outline"
+            onClick={() => onDelete(menu.id)}
+            className="border-destructive/40 hover:border-destructive/60 text-destructive hover:text-destructive"
+          >
+            <Trash2 className="w-4 h-4" />
+          </Button>
         </div>
       </div>
-    </div>
+    </motion.div>
   )
 }
+

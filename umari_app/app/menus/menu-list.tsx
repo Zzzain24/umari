@@ -1,18 +1,14 @@
 "use client"
 
 import type { Menu } from "@/lib/types"
-import { MenuCard } from "./menu-card"
 import { Button } from "@/components/ui/button"
+import { Plus } from "lucide-react"
 import Link from "next/link"
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { MenuCard } from "./menu-card"
+import { MenusEmpty } from "./menus-empty"
+import { deleteMenu } from "./actions"
 import { useToast } from "@/hooks/use-toast"
-import { deleteMenu } from "@/app/menus/actions"
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-} from "@/components/ui/carousel"
+import { useRouter } from "next/navigation"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,12 +19,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { useState } from "react"
 
-interface MenuCarouselContentProps {
+interface MenuListProps {
   menus: Menu[]
 }
 
-export function MenuCarouselContent({ menus }: MenuCarouselContentProps) {
+export function MenuList({ menus }: MenuListProps) {
   const { toast } = useToast()
   const router = useRouter()
   const [deleteMenuId, setDeleteMenuId] = useState<string | null>(null)
@@ -69,35 +66,40 @@ export function MenuCarouselContent({ menus }: MenuCarouselContentProps) {
     }
   }
 
+  if (menus.length === 0) {
+    return (
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <MenusEmpty />
+      </main>
+    )
+  }
+
   return (
     <>
-      <div className="space-y-6">
-        <Carousel
-          opts={{
-            align: "start",
-            loop: false,
-          }}
-          className="w-full"
-        >
-          <CarouselContent className="-ml-2 md:-ml-4">
-            {menus.slice(0, 3).map((menu) => (
-              <CarouselItem key={menu.id} className="pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-1/3">
-                <MenuCard menu={menu} onDelete={handleDeleteClick} />
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-        </Carousel>
-
-        {menus.length > 0 && (
-          <div className="flex justify-center">
-            <Link href="/menus">
-              <Button variant="outline" className="border-secondary/40 hover:border-secondary/60 text-foreground">
-                View All Menus
-              </Button>
-            </Link>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-4xl font-bold text-foreground mb-2">
+              Your Menus
+            </h1>
+            <p className="text-muted-foreground">
+              Manage and organize your menus
+            </p>
           </div>
-        )}
-      </div>
+          <Link href="/menus/new">
+            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
+              <Plus className="w-4 h-4 mr-2" />
+              Create New Menu
+            </Button>
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {menus.map((menu) => (
+            <MenuCard key={menu.id} menu={menu} onDelete={handleDeleteClick} />
+          ))}
+        </div>
+      </main>
 
       <AlertDialog open={deleteMenuId !== null} onOpenChange={(open) => !open && setDeleteMenuId(null)}>
         <AlertDialogContent>
@@ -122,3 +124,4 @@ export function MenuCarouselContent({ menus }: MenuCarouselContentProps) {
     </>
   )
 }
+

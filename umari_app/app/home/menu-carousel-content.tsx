@@ -89,7 +89,12 @@ export function MenuCarouselContent({ menus }: MenuCarouselContentProps) {
         </Carousel>
 
         {menus.length > 0 && (
-          <div className="flex justify-center">
+          <div className="flex justify-center gap-3">
+            <Link href="/menus/new?from=home">
+              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                Create Menu
+              </Button>
+            </Link>
             <Link href="/menus">
               <Button variant="outline" className="border-secondary/40 hover:border-secondary/60 text-foreground">
                 View All Menus

@@ -57,7 +57,7 @@ export function CartSheet() {
               </div>
 
               <div className="border-t border-border pt-4 space-y-4">
-                <div className="flex items-center justify-between text-lg font-semibold">
+                <div className="flex items-center justify-around gap-40 text-lg font-semibold">
                   <span>Subtotal</span>
                   <span>${subtotal.toFixed(2)}</span>
                 </div>

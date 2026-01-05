@@ -8,10 +8,6 @@ import { useCart } from "@/contexts/cart-context"
 export function FloatingCartButton() {
   const { openCart, totalItems } = useCart()
 
-  if (totalItems === 0) {
-    return null
-  }
-
   return (
     <Button
       size="lg"
@@ -23,7 +19,7 @@ export function FloatingCartButton() {
       <div className="relative">
         <ShoppingCart className="h-6 w-6" />
         <Badge
-          variant="destructive"
+          variant={totalItems === 0 ? "secondary" : "destructive"}
           className="absolute -top-3 -right-3 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs font-bold"
         >
           {totalItems > 99 ? "99+" : totalItems}

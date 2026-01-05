@@ -16,7 +16,7 @@ export function MenuCarouselEmpty() {
       <p className="text-sm text-muted-foreground mb-6 max-w-sm">
         Create your first menu to get started with managing your offerings
       </p>
-      <Link href="/menus/new">
+      <Link href="/menus/new?from=home">
         <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
           Create Your First Menu
         </Button>

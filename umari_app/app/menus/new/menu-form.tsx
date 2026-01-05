@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { motion } from "framer-motion"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Plus, ArrowLeft } from "lucide-react"
 import { createMenu } from "./actions"
+import { updateMenu } from "../[id]/edit/actions"
 import { MenuItemEditor } from "./menu-item-editor"
 import type { MenuItemOption } from "@/lib/types"
 import { useToast } from "@/hooks/use-toast"
@@ -21,17 +22,31 @@ interface MenuItem {
   options?: MenuItemOption[]
 }
 
-export function MenuForm() {
+interface MenuFormProps {
+  menuId?: string
+  initialMenuName?: string
+  initialItems?: MenuItem[]
+}
+
+export function MenuForm({ menuId, initialMenuName = '', initialItems }: MenuFormProps) {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { toast } = useToast()
-  const [menuName, setMenuName] = useState('')
-  const [items, setItems] = useState<MenuItem[]>([
-    {
-      name: '',
-      price: 0,
-      options: [],
-    },
-  ])
+  const isEditMode = !!menuId
+  const fromHome = searchParams.get('from') === 'home'
+  const backUrl = fromHome ? '/home' : '/menus'
+  const [menuName, setMenuName] = useState(initialMenuName)
+  const [items, setItems] = useState<MenuItem[]>(
+    initialItems && initialItems.length > 0
+      ? initialItems
+      : [
+          {
+            name: '',
+            price: 0,
+            options: [],
+          },
+        ]
+  )
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -108,33 +123,69 @@ export function MenuForm() {
     setIsLoading(true)
 
     try {
-      const result = await createMenu({
-        name: menuName.trim(),
-        items: items.map(item => ({
-          name: item.name.trim(),
-          price: item.price,
-          options: item.options?.map(opt => ({
-            name: opt.name.trim(),
-            options: opt.options
-              .filter(v => v.value && v.value.trim().length > 0)
-              .map(v => ({
-                value: v.value.trim(),
-                price: v.price !== undefined && v.price > 0 ? v.price : undefined,
-              })),
-            is_required: opt.is_required,
+      if (isEditMode && menuId) {
+        const result = await updateMenu(menuId, {
+          name: menuName.trim(),
+          items: items.map(item => ({
+            id: item.id,
+            name: item.name.trim(),
+            price: item.price,
+            options: item.options?.map(opt => ({
+              id: opt.id,
+              name: opt.name.trim(),
+              options: opt.options
+                .filter(v => v.value && v.value.trim().length > 0)
+                .map(v => ({
+                  value: v.value.trim(),
+                  price: v.price !== undefined && v.price > 0 ? v.price : undefined,
+                })),
+              is_required: opt.is_required,
+            })),
           })),
-        })),
-      })
+        })
 
-      toast({
-        title: "Menu created",
-        description: "Your menu has been created successfully.",
-      })
+        if (!result.success) {
+          setError(result.error || "Failed to update menu")
+          setIsLoading(false)
+          return
+        }
 
-      router.push('/home')
-      router.refresh()
+        toast({
+          title: "Menu updated",
+          description: "Your menu has been updated successfully.",
+        })
+
+        router.push('/menus')
+        router.refresh()
+      } else {
+        const result = await createMenu({
+          name: menuName.trim(),
+          items: items.map(item => ({
+            name: item.name.trim(),
+            price: item.price,
+            options: item.options?.map(opt => ({
+              name: opt.name.trim(),
+              options: opt.options
+                .filter(v => v.value && v.value.trim().length > 0)
+                .map(v => ({
+                  value: v.value.trim(),
+                  price: v.price !== undefined && v.price > 0 ? v.price : undefined,
+                })),
+              is_required: opt.is_required,
+            })),
+          })),
+        })
+
+        toast({
+          title: "Menu created",
+          description: "Your menu has been created successfully.",
+        })
+
+        router.push('/menus')
+        router.refresh()
+      }
     } catch (err: any) {
-      setError(err.message || "Failed to create menu")
+      setError(err.message || (isEditMode ? "Failed to update menu" : "Failed to create menu"))
       setIsLoading(false)
     }
   }
@@ -143,11 +194,11 @@ export function MenuForm() {
     <div className="min-h-screen bg-background">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Link
-          href="/home"
+          href={backUrl}
           className="inline-flex items-center text-muted-foreground hover:text-primary transition-colors duration-200 mb-6"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Home
+          {fromHome ? 'Back to Home' : 'Back to Menus'}
         </Link>
 
         <motion.div
@@ -157,7 +208,9 @@ export function MenuForm() {
           className="bg-card backdrop-blur-xl border border-border rounded-2xl p-8 shadow-lg"
         >
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-foreground mb-2">Create New Menu</h1>
+            <h1 className="text-3xl font-bold text-foreground mb-2">
+              {isEditMode ? "Edit Menu" : "Create New Menu"}
+            </h1>
             <p className="text-muted-foreground">
               Add items and customize options for your menu
             </p>
@@ -220,7 +273,7 @@ export function MenuForm() {
 
             {/* Submit Buttons */}
             <div className="flex gap-3 justify-end pt-4 border-t border-border">
-              <Link href="/home">
+              <Link href={backUrl}>
                 <Button
                   type="button"
                   variant="outline"
@@ -235,7 +288,13 @@ export function MenuForm() {
                 disabled={isLoading}
                 className="bg-primary hover:bg-primary/90 text-primary-foreground"
               >
-                {isLoading ? "Creating..." : "Create Menu"}
+                {isLoading
+                  ? isEditMode
+                    ? "Updating..."
+                    : "Creating..."
+                  : isEditMode
+                    ? "Update Menu"
+                    : "Create Menu"}
               </Button>
             </div>
           </form>

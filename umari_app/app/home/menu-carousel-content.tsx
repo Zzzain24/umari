@@ -3,6 +3,7 @@
 import type { Menu } from "@/lib/types"
 import { MenuCard } from "./menu-card"
 import { Button } from "@/components/ui/button"
+import Link from "next/link"
 import {
   Carousel,
   CarouselContent,
@@ -34,9 +35,11 @@ export function MenuCarouselContent({ menus }: MenuCarouselContentProps) {
 
       {menus.length > 0 && (
         <div className="flex justify-center">
-          <Button variant="outline" className="border-secondary/40 hover:border-secondary/60 text-foreground">
-            View All Menus
-          </Button>
+          <Link href="/menus">
+            <Button variant="outline" className="border-secondary/40 hover:border-secondary/60 text-foreground">
+              View All Menus
+            </Button>
+          </Link>
         </div>
       )}
     </div>

@@ -31,3 +31,33 @@ export interface MenuItem {
   updated_at: string
   options?: MenuItemOption[]
 }
+
+// Cart Types
+export interface SelectedOption {
+  optionName: string
+  selectedValue: string
+  additionalPrice: number
+}
+
+export interface CartItem {
+  id: string
+  menuItemId: string
+  itemName: string
+  basePrice: number
+  quantity: number
+  selectedOptions: SelectedOption[]
+  totalPrice: number
+}
+
+export interface CartContextType {
+  cart: CartItem[]
+  isCartOpen: boolean
+  totalItems: number
+  subtotal: number
+  addToCart: (item: Omit<CartItem, 'id'>) => void
+  removeFromCart: (itemId: string) => void
+  updateCartItem: (itemId: string, updates: Partial<CartItem>) => void
+  clearCart: () => void
+  openCart: () => void
+  closeCart: () => void
+}

@@ -6,12 +6,13 @@ import { MenuForm } from "../../new/menu-form"
 import type { MenuItem, MenuItemOption } from "@/lib/types"
 
 interface PageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default async function EditMenuPage({ params }: PageProps) {
+  const { id } = await params
   const supabase = await createClient()
 
   const {
@@ -26,7 +27,7 @@ export default async function EditMenuPage({ params }: PageProps) {
   const { data: menu, error: menuError } = await supabase
     .from('menus')
     .select('id, name, user_id')
-    .eq('id', params.id)
+    .eq('id', id)
     .eq('user_id', user.id)
     .single()
 
@@ -38,7 +39,7 @@ export default async function EditMenuPage({ params }: PageProps) {
   const { data: menuItems, error: itemsError } = await supabase
     .from('menu_items')
     .select('id, name, price')
-    .eq('menu_id', params.id)
+    .eq('menu_id', id)
     .order('created_at', { ascending: true })
 
   if (itemsError) {
@@ -87,7 +88,7 @@ export default async function EditMenuPage({ params }: PageProps) {
     <div className="min-h-screen bg-background pt-24">
       <Suspense fallback={<div>Loading...</div>}>
         <MenuForm
-          menuId={params.id}
+          menuId={id}
           initialMenuName={menu.name}
           initialItems={formItems}
         />

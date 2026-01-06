@@ -6,16 +6,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2024-12-18.acacia',
 })
 
-// Only allow in test mode for safety
+// Generate Stripe Account Link for onboarding
 export async function POST(request: NextRequest) {
-  // Safety check - only in test mode
-  if (!process.env.STRIPE_SECRET_KEY?.includes('test')) {
-    return NextResponse.json(
-      { error: 'This endpoint is only available in test mode' },
-      { status: 403 }
-    )
-  }
-
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -38,90 +30,25 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log('Completing onboarding for:', stripeAccount.stripe_account_id)
+    console.log('Creating account link for:', stripeAccount.stripe_account_id)
 
-    // Update the account with test data to complete onboarding
-    await stripe.accounts.update(stripeAccount.stripe_account_id, {
-      business_type: 'individual',
-      business_profile: {
-        mcc: '5812', // Eating places and restaurants
-        url: 'https://example.com',
-      },
-      individual: {
-        first_name: 'Test',
-        last_name: 'Account',
-        dob: {
-          day: 1,
-          month: 1,
-          year: 1990,
-        },
-        address: {
-          line1: 'address_full_match', // Magic test value
-          city: 'Schenectady',
-          state: 'NY',
-          postal_code: '12345',
-          country: 'US',
-        },
-        ssn_last_4: '0000', // Test SSN
-        email: user.email || 'test@example.com',
-      },
-      tos_acceptance: {
-        date: Math.floor(Date.now() / 1000),
-        ip: request.headers.get('x-forwarded-for') || '127.0.0.1',
-      },
+    // Create an Account Link for the user to complete onboarding
+    // This redirects them to Stripe's hosted onboarding flow
+    const accountLink = await stripe.accountLinks.create({
+      account: stripeAccount.stripe_account_id,
+      refresh_url: `${request.nextUrl.origin}/payments?error=onboarding_refresh`,
+      return_url: `${request.nextUrl.origin}/payments?success=onboarding_complete`,
+      type: 'account_onboarding',
     })
 
-    console.log('Account updated, adding bank account...')
-
-    // Add external account (bank account for payouts)
-    await stripe.accounts.createExternalAccount(
-      stripeAccount.stripe_account_id,
-      {
-        external_account: {
-          object: 'bank_account',
-          country: 'US',
-          currency: 'usd',
-          routing_number: '110000000', // Test routing number
-          account_number: '000123456789', // Test account number
-        },
-      }
-    )
-
-    console.log('Bank account added, fetching updated account...')
-
-    // Fetch updated account to get current status
-    const account = await stripe.accounts.retrieve(stripeAccount.stripe_account_id)
-
-    console.log('Account status:', {
-      charges_enabled: account.charges_enabled,
-      payouts_enabled: account.payouts_enabled,
-      details_submitted: account.details_submitted,
-    })
-
-    // Update database with new account status
-    await supabase
-      .from('stripe_accounts')
-      .update({
-        charges_enabled: account.charges_enabled,
-        payouts_enabled: account.payouts_enabled,
-        details_submitted: account.details_submitted,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('user_id', user.id)
+    console.log('Account link created:', accountLink.url)
 
     return NextResponse.json({
       success: true,
-      message: 'Test account onboarding completed successfully',
-      account: {
-        id: account.id,
-        charges_enabled: account.charges_enabled,
-        payouts_enabled: account.payouts_enabled,
-        details_submitted: account.details_submitted,
-        business_name: account.business_profile?.name,
-      },
+      url: accountLink.url,
     })
   } catch (err: any) {
-    console.error('Complete onboarding error:', err)
+    console.error('Account link creation error:', err)
     return NextResponse.json(
       {
         error: err.message,

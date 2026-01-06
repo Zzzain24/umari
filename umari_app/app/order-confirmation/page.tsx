@@ -121,17 +121,7 @@ export default async function OrderConfirmationPage({ searchParams }: PageProps)
 
             {/* Order Totals */}
             <div className="border-t border-border pt-4 mt-4 space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Subtotal:</span>
-                <span>${parseFloat(order.subtotal.toString()).toFixed(2)}</span>
-              </div>
-              {order.platform_fee > 0 && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Service Fee:</span>
-                  <span>${parseFloat(order.platform_fee.toString()).toFixed(2)}</span>
-                </div>
-              )}
-              <div className="flex justify-between text-lg font-semibold pt-2 border-t border-border">
+              <div className="flex justify-between text-lg font-semibold">
                 <span>Total:</span>
                 <span>${parseFloat(order.total.toString()).toFixed(2)}</span>
               </div>

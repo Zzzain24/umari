@@ -20,22 +20,31 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Fetch order with email verification
+    // Fetch order with email verification (no joins needed - business_name and business_email are in orders table)
     const { data: order, error } = await supabaseAdmin
       .from('orders')
-      .select(`
-        *,
-        menus!inner(name, user_id, users!inner(first_name, last_name))
-      `)
+      .select('*')
       .eq('order_number', orderNumber.trim().toUpperCase())
       .ilike('customer_email', email.trim())
       .single()
 
     if (error || !order) {
+      console.error('Order lookup error:', error)
       return NextResponse.json(
         { error: 'Order not found or email does not match' },
         { status: 404 }
       )
+    }
+
+    // Get menu name if needed (optional - business_name is already in orders table)
+    let menuName = null
+    if (order.menu_id) {
+      const { data: menu } = await supabaseAdmin
+        .from('menus')
+        .select('name')
+        .eq('id', order.menu_id)
+        .single()
+      menuName = menu?.name || null
     }
 
     // Return sanitized order details (don't expose sensitive data)
@@ -51,8 +60,11 @@ export async function GET(request: NextRequest) {
       special_instructions: order.special_instructions,
       created_at: order.created_at,
       customer_name: order.customer_name,
-      menu_name: order.menus?.name,
-      business_name: order.business_name || `${order.menus?.users?.first_name} ${order.menus?.users?.last_name}`,
+      customer_email: order.customer_email,
+      customer_phone: order.customer_phone,
+      menu_name: menuName,
+      business_name: order.business_name,
+      business_email: order.business_email,
     })
   } catch (err: any) {
     console.error('Order lookup error:', err)

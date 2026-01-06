@@ -99,9 +99,11 @@ export function HomeContent({ menus }: HomeContentProps) {
             <p className="text-muted-foreground mb-4">
               Setup and manage payments to get paid instantly.
             </p>
-            <Button className="w-full bg-secondary hover:bg-secondary/90 text-secondary-foreground">
-              Manage Payments
-            </Button>
+            <Link href="/payments">
+              <Button className="w-full bg-secondary hover:bg-secondary/90 text-secondary-foreground">
+                Manage Payments
+              </Button>
+            </Link>
           </motion.div>
         </div>
 

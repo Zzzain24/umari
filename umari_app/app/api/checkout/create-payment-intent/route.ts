@@ -71,8 +71,10 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (settingsError || !paymentSettings) {
+      console.error('Payment settings error:', settingsError)
+      console.error('User ID:', menu.user_id)
       return NextResponse.json(
-        { error: 'Payment settings not found' },
+        { error: 'Payment settings not found. Please configure payment settings in your account.' },
         { status: 500 }
       )
     }

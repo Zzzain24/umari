@@ -68,6 +68,7 @@ export function PaymentsContent({
   const isConnected = !!stripeAccount
   const isRestricted = isConnected && !stripeAccount?.charges_enabled
   const [isActivating, setIsActivating] = useState(false)
+  const [isRefreshing, setIsRefreshing] = useState(false)
 
   const handleCompleteOnboarding = async () => {
     setIsActivating(true)
@@ -95,6 +96,37 @@ export function PaymentsContent({
     }
   }
 
+  const handleRefreshStatus = async () => {
+    setIsRefreshing(true)
+    try {
+      const response = await fetch('/api/stripe/refresh-account', {
+        method: 'POST',
+      })
+
+      const data = await response.json()
+
+      if (response.ok && data.success) {
+        toast({
+          title: 'Status Updated',
+          description: 'Your account status has been refreshed from Stripe.',
+          duration: 3000,
+        })
+        // Reload to show updated status
+        window.location.reload()
+      } else {
+        throw new Error(data.error || 'Failed to refresh account status')
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Refresh Failed',
+        description: error.message,
+        variant: 'destructive',
+        duration: 5000,
+      })
+      setIsRefreshing(false)
+    }
+  }
+
   return (
     <div className="container max-w-5xl mx-auto px-4 py-8">
       {/* Page Header */}
@@ -118,15 +150,24 @@ export function PaymentsContent({
             Your Stripe account is connected but needs additional information to accept payments.
             Click below to complete the setup process through Stripe's secure onboarding flow.
           </p>
-          <button
-            onClick={handleCompleteOnboarding}
-            disabled={isActivating}
-            className="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isActivating ? 'Redirecting...' : 'Complete Account Setup'}
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={handleCompleteOnboarding}
+              disabled={isActivating}
+              className="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isActivating ? 'Redirecting...' : 'Complete Account Setup'}
+            </button>
+            <button
+              onClick={handleRefreshStatus}
+              disabled={isRefreshing}
+              className="px-4 py-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-yellow-900 dark:text-yellow-100 border border-yellow-300 dark:border-yellow-700 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isRefreshing ? 'Refreshing...' : 'Refresh Status'}
+            </button>
+          </div>
           <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-3">
-            You'll be redirected to Stripe to provide required business information. In test mode, you can use Stripe's test data.
+            Already completed setup on Stripe? Click "Refresh Status" to sync your account status.
           </p>
         </div>
       )}

@@ -1,7 +1,10 @@
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
 import { CheckoutForm } from './checkout-form'
+import { Button } from '@/components/ui/button'
+import { ArrowLeft } from 'lucide-react'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2024-12-18.acacia' as any,
@@ -146,7 +149,15 @@ export default async function CheckoutPage({ searchParams }: PageProps) {
   return (
     <div className="min-h-screen bg-background pt-24">
       <div className="container max-w-4xl mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-8">Checkout</h1>
+        <div className="flex items-center gap-4 mb-8">
+          <Link href={`/view/${menuId}`}>
+            <Button variant="ghost" size="sm">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Menu
+            </Button>
+          </Link>
+          <h1 className="text-3xl font-bold">Checkout</h1>
+        </div>
         <CheckoutForm
           menuId={menuId}
           menuName={menu.name}

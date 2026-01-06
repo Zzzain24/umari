@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label'
 import { useToast } from '@/hooks/use-toast'
 import { isLocalStorageAvailable } from '@/lib/cart-utils'
 import type { CartItem } from '@/lib/types'
-import { Loader2 } from 'lucide-react'
+import { Loader2, ArrowLeft } from 'lucide-react'
 
 // Initialize Stripe
 let stripePromise: Promise<any> | null = null
@@ -38,6 +38,9 @@ interface CheckoutFormContentProps extends CheckoutFormProps {
     subtotal: number
     platformFee: number
     total: number
+    customerName: string
+    customerEmail: string
+    customerPhone: string
   } | null
   onClientSecretReady: (
     clientSecret: string,
@@ -46,8 +49,12 @@ interface CheckoutFormContentProps extends CheckoutFormProps {
       subtotal: number
       platformFee: number
       total: number
+      customerName: string
+      customerEmail: string
+      customerPhone: string
     }
   ) => void
+  onBackToCustomerInfo: () => void
 }
 
 function CheckoutFormContent({
@@ -56,6 +63,7 @@ function CheckoutFormContent({
   platformFeePercentage,
   paymentIntentData,
   onClientSecretReady,
+  onBackToCustomerInfo,
 }: CheckoutFormContentProps) {
   // These hooks can be called even when not using payment yet - they'll just return null
   const stripe = useStripe()
@@ -131,12 +139,15 @@ function CheckoutFormContent({
       setSubtotal(data.subtotal)
       setPlatformFee(data.platformFee)
       setTotal(data.total) // This is now just subtotal
-      // Notify parent with clientSecret and payment intent data
+      // Notify parent with clientSecret and payment intent data (including customer info)
       onClientSecretReady(data.clientSecret, {
         paymentIntentId: data.paymentIntentId,
         subtotal: data.subtotal,
         platformFee: data.platformFee,
         total: data.total,
+        customerName,
+        customerEmail,
+        customerPhone,
       })
     } catch (error: any) {
       toast({
@@ -149,20 +160,23 @@ function CheckoutFormContent({
     }
   }
 
+
   // If we have payment intent data, we're in payment mode - render payment form
+  // Use customer info from paymentIntentData to ensure it persists across re-renders
   if (paymentIntentData && stripe && elements) {
     return (
       <div className="grid md:grid-cols-2 gap-8">
         <PaymentFormContent
           menuId={menuId}
           cart={cart}
-          customerName={customerName}
-          customerEmail={customerEmail}
-          customerPhone={customerPhone}
+          customerName={paymentIntentData.customerName || customerName}
+          customerEmail={paymentIntentData.customerEmail || customerEmail}
+          customerPhone={paymentIntentData.customerPhone || customerPhone}
           paymentIntentId={paymentIntentData.paymentIntentId}
           subtotal={paymentIntentData.subtotal}
           platformFee={paymentIntentData.platformFee}
           total={paymentIntentData.total}
+          onBack={onBackToCustomerInfo}
         />
         <OrderSummary
           cart={cart}
@@ -484,6 +498,7 @@ function PaymentFormContent({
   subtotal,
   platformFee,
   total,
+  onBack,
 }: {
   menuId: string
   cart: CartItem[]
@@ -494,6 +509,7 @@ function PaymentFormContent({
   subtotal: number
   platformFee: number
   total: number
+  onBack: () => void
 }) {
   const stripe = useStripe()
   const elements = useElements()
@@ -566,7 +582,19 @@ function PaymentFormContent({
 
   return (
     <div className="bg-card border border-border rounded-lg p-6">
-      <h2 className="text-xl font-semibold mb-4">Payment Information</h2>
+      <div className="flex items-center mb-4">
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={onBack}
+          className="mr-2 -ml-2"
+        >
+          <ArrowLeft className="h-4 w-4 mr-1" />
+          Back
+        </Button>
+        <h2 className="text-xl font-semibold">Payment Information</h2>
+      </div>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <PaymentElement />
@@ -594,6 +622,9 @@ export function CheckoutForm(props: CheckoutFormProps) {
     subtotal: number
     platformFee: number
     total: number
+    customerName: string
+    customerEmail: string
+    customerPhone: string
   } | null>(null)
 
   const handleClientSecretReady = (secret: string, data: {
@@ -601,9 +632,19 @@ export function CheckoutForm(props: CheckoutFormProps) {
     subtotal: number
     platformFee: number
     total: number
+    customerName: string
+    customerEmail: string
+    customerPhone: string
   }) => {
     setClientSecret(secret)
     setPaymentIntentData(data)
+  }
+
+  const handleBackToCustomerInfo = () => {
+    // Clear payment intent data to go back to customer info form
+    // Customer info will be restored from paymentIntentData in CheckoutFormContent
+    setPaymentIntentData(null)
+    setClientSecret(null)
   }
 
   // Always wrap in Elements, but only provide clientSecret when we have it
@@ -630,6 +671,7 @@ export function CheckoutForm(props: CheckoutFormProps) {
         {...props}
         paymentIntentData={paymentIntentData}
         onClientSecretReady={handleClientSecretReady}
+        onBackToCustomerInfo={handleBackToCustomerInfo}
       />
     </Elements>
   )

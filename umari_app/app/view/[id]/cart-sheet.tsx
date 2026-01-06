@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter, usePathname } from "next/navigation"
 import {
   Sheet,
   SheetContent,
@@ -8,6 +9,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet"
+import { Button } from "@/components/ui/button"
 import { ShoppingCart } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
 import { CartItem } from "./cart-item"
@@ -16,7 +18,12 @@ import type { CartItem as CartItemType } from "@/lib/types"
 
 export function CartSheet() {
   const { cart, isCartOpen, closeCart, subtotal } = useCart()
+  const router = useRouter()
+  const pathname = usePathname()
   const [editingItem, setEditingItem] = useState<CartItemType | null>(null)
+
+  // Get menuId from URL path (/view/[id])
+  const menuId = pathname?.split('/view/')[1] || ''
 
   const handleEdit = (item: CartItemType) => {
     setEditingItem(item)
@@ -24,6 +31,11 @@ export function CartSheet() {
 
   const handleCloseEdit = () => {
     setEditingItem(null)
+  }
+
+  const handleCheckout = () => {
+    closeCart()
+    router.push(`/checkout?menuId=${menuId}`)
   }
 
   return (
@@ -62,11 +74,14 @@ export function CartSheet() {
                   <span>${subtotal.toFixed(2)}</span>
                 </div>
 
-                <div className="bg-muted/50 p-3 rounded-lg">
-                  <p className="text-sm text-muted-foreground text-center">
-                    Checkout coming soon
-                  </p>
-                </div>
+                <Button
+                  onClick={handleCheckout}
+                  className="w-full"
+                  size="lg"
+                  disabled={cart.length === 0}
+                >
+                  Proceed to Checkout
+                </Button>
               </div>
             </>
           )}

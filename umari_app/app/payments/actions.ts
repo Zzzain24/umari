@@ -69,14 +69,31 @@ export async function disconnectStripeAccount(): Promise<{ success: boolean; err
       return { success: false, error: 'No Stripe account found' }
     }
 
+    // Validate environment variables
+    const clientId = process.env.NEXT_PUBLIC_STRIPE_CLIENT_ID
+    if (!clientId) {
+      return { 
+        success: false, 
+        error: 'Server configuration error: NEXT_PUBLIC_STRIPE_CLIENT_ID is missing' 
+      }
+    }
+
+    const secretKey = process.env.STRIPE_SECRET_KEY
+    if (!secretKey) {
+      return { 
+        success: false, 
+        error: 'Server configuration error: STRIPE_SECRET_KEY is missing' 
+      }
+    }
+
     // Initialize Stripe
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+    const stripe = new Stripe(secretKey, {
       apiVersion: '2024-12-18.acacia',
     })
 
     // Deauthorize on Stripe
     await stripe.oauth.deauthorize({
-      client_id: process.env.STRIPE_CLIENT_ID!,
+      client_id: clientId,
       stripe_user_id: stripeAccount.stripe_account_id,
     })
 

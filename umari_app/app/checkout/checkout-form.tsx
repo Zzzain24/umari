@@ -89,7 +89,7 @@ function CheckoutFormContent({
           const fee = (cartSubtotal * platformFeePercentage) / 100
           setSubtotal(cartSubtotal)
           setPlatformFee(fee)
-          setTotal(cartSubtotal + fee)
+          setTotal(cartSubtotal) // Customer pays subtotal only, platform fee comes from business share
         }
       }
     } catch (error) {
@@ -130,7 +130,7 @@ function CheckoutFormContent({
 
       setSubtotal(data.subtotal)
       setPlatformFee(data.platformFee)
-      setTotal(data.total)
+      setTotal(data.total) // This is now just subtotal
       // Notify parent with clientSecret and payment intent data
       onClientSecretReady(data.clientSecret, {
         paymentIntentId: data.paymentIntentId,
@@ -261,17 +261,7 @@ function OrderSummary({
         </div>
 
         <div className="space-y-2 pt-4 border-t border-border">
-          <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Subtotal:</span>
-            <span>${subtotal.toFixed(2)}</span>
-          </div>
-          {platformFee > 0 && (
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Service Fee:</span>
-              <span>${platformFee.toFixed(2)}</span>
-            </div>
-          )}
-          <div className="flex justify-between text-lg font-semibold pt-2 border-t border-border">
+          <div className="flex justify-between text-lg font-semibold">
             <span>Total:</span>
             <span>${total.toFixed(2)}</span>
           </div>
@@ -284,6 +274,25 @@ function OrderSummary({
       </div>
     </div>
   )
+}
+
+// Validation helpers
+function isValidName(name: string): boolean {
+  // Name should be at least 2 characters and contain only letters, spaces, hyphens, and apostrophes
+  const nameRegex = /^[a-zA-Z\s'-]{2,}$/
+  return nameRegex.test(name.trim())
+}
+
+function isValidEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  return emailRegex.test(email)
+}
+
+function isValidPhone(phone: string): boolean {
+  // Remove all non-digit characters for validation
+  const digitsOnly = phone.replace(/\D/g, '')
+  // Accept 10-15 digits (covers most international formats)
+  return digitsOnly.length >= 10 && digitsOnly.length <= 15
 }
 
 // Customer info form component (before payment intent)
@@ -310,6 +319,83 @@ function CustomerInfoForm({
   isCreatingIntent: boolean
   disabled: boolean
 }) {
+  const [nameError, setNameError] = useState<string>('')
+  const [emailError, setEmailError] = useState<string>('')
+  const [phoneError, setPhoneError] = useState<string>('')
+  const [touched, setTouched] = useState({
+    name: false,
+    email: false,
+    phone: false,
+  })
+
+  const handleNameChange = (value: string) => {
+    onNameChange(value)
+    if (touched.name) {
+      if (value && !isValidName(value)) {
+        setNameError('Please enter a valid name (at least 2 characters)')
+      } else {
+        setNameError('')
+      }
+    }
+  }
+
+  const handleEmailChange = (value: string) => {
+    onEmailChange(value)
+    if (touched.email) {
+      if (value && !isValidEmail(value)) {
+        setEmailError('Please enter a valid email address')
+      } else {
+        setEmailError('')
+      }
+    }
+  }
+
+  const handlePhoneChange = (value: string) => {
+    onPhoneChange(value)
+    if (touched.phone) {
+      if (value && !isValidPhone(value)) {
+        setPhoneError('Please enter a valid phone number (10-15 digits)')
+      } else {
+        setPhoneError('')
+      }
+    }
+  }
+
+  const handleNameBlur = () => {
+    setTouched({ ...touched, name: true })
+    if (customerName && !isValidName(customerName)) {
+      setNameError('Please enter a valid name (at least 2 characters)')
+    } else {
+      setNameError('')
+    }
+  }
+
+  const handleEmailBlur = () => {
+    setTouched({ ...touched, email: true })
+    if (customerEmail && !isValidEmail(customerEmail)) {
+      setEmailError('Please enter a valid email address')
+    } else {
+      setEmailError('')
+    }
+  }
+
+  const handlePhoneBlur = () => {
+    setTouched({ ...touched, phone: true })
+    if (customerPhone && !isValidPhone(customerPhone)) {
+      setPhoneError('Please enter a valid phone number (10-15 digits)')
+    } else {
+      setPhoneError('')
+    }
+  }
+
+  const isFormValid =
+    customerName.trim() &&
+    isValidName(customerName) &&
+    customerEmail.trim() &&
+    isValidEmail(customerEmail) &&
+    customerPhone.trim() &&
+    isValidPhone(customerPhone)
+
   return (
     <div className="bg-card border border-border rounded-lg p-6">
       <h2 className="text-xl font-semibold mb-4">Customer Information</h2>
@@ -319,11 +405,16 @@ function CustomerInfoForm({
           <Input
             id="customerName"
             value={customerName}
-            onChange={(e) => onNameChange(e.target.value)}
+            onChange={(e) => handleNameChange(e.target.value)}
+            onBlur={handleNameBlur}
             required
             disabled={disabled}
-            className="mt-1"
+            className={`mt-1 ${nameError ? 'border-red-500' : ''}`}
+            placeholder="John Doe"
           />
+          {nameError && (
+            <p className="text-sm text-red-500 mt-1">{nameError}</p>
+          )}
         </div>
 
         <div>
@@ -332,11 +423,16 @@ function CustomerInfoForm({
             id="customerEmail"
             type="email"
             value={customerEmail}
-            onChange={(e) => onEmailChange(e.target.value)}
+            onChange={(e) => handleEmailChange(e.target.value)}
+            onBlur={handleEmailBlur}
             required
             disabled={disabled}
-            className="mt-1"
+            className={`mt-1 ${emailError ? 'border-red-500' : ''}`}
+            placeholder="john@example.com"
           />
+          {emailError && (
+            <p className="text-sm text-red-500 mt-1">{emailError}</p>
+          )}
         </div>
 
         <div>
@@ -345,17 +441,22 @@ function CustomerInfoForm({
             id="customerPhone"
             type="tel"
             value={customerPhone}
-            onChange={(e) => onPhoneChange(e.target.value)}
+            onChange={(e) => handlePhoneChange(e.target.value)}
+            onBlur={handlePhoneBlur}
             required
             disabled={disabled}
-            className="mt-1"
+            className={`mt-1 ${phoneError ? 'border-red-500' : ''}`}
+            placeholder="(555) 123-4567"
           />
+          {phoneError && (
+            <p className="text-sm text-red-500 mt-1">{phoneError}</p>
+          )}
         </div>
 
         <Button
           type="button"
           onClick={onCreatePaymentIntent}
-          disabled={isCreatingIntent || !customerName || !customerEmail || !customerPhone}
+          disabled={isCreatingIntent || !isFormValid}
           className="w-full"
         >
           {isCreatingIntent ? (

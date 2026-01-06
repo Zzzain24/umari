@@ -34,6 +34,35 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Validate name format (at least 2 characters, letters, spaces, hyphens, apostrophes)
+    const nameRegex = /^[a-zA-Z\s'-]{2,}$/
+    if (!nameRegex.test(customerName.trim())) {
+      return NextResponse.json(
+        { error: 'Please enter a valid name (at least 2 characters)' },
+        { status: 400 }
+      )
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(customerEmail)) {
+      return NextResponse.json(
+        { error: 'Please enter a valid email address' },
+        { status: 400 }
+      )
+    }
+
+    // Validate phone number format (10-15 digits)
+    if (customerPhone) {
+      const digitsOnly = customerPhone.replace(/\D/g, '')
+      if (digitsOnly.length < 10 || digitsOnly.length > 15) {
+        return NextResponse.json(
+          { error: 'Please enter a valid phone number (10-15 digits)' },
+          { status: 400 }
+        )
+      }
+    }
+
     if (!stripePaymentIntentId) {
       return NextResponse.json(
         { error: 'Payment intent ID is required' },
@@ -84,10 +113,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Calculate totals
+    // Customer pays only subtotal - platform fee is deducted from business share
     const subtotal = cart.reduce((sum: number, item: any) => sum + item.totalPrice, 0)
     const platformFeePercentage = parseFloat(paymentSettings.application_fee_percentage.toString())
     const platformFee = (subtotal * platformFeePercentage) / 100
-    const total = subtotal + platformFee
+    const total = subtotal // Customer pays subtotal only, platform fee comes from business share
 
     // Create order (order_number and business_name/business_email auto-populated by triggers)
     const { data: order, error: orderError } = await supabaseAdmin

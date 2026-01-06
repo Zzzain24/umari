@@ -36,6 +36,7 @@ export function ConnectStripeButton({ userId }: ConnectStripeButtonProps) {
     }
 
     const params = new URLSearchParams({
+      response_type: 'code', // Required by Stripe OAuth
       client_id: clientId,
       state: userId, // For verification
       scope: 'read_write',

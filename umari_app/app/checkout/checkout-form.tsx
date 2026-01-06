@@ -57,6 +57,7 @@ function CheckoutFormContent({
   paymentIntentData,
   onClientSecretReady,
 }: CheckoutFormContentProps) {
+  // These hooks can be called even when not using payment yet - they'll just return null
   const stripe = useStripe()
   const elements = useElements()
   const router = useRouter()
@@ -504,33 +505,32 @@ export function CheckoutForm(props: CheckoutFormProps) {
     setPaymentIntentData(data)
   }
 
-  // Once we have clientSecret, render Elements with it
-  if (clientSecret && paymentIntentData) {
-    const stripeOptions: StripeElementsOptions = {
-      clientSecret,
-      appearance: {
-        theme: 'stripe',
-      },
-    }
+  // Always wrap in Elements, but only provide clientSecret when we have it
+  const stripeOptions: StripeElementsOptions = clientSecret
+    ? {
+        clientSecret,
+        appearance: {
+          theme: 'stripe',
+        },
+      }
+    : {
+        appearance: {
+          theme: 'stripe',
+        },
+      }
 
-    return (
-      <Elements stripe={getStripe()} options={stripeOptions}>
-        <CheckoutFormContent
-          {...props}
-          paymentIntentData={paymentIntentData}
-          onClientSecretReady={handleClientSecretReady}
-        />
-      </Elements>
-    )
-  }
-
-  // Before payment intent, render without Elements
   return (
-    <CheckoutFormContent
-      {...props}
-      paymentIntentData={null}
-      onClientSecretReady={handleClientSecretReady}
-    />
+    <Elements
+      stripe={getStripe()}
+      options={stripeOptions}
+      key={clientSecret || 'initial'} // Force re-render when clientSecret changes
+    >
+      <CheckoutFormContent
+        {...props}
+        paymentIntentData={paymentIntentData}
+        onClientSecretReady={handleClientSecretReady}
+      />
+    </Elements>
   )
 }
 

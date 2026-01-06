@@ -31,7 +31,7 @@ export function PaymentsContent({
     const success = params.get('success')
     const error = params.get('error')
 
-    if (success) {
+    if (success === 'true') {
       toast({
         title: 'Connected!',
         description: 'Your Stripe account has been successfully connected.',
@@ -39,12 +39,24 @@ export function PaymentsContent({
       })
       // Refresh the page to load new account data
       window.location.replace('/payments')
+    } else if (success === 'onboarding_complete') {
+      toast({
+        title: 'Onboarding Complete!',
+        description: 'Your Stripe account is now ready to accept payments.',
+        duration: 5000,
+      })
+      // Refresh the page to load updated account status
+      window.location.replace('/payments')
     }
 
     if (error) {
+      const errorMessages: Record<string, string> = {
+        'onboarding_refresh': 'Onboarding link expired. Please try again.',
+      }
+
       toast({
         title: 'Connection Failed',
-        description: `Error: ${error}`,
+        description: errorMessages[error] || `Error: ${error}`,
         variant: 'destructive',
         duration: 5000,
       })
@@ -66,25 +78,19 @@ export function PaymentsContent({
 
       const data = await response.json()
 
-      if (response.ok && data.success) {
-        toast({
-          title: 'Account Activated!',
-          description: 'Your test account is now ready to accept payments.',
-          duration: 5000,
-        })
-        // Reload to get updated account status
-        window.location.reload()
+      if (response.ok && data.success && data.url) {
+        // Redirect to Stripe's hosted onboarding flow
+        window.location.href = data.url
       } else {
-        throw new Error(data.error || 'Failed to activate account')
+        throw new Error(data.error || 'Failed to generate onboarding link')
       }
     } catch (error: any) {
       toast({
-        title: 'Activation Failed',
+        title: 'Onboarding Failed',
         description: error.message,
         variant: 'destructive',
         duration: 5000,
       })
-    } finally {
       setIsActivating(false)
     }
   }
@@ -106,21 +112,21 @@ export function PaymentsContent({
       {isRestricted && (
         <div className="mt-6 bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-lg p-6">
           <h3 className="text-lg font-semibold text-yellow-900 dark:text-yellow-100 mb-2">
-            Test Account Requires Activation
+            Account Setup Required
           </h3>
           <p className="text-sm text-yellow-700 dark:text-yellow-300 mb-4">
-            Your Stripe test account is connected but restricted. Click the button below to
-            automatically complete the onboarding with test data and activate payment processing.
+            Your Stripe account is connected but needs additional information to accept payments.
+            Click below to complete the setup process through Stripe's secure onboarding flow.
           </p>
           <button
             onClick={handleCompleteOnboarding}
             disabled={isActivating}
             className="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isActivating ? 'Activating...' : 'Complete Test Account Setup'}
+            {isActivating ? 'Redirecting...' : 'Complete Account Setup'}
           </button>
           <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-3">
-            This uses Stripe's test data (SSN: 0000, Routing: 110000000) to activate the account.
+            You'll be redirected to Stripe to provide required business information. In test mode, you can use Stripe's test data.
           </p>
         </div>
       )}

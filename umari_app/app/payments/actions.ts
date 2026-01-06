@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import Stripe from 'stripe'
 
 type UpdateSettingsResponse =
   | { success: true; data: any }
@@ -57,18 +58,42 @@ export async function disconnectStripeAccount(): Promise<{ success: boolean; err
       return { success: false, error: 'Not authenticated' }
     }
 
-    // Call API route to handle Stripe deauthorization
-    const response = await fetch('/api/stripe/deauthorize', {
-      method: 'POST',
+    // Get Stripe account
+    const { data: stripeAccount, error: fetchError } = await supabase
+      .from('stripe_accounts')
+      .select('stripe_account_id')
+      .eq('user_id', user.id)
+      .single()
+
+    if (fetchError || !stripeAccount) {
+      return { success: false, error: 'No Stripe account found' }
+    }
+
+    // Initialize Stripe
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+      apiVersion: '2024-12-18.acacia',
     })
 
-    if (!response.ok) {
-      throw new Error('Failed to disconnect account')
+    // Deauthorize on Stripe
+    await stripe.oauth.deauthorize({
+      client_id: process.env.STRIPE_CLIENT_ID!,
+      stripe_user_id: stripeAccount.stripe_account_id,
+    })
+
+    // Delete from database
+    const { error: deleteError } = await supabase
+      .from('stripe_accounts')
+      .delete()
+      .eq('user_id', user.id)
+
+    if (deleteError) {
+      return { success: false, error: 'Failed to delete account from database' }
     }
 
     revalidatePath('/payments')
     return { success: true }
   } catch (error: any) {
+    console.error('Disconnect error:', error)
     return {
       success: false,
       error: error.message || 'Failed to disconnect',

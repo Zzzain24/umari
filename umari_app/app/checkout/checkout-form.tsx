@@ -42,6 +42,12 @@ interface CheckoutFormContentProps extends CheckoutFormProps {
     customerEmail: string
     customerPhone: string
   } | null
+  customerName: string
+  customerEmail: string
+  customerPhone: string
+  onCustomerNameChange: (value: string) => void
+  onCustomerEmailChange: (value: string) => void
+  onCustomerPhoneChange: (value: string) => void
   onClientSecretReady: (
     clientSecret: string,
     data: {
@@ -62,6 +68,12 @@ function CheckoutFormContent({
   menuName,
   platformFeePercentage,
   paymentIntentData,
+  customerName,
+  customerEmail,
+  customerPhone,
+  onCustomerNameChange,
+  onCustomerEmailChange,
+  onCustomerPhoneChange,
   onClientSecretReady,
   onBackToCustomerInfo,
 }: CheckoutFormContentProps) {
@@ -76,11 +88,6 @@ function CheckoutFormContent({
   const [subtotal, setSubtotal] = useState(0)
   const [platformFee, setPlatformFee] = useState(0)
   const [total, setTotal] = useState(0)
-
-  // Form fields
-  const [customerName, setCustomerName] = useState('')
-  const [customerEmail, setCustomerEmail] = useState('')
-  const [customerPhone, setCustomerPhone] = useState('')
 
   // Load cart from localStorage
   useEffect(() => {
@@ -212,9 +219,9 @@ function CheckoutFormContent({
         customerName={customerName}
         customerEmail={customerEmail}
         customerPhone={customerPhone}
-        onNameChange={setCustomerName}
-        onEmailChange={setCustomerEmail}
-        onPhoneChange={setCustomerPhone}
+        onNameChange={onCustomerNameChange}
+        onEmailChange={onCustomerEmailChange}
+        onPhoneChange={onCustomerPhoneChange}
         onCreatePaymentIntent={handleCreatePaymentIntent}
         isCreatingIntent={isCreatingIntent}
         disabled={isCreatingIntent}
@@ -309,6 +316,23 @@ function isValidPhone(phone: string): boolean {
   return digitsOnly.length >= 10 && digitsOnly.length <= 15
 }
 
+function formatPhoneNumber(phone: string): string {
+  // Remove all non-digit characters
+  const digitsOnly = phone.replace(/\D/g, '')
+  
+  // Format as XXX-XXX-XXXX for US numbers (10 digits)
+  if (digitsOnly.length <= 3) {
+    return digitsOnly
+  } else if (digitsOnly.length <= 6) {
+    return `${digitsOnly.slice(0, 3)}-${digitsOnly.slice(3)}`
+  } else if (digitsOnly.length <= 10) {
+    return `${digitsOnly.slice(0, 3)}-${digitsOnly.slice(3, 6)}-${digitsOnly.slice(6)}`
+  } else {
+    // For numbers longer than 10 digits, format first 10 as XXX-XXX-XXXX and append the rest
+    return `${digitsOnly.slice(0, 3)}-${digitsOnly.slice(3, 6)}-${digitsOnly.slice(6, 10)}-${digitsOnly.slice(10)}`
+  }
+}
+
 // Customer info form component (before payment intent)
 function CustomerInfoForm({
   menuId,
@@ -365,9 +389,11 @@ function CustomerInfoForm({
   }
 
   const handlePhoneChange = (value: string) => {
-    onPhoneChange(value)
+    // Format the phone number with dashes
+    const formatted = formatPhoneNumber(value)
+    onPhoneChange(formatted)
     if (touched.phone) {
-      if (value && !isValidPhone(value)) {
+      if (formatted && !isValidPhone(formatted)) {
         setPhoneError('Please enter a valid phone number (10-15 digits)')
       } else {
         setPhoneError('')
@@ -460,7 +486,7 @@ function CustomerInfoForm({
             required
             disabled={disabled}
             className={`mt-1 ${phoneError ? 'border-red-500' : ''}`}
-            placeholder="(555) 123-4567"
+            placeholder="555-123-4567"
           />
           {phoneError && (
             <p className="text-sm text-red-500 mt-1">{phoneError}</p>
@@ -561,10 +587,12 @@ function PaymentFormContent({
           throw new Error(orderData.error || 'Failed to create order')
         }
 
-        // Clear cart
+        // Clear cart and customer info
         if (isLocalStorageAvailable()) {
-          const storageKey = `umari-cart-${menuId}`
-          localStorage.removeItem(storageKey)
+          const cartStorageKey = `umari-cart-${menuId}`
+          const customerStorageKey = `umari-customer-${menuId}`
+          localStorage.removeItem(cartStorageKey)
+          localStorage.removeItem(customerStorageKey)
         }
 
         // Redirect to confirmation page
@@ -616,6 +644,7 @@ function PaymentFormContent({
 }
 
 export function CheckoutForm(props: CheckoutFormProps) {
+  const { menuId } = props
   const [clientSecret, setClientSecret] = useState<string | null>(null)
   const [paymentIntentData, setPaymentIntentData] = useState<{
     paymentIntentId: string
@@ -626,6 +655,48 @@ export function CheckoutForm(props: CheckoutFormProps) {
     customerEmail: string
     customerPhone: string
   } | null>(null)
+
+  // Customer form state - lifted to parent to persist across navigation
+  const [customerName, setCustomerName] = useState('')
+  const [customerEmail, setCustomerEmail] = useState('')
+  const [customerPhone, setCustomerPhone] = useState('')
+
+  // Load customer info from localStorage on mount
+  useEffect(() => {
+    if (!isLocalStorageAvailable()) return
+
+    const storageKey = `umari-customer-${menuId}`
+    try {
+      const savedCustomerInfo = localStorage.getItem(storageKey)
+      if (savedCustomerInfo) {
+        const parsed = JSON.parse(savedCustomerInfo)
+        if (parsed.customerName) setCustomerName(parsed.customerName)
+        if (parsed.customerEmail) setCustomerEmail(parsed.customerEmail)
+        if (parsed.customerPhone) setCustomerPhone(parsed.customerPhone)
+      }
+    } catch (error) {
+      console.error('Failed to load customer info from localStorage:', error)
+    }
+  }, [menuId])
+
+  // Save customer info to localStorage when it changes
+  useEffect(() => {
+    if (!isLocalStorageAvailable()) return
+
+    // Only save if at least one field has data
+    if (customerName || customerEmail || customerPhone) {
+      const storageKey = `umari-customer-${menuId}`
+      try {
+        localStorage.setItem(storageKey, JSON.stringify({
+          customerName,
+          customerEmail,
+          customerPhone,
+        }))
+      } catch (error) {
+        console.error('Failed to save customer info to localStorage:', error)
+      }
+    }
+  }, [customerName, customerEmail, customerPhone, menuId])
 
   const handleClientSecretReady = (secret: string, data: {
     paymentIntentId: string
@@ -638,11 +709,15 @@ export function CheckoutForm(props: CheckoutFormProps) {
   }) => {
     setClientSecret(secret)
     setPaymentIntentData(data)
+    // Persist customer data in parent state to survive navigation
+    setCustomerName(data.customerName)
+    setCustomerEmail(data.customerEmail)
+    setCustomerPhone(data.customerPhone)
   }
 
   const handleBackToCustomerInfo = () => {
     // Clear payment intent data to go back to customer info form
-    // Customer info will be restored from paymentIntentData in CheckoutFormContent
+    // Customer info persists in parent state (customerName, customerEmail, customerPhone)
     setPaymentIntentData(null)
     setClientSecret(null)
   }
@@ -670,6 +745,12 @@ export function CheckoutForm(props: CheckoutFormProps) {
       <CheckoutFormContent
         {...props}
         paymentIntentData={paymentIntentData}
+        customerName={customerName}
+        customerEmail={customerEmail}
+        customerPhone={customerPhone}
+        onCustomerNameChange={setCustomerName}
+        onCustomerEmailChange={setCustomerEmail}
+        onCustomerPhoneChange={setCustomerPhone}
         onClientSecretReady={handleClientSecretReady}
         onBackToCustomerInfo={handleBackToCustomerInfo}
       />

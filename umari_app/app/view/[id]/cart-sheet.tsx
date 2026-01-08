@@ -68,20 +68,22 @@ export function CartSheet() {
                 </div>
               </div>
 
-              <div className="border-t border-border pt-4 space-y-4">
+              <div className="border-t border-border pt-4 pb-5 space-y-4">
                 <div className="flex items-center justify-around gap-40 text-lg font-semibold">
                   <span>Subtotal</span>
                   <span>${subtotal.toFixed(2)}</span>
                 </div>
 
-                <Button
-                  onClick={handleCheckout}
-                  className="w-full"
-                  size="lg"
-                  disabled={cart.length === 0}
-                >
-                  Proceed to Checkout
-                </Button>
+                <div className="flex justify-center">
+                  <Button
+                    onClick={handleCheckout}
+                    className="w-auto px-8"
+                    size="lg"
+                    disabled={cart.length === 0}
+                  >
+                    Proceed to Checkout
+                  </Button>
+                </div>
               </div>
             </>
           )}

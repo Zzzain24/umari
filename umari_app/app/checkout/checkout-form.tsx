@@ -578,6 +578,7 @@ function PaymentFormContent({
             customerEmail,
             customerPhone,
             stripePaymentIntentId: paymentIntentId,
+            paymentStatus: paymentIntent.status, // Pass actual Stripe payment status
           }),
         })
 

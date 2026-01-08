@@ -626,7 +626,14 @@ function PaymentFormContent({
       </div>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <PaymentElement />
+          <PaymentElement
+            options={{
+              wallets: {
+                applePay: 'auto',
+                googlePay: 'auto',
+              },
+            }}
+          />
         </div>
 
         <Button type="submit" disabled={isLoading || !stripe} className="w-full">

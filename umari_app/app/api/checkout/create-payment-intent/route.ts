@@ -125,9 +125,11 @@ export async function POST(request: NextRequest) {
     const applicationFeeInCents = Math.round(platformFee * 100)
 
     // Create Payment Intent with Stripe Connect
+    // Include 'card' payment method type to enable Apple Pay and Google Pay
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amountInCents,
       currency: paymentSettings.default_currency || 'usd',
+      payment_method_types: ['card'], // Enables card payments and wallet payments (Apple Pay, Google Pay)
       application_fee_amount: applicationFeeInCents,
       on_behalf_of: stripeAccount.stripe_account_id,
       transfer_data: {

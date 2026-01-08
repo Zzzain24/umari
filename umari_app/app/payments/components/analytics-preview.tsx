@@ -20,28 +20,12 @@ export function AnalyticsPreview({ stripeAccount }: AnalyticsPreviewProps) {
         View detailed payment analytics, reports, and insights in your Stripe Dashboard.
       </p>
 
-      <Button onClick={openStripeDashboard} variant="outline" className="w-full">
-        Open Stripe Dashboard
-        <ExternalLink className="ml-2 w-4 h-4" />
-      </Button>
-
-      <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-border">
-        <div className="text-center">
-          <p className="text-2xl font-bold">--</p>
-          <p className="text-xs text-muted-foreground">Total Sales</p>
-        </div>
-        <div className="text-center">
-          <p className="text-2xl font-bold">--</p>
-          <p className="text-xs text-muted-foreground">Orders</p>
-        </div>
-        <div className="text-center">
-          <p className="text-2xl font-bold">--</p>
-          <p className="text-xs text-muted-foreground">This Month</p>
-        </div>
+      <div className="flex justify-center">
+        <Button onClick={openStripeDashboard} variant="outline" className="w-auto">
+          Open Stripe Dashboard
+          <ExternalLink className="ml-2 w-4 h-4" />
+        </Button>
       </div>
-      <p className="text-xs text-center text-muted-foreground mt-2">
-        Live data available in Stripe Dashboard
-      </p>
     </div>
   )
 }

@@ -204,16 +204,6 @@ export default function TrackOrderPage() {
               </div>
 
               <div className="mt-4 pt-4 border-t border-border space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Subtotal:</span>
-                  <span>${order.subtotal.toFixed(2)}</span>
-                </div>
-                {order.platform_fee > 0 && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Service Fee:</span>
-                    <span>${order.platform_fee.toFixed(2)}</span>
-                  </div>
-                )}
                 <div className="flex justify-between text-lg font-semibold">
                   <span>Total:</span>
                   <span>${order.total.toFixed(2)}</span>

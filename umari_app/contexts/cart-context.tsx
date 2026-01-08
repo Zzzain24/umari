@@ -16,6 +16,7 @@ interface CartProviderProps {
 export function CartProvider({ children, menuId, menuItems }: CartProviderProps) {
   const [cart, setCart] = useState<CartItem[]>([])
   const [isCartOpen, setIsCartOpen] = useState(false)
+  const [isInitialized, setIsInitialized] = useState(false)
   const { toast } = useToast()
 
   const storageKey = `umari-cart-${menuId}`
@@ -25,10 +26,14 @@ export function CartProvider({ children, menuId, menuItems }: CartProviderProps)
     return menuItems.find(item => item.id === menuItemId)
   }
 
-  // Load cart from localStorage on mount
+  // Load cart from localStorage on mount or when menuId changes
   useEffect(() => {
+    // Reset initialization flag when menuId changes
+    setIsInitialized(false)
+
     if (!isLocalStorageAvailable()) {
       console.warn("localStorage is not available")
+      setIsInitialized(true)
       return
     }
 
@@ -43,12 +48,15 @@ export function CartProvider({ children, menuId, menuItems }: CartProviderProps)
     } catch (error) {
       console.error("Failed to load cart from localStorage:", error)
       localStorage.removeItem(storageKey)
+    } finally {
+      setIsInitialized(true)
     }
   }, [menuId, storageKey])
 
-  // Save cart to localStorage whenever it changes
+  // Save cart to localStorage whenever it changes (after initialization)
   useEffect(() => {
-    if (!isLocalStorageAvailable()) {
+    // Don't save until cart has been loaded from localStorage
+    if (!isInitialized || !isLocalStorageAvailable()) {
       return
     }
 
@@ -64,7 +72,7 @@ export function CartProvider({ children, menuId, menuItems }: CartProviderProps)
         })
       }
     }
-  }, [cart, storageKey, toast])
+  }, [cart, storageKey, toast, isInitialized])
 
   // Computed values
   const totalItems = useMemo(() => {

@@ -17,6 +17,7 @@ export async function POST(request: NextRequest) {
       customerEmail,
       customerPhone,
       stripePaymentIntentId,
+      paymentStatus,
     } = body
 
     // Validate required fields
@@ -69,6 +70,30 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
+
+    // Map Stripe PaymentIntent status to our database payment_status
+    // Stripe statuses: succeeded, processing, requires_payment_method, requires_confirmation,
+    //                  requires_action, requires_capture, canceled
+    // Our DB statuses: pending, succeeded, failed, refunded
+    const mapStripeStatusToDbStatus = (stripeStatus: string): string => {
+      switch (stripeStatus) {
+        case 'succeeded':
+          return 'succeeded'
+        case 'canceled':
+          return 'failed'
+        case 'processing':
+        case 'requires_payment_method':
+        case 'requires_confirmation':
+        case 'requires_action':
+        case 'requires_capture':
+        default:
+          return 'pending'
+      }
+    }
+
+    const finalPaymentStatus = paymentStatus
+      ? mapStripeStatusToDbStatus(paymentStatus)
+      : 'pending'
 
     // Get menu to find business owner
     const { data: menu, error: menuError } = await supabaseAdmin
@@ -134,7 +159,7 @@ export async function POST(request: NextRequest) {
         total,
         stripe_payment_intent_id: stripePaymentIntentId,
         stripe_account_id: stripeAccount.stripe_account_id,
-        payment_status: 'pending', // Will be updated by webhook
+        payment_status: finalPaymentStatus, // Provided by checkout flow or webhook
         order_status: 'received',
       })
       .select('id, order_number')

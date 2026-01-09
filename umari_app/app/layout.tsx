@@ -33,6 +33,7 @@ export default function RootLayout({
       <body className="font-sans">
         {children}
         <Toaster />
+        <Analytics />
       </body>
     </html>
   )

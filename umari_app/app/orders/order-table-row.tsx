@@ -3,6 +3,7 @@
 import type { Order } from "@/lib/types"
 import { OrderStatusDropdown } from "./order-status-dropdown"
 import { OrderItemsPopover } from "./order-items-popover"
+import { CustomerPopover } from "./customer-popover"
 import { formatDistanceToNow } from "date-fns"
 
 interface OrderTableRowProps {
@@ -48,9 +49,11 @@ export function OrderTableRow({ order, onStatusChange }: OrderTableRowProps) {
         </span>
       </td>
       <td className="px-4 py-3.5">
-        <span className="text-sm text-foreground">
-          {order.customer_name || 'Guest'}
-        </span>
+        <CustomerPopover
+          name={order.customer_name}
+          email={order.customer_email}
+          phone={order.customer_phone}
+        />
       </td>
       <td className="px-4 py-3.5">
         <OrderItemsPopover items={order.items} />

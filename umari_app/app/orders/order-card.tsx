@@ -3,6 +3,7 @@
 import type { Order } from "@/lib/types"
 import { OrderStatusDropdown } from "./order-status-dropdown"
 import { OrderItemsPopover } from "./order-items-popover"
+import { CustomerPopover } from "./customer-popover"
 import { formatDistanceToNow } from "date-fns"
 
 interface OrderCardProps {
@@ -56,17 +57,12 @@ export function OrderCard({ order, onStatusChange }: OrderCardProps) {
       <div className="px-5 py-3 space-y-3">
         <div className="flex justify-between items-center py-1.5 border-b border-border/30">
           <span className="text-sm text-muted-foreground">Customer</span>
-          <span className="text-sm font-medium text-foreground">
-            {order.customer_name || 'Guest'}
-          </span>
+          <CustomerPopover
+            name={order.customer_name}
+            email={order.customer_email}
+            phone={order.customer_phone}
+          />
         </div>
-
-        {order.customer_phone && (
-          <div className="flex justify-between items-center py-1.5 border-b border-border/30">
-            <span className="text-sm text-muted-foreground">Phone</span>
-            <span className="text-sm text-foreground">{order.customer_phone}</span>
-          </div>
-        )}
 
         <div className="flex justify-between items-center py-1.5 border-b border-border/30">
           <span className="text-sm text-muted-foreground">Items</span>

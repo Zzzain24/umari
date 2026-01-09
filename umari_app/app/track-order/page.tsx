@@ -1,18 +1,25 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, Suspense } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { LandingNavbar } from '@/components/landing/landing-navbar'
-import { Loader2 } from 'lucide-react'
+import { Loader2, RefreshCw } from 'lucide-react'
 
-export default function TrackOrderPage() {
-  const [orderNumber, setOrderNumber] = useState('')
-  const [email, setEmail] = useState('')
+const POLL_INTERVAL = 20000 // 20 seconds
+
+function TrackOrderContent() {
+  const searchParams = useSearchParams()
+  const router = useRouter()
+
+  const [orderNumber, setOrderNumber] = useState(searchParams.get('order') || '')
+  const [email, setEmail] = useState(searchParams.get('email') || '')
   const [order, setOrder] = useState<any>(null)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
 
   // Force light mode for consistency with landing page
   useEffect(() => {
@@ -21,15 +28,17 @@ export default function TrackOrderPage() {
     root.classList.add("light")
   }, [])
 
-  const handleLookup = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
-    setOrder(null)
+  // Fetch order data (used for both initial lookup and polling)
+  const fetchOrder = useCallback(async (orderNum: string, emailAddr: string, isPolling = false) => {
+    if (!isPolling) {
+      setLoading(true)
+      setError('')
+      setOrder(null)
+    }
 
     try {
       const response = await fetch(
-        `/api/orders/lookup?orderNumber=${encodeURIComponent(orderNumber)}&email=${encodeURIComponent(email)}`
+        `/api/orders/lookup?orderNumber=${encodeURIComponent(orderNum)}&email=${encodeURIComponent(emailAddr)}`
       )
 
       if (!response.ok) {
@@ -39,12 +48,53 @@ export default function TrackOrderPage() {
 
       const data = await response.json()
       setOrder(data)
+      setLastUpdated(new Date())
+      setError('')
+      return true
     } catch (err: any) {
-      setError(err.message)
+      if (!isPolling) {
+        setError(err.message)
+      }
+      return false
     } finally {
-      setLoading(false)
+      if (!isPolling) {
+        setLoading(false)
+      }
     }
+  }, [])
+
+  const handleLookup = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    // Update URL with order params
+    const params = new URLSearchParams()
+    params.set('order', orderNumber)
+    params.set('email', email)
+    router.push(`/track-order?${params.toString()}`, { scroll: false })
+
+    await fetchOrder(orderNumber, email)
   }
+
+  // Auto-fetch on mount if URL params are present
+  useEffect(() => {
+    const orderParam = searchParams.get('order')
+    const emailParam = searchParams.get('email')
+
+    if (orderParam && emailParam) {
+      fetchOrder(orderParam, emailParam)
+    }
+  }, []) // Only run on mount
+
+  // Polling for status updates
+  useEffect(() => {
+    if (!order) return
+
+    const interval = setInterval(() => {
+      fetchOrder(orderNumber, email, true)
+    }, POLL_INTERVAL)
+
+    return () => clearInterval(interval)
+  }, [order, orderNumber, email, fetchOrder])
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -135,7 +185,24 @@ export default function TrackOrderPage() {
           <div className="mt-8 space-y-6">
             {/* Status Card */}
             <div className="bg-card border border-border rounded-lg p-6">
-              <h2 className="text-xl font-semibold mb-4">Order Status</h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold">Order Status</h2>
+                <div className="flex items-center gap-2">
+                  {lastUpdated && (
+                    <span className="text-xs text-muted-foreground">
+                      Updated {lastUpdated.toLocaleTimeString()}
+                    </span>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => fetchOrder(orderNumber, email, true)}
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
 
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
@@ -221,9 +288,26 @@ export default function TrackOrderPage() {
               <p className="font-medium">{order.menu_name}</p>
               <p className="text-sm text-muted-foreground">{order.business_name}</p>
             </div>
+
+            {/* Auto-refresh notice */}
+            <p className="text-xs text-center text-muted-foreground">
+              Status updates automatically every 20 seconds
+            </p>
           </div>
         )}
       </div>
     </div>
+  )
+}
+
+export default function TrackOrderPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen w-full flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    }>
+      <TrackOrderContent />
+    </Suspense>
   )
 }

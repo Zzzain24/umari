@@ -124,7 +124,7 @@ export interface Order {
   customer_name: string | null
   customer_email: string | null
   customer_phone: string | null
-  order_status: 'received' | 'preparing' | 'ready' | 'completed' | 'cancelled'
+  order_status: 'received' | 'ready' | 'cancelled'
   order_type: string | null
   special_instructions: string | null
   created_at: string

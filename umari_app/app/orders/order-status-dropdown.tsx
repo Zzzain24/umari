@@ -21,9 +21,7 @@ const statusOptions: {
   label: string
 }[] = [
   { value: 'received', label: 'Received' },
-  { value: 'preparing', label: 'In Progress' },
   { value: 'ready', label: 'Ready' },
-  { value: 'completed', label: 'Complete' },
   { value: 'cancelled', label: 'Cancelled' },
 ]
 

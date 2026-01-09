@@ -48,10 +48,6 @@ export default function TrackOrderPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed':
-        return 'text-green-600 dark:text-green-400'
-      case 'preparing':
-        return 'text-yellow-600 dark:text-yellow-400'
       case 'ready':
         return 'text-blue-600 dark:text-blue-400'
       case 'cancelled':

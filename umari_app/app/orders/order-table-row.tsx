@@ -17,16 +17,8 @@ const statusConfig: Record<Order['order_status'], {
     label: 'Received',
     className: 'bg-warning/15 text-warning'
   },
-  preparing: {
-    label: 'In Progress',
-    className: 'bg-info/15 text-info'
-  },
   ready: {
     label: 'Ready',
-    className: 'bg-success/15 text-success'
-  },
-  completed: {
-    label: 'Complete',
     className: 'bg-success/15 text-success'
   },
   cancelled: {
@@ -85,14 +77,10 @@ export function OrderTableRow({ order, onStatusChange }: OrderTableRowProps) {
         </span>
       </td>
       <td className="px-4 py-3.5">
-        {order.order_status !== 'completed' && order.order_status !== 'cancelled' ? (
-          <OrderStatusDropdown
-            currentStatus={order.order_status}
-            onStatusChange={(newStatus) => onStatusChange(order.id, newStatus)}
-          />
-        ) : (
-          <span className="text-sm text-muted-foreground">—</span>
-        )}
+        <OrderStatusDropdown
+          currentStatus={order.order_status}
+          onStatusChange={(newStatus) => onStatusChange(order.id, newStatus)}
+        />
       </td>
     </tr>
   )

@@ -42,22 +42,9 @@ export async function updateOrderStatus(
       }
     }
 
-    // Prevent updating completed/cancelled orders
-    if (order.order_status === 'completed' || order.order_status === 'cancelled') {
-      return {
-        success: false,
-        error: "Cannot update a completed or cancelled order",
-      }
-    }
-
     // Update the order status
-    const updateData: { order_status: Order['order_status']; completed_at?: string } = {
+    const updateData: { order_status: Order['order_status'] } = {
       order_status: newStatus
-    }
-
-    // Set completed_at timestamp if marking as completed
-    if (newStatus === 'completed') {
-      updateData.completed_at = new Date().toISOString()
     }
 
     const { error: updateError } = await supabase

@@ -17,16 +17,8 @@ const statusConfig: Record<Order['order_status'], {
     label: 'Received',
     className: 'bg-warning/15 text-warning border border-warning/30'
   },
-  preparing: {
-    label: 'In Progress',
-    className: 'bg-info/15 text-info border border-info/30'
-  },
   ready: {
     label: 'Ready',
-    className: 'bg-success/15 text-success border border-success/30'
-  },
-  completed: {
-    label: 'Complete',
     className: 'bg-success/15 text-success border border-success/30'
   },
   cancelled: {
@@ -104,14 +96,12 @@ export function OrderCard({ order, onStatusChange }: OrderCardProps) {
       </div>
 
       {/* Footer - Status Update */}
-      {order.order_status !== 'completed' && order.order_status !== 'cancelled' && (
-        <div className="px-5 py-3 border-t border-border/40">
-          <OrderStatusDropdown
-            currentStatus={order.order_status}
-            onStatusChange={(newStatus) => onStatusChange(order.id, newStatus)}
-          />
-        </div>
-      )}
+      <div className="px-5 py-3 border-t border-border/40">
+        <OrderStatusDropdown
+          currentStatus={order.order_status}
+          onStatusChange={(newStatus) => onStatusChange(order.id, newStatus)}
+        />
+      </div>
     </div>
   )
 }

@@ -40,22 +40,9 @@ export async function POST(request: Request) {
       )
     }
 
-    // Prevent updating completed/cancelled orders
-    if (order.order_status === 'completed' || order.order_status === 'cancelled') {
-      return NextResponse.json(
-        { success: false, error: "Cannot update a completed or cancelled order" },
-        { status: 400 }
-      )
-    }
-
     // Update the order status
-    const updateData: { order_status: string; completed_at?: string } = {
+    const updateData: { order_status: string } = {
       order_status: newStatus
-    }
-
-    // Set completed_at timestamp if marking as completed
-    if (newStatus === 'completed') {
-      updateData.completed_at = new Date().toISOString()
     }
 
     const { error: updateError } = await supabase

@@ -6,6 +6,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { Mail, Phone } from "lucide-react"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 interface CustomerPopoverProps {
   name: string | null
@@ -16,6 +17,7 @@ interface CustomerPopoverProps {
 export function CustomerPopover({ name, email, phone }: CustomerPopoverProps) {
   const displayName = name || 'Guest'
   const hasContactInfo = email || phone
+  const isMobile = useIsMobile()
 
   if (!hasContactInfo) {
     return <span className="text-sm text-foreground">{displayName}</span>
@@ -28,7 +30,12 @@ export function CustomerPopover({ name, email, phone }: CustomerPopoverProps) {
           {displayName}
         </button>
       </PopoverTrigger>
-      <PopoverContent align="start" className="w-72">
+      <PopoverContent 
+        align={isMobile ? "center" : "start"} 
+        side={isMobile ? "bottom" : "right"}
+        collisionPadding={isMobile ? 16 : 8}
+        className="w-72 max-w-[calc(100vw-32px)] sm:max-w-none"
+      >
         <div className="space-y-3">
           <p className="text-sm font-medium text-foreground">{displayName}</p>
 

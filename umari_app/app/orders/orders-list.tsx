@@ -240,7 +240,7 @@ function Header({ orderCount, dateRange, onDateRangeChange, onRefresh, isLoading
       </div>
 
       {/* Controls Row */}
-      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+      <div className="flex flex-row items-center gap-3 sm:flex-row">
         <DateRangePicker value={dateRange} onChange={onDateRangeChange} />
         <Button
           variant="outline"

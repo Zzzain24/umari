@@ -6,12 +6,14 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 interface OrderItemsPopoverProps {
   items: CartItem[]
 }
 
 export function OrderItemsPopover({ items }: OrderItemsPopoverProps) {
+  const isMobile = useIsMobile()
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0)
 
   const formatCurrency = (amount: number) => {
@@ -34,7 +36,12 @@ export function OrderItemsPopover({ items }: OrderItemsPopoverProps) {
           {summaryText}
         </button>
       </PopoverTrigger>
-      <PopoverContent align="start" className="w-80">
+      <PopoverContent 
+        align={isMobile ? "center" : "start"} 
+        side={isMobile ? "bottom" : "right"}
+        collisionPadding={isMobile ? 16 : 8}
+        className="w-80 max-w-[calc(100vw-32px)] sm:max-w-none"
+      >
         <div className="space-y-1">
           <p className="text-sm font-medium text-foreground mb-3">
             {totalItems} item{totalItems !== 1 ? 's' : ''}

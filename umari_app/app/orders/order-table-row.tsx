@@ -2,6 +2,7 @@
 
 import type { Order } from "@/lib/types"
 import { OrderStatusDropdown } from "./order-status-dropdown"
+import { OrderItemsPopover } from "./order-items-popover"
 import { formatDistanceToNow } from "date-fns"
 
 interface OrderTableRowProps {
@@ -39,11 +40,6 @@ export function OrderTableRow({ order, onStatusChange }: OrderTableRowProps) {
     }).format(amount)
   }
 
-  // Get first item for summary
-  const firstItem = order.items[0]
-  const itemsSummary = firstItem ? `${firstItem.quantity}x ${firstItem.itemName}` : ''
-  const remainingItems = order.items.length > 1 ? order.items.length - 1 : 0
-
   return (
     <tr className="border-b border-border/40 hover:bg-accent/30 transition-colors">
       <td className="px-4 py-3.5">
@@ -57,9 +53,7 @@ export function OrderTableRow({ order, onStatusChange }: OrderTableRowProps) {
         </span>
       </td>
       <td className="px-4 py-3.5">
-        <span className="text-sm text-muted-foreground truncate max-w-[200px] block">
-          {itemsSummary}{remainingItems > 0 && ` +${remainingItems}`}
-        </span>
+        <OrderItemsPopover items={order.items} />
       </td>
       <td className="px-4 py-3.5">
         <span className="text-sm font-medium text-foreground">

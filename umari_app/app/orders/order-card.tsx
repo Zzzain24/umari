@@ -1,7 +1,8 @@
 "use client"
 
-import type { Order, CartItem } from "@/lib/types"
+import type { Order } from "@/lib/types"
 import { OrderStatusDropdown } from "./order-status-dropdown"
+import { OrderItemsPopover } from "./order-items-popover"
 import { formatDistanceToNow } from "date-fns"
 
 interface OrderCardProps {
@@ -32,20 +33,12 @@ export function OrderCard({ order, onStatusChange }: OrderCardProps) {
   const createdAt = new Date(order.created_at)
   const timeAgo = formatDistanceToNow(createdAt, { addSuffix: false })
 
-  const totalItems = order.items.reduce((sum, item) => sum + item.quantity, 0)
-
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD'
     }).format(amount)
   }
-
-  // Get first 2 items for summary
-  const itemsSummary = order.items.slice(0, 2).map(item =>
-    `${item.quantity}x ${item.itemName}`
-  ).join(', ')
-  const remainingItems = order.items.length > 2 ? order.items.length - 2 : 0
 
   return (
     <div className="bg-card rounded-xl border border-border/60 hover:border-border transition-colors">
@@ -77,9 +70,7 @@ export function OrderCard({ order, onStatusChange }: OrderCardProps) {
 
         <div className="flex justify-between items-center py-1.5 border-b border-border/30">
           <span className="text-sm text-muted-foreground">Items</span>
-          <span className="text-sm text-foreground text-right max-w-[60%] truncate">
-            {itemsSummary}{remainingItems > 0 && ` +${remainingItems} more`}
-          </span>
+          <OrderItemsPopover items={order.items} />
         </div>
 
         <div className="flex justify-between items-center py-1.5 border-b border-border/30">

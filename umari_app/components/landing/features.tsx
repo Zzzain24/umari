@@ -10,13 +10,18 @@ import { cn } from "@/lib/utils"
 export default function Features() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, amount: 0.3 })
+  const feature1Ref = useRef(null)
+  const feature2Ref = useRef(null)
+  const feature3Ref = useRef(null)
+  const feature4Ref = useRef(null)
+  const isFeature1InView = useInView(feature1Ref, { once: true, amount: 0.3 })
+  const isFeature2InView = useInView(feature2Ref, { once: true, amount: 0.3 })
+  const isFeature3InView = useInView(feature3Ref, { once: true, amount: 0.3 })
+  const isFeature4InView = useInView(feature4Ref, { once: true, amount: 0.3 })
   const [isCliHovering, setIsCliHovering] = useState(false)
   const [isFeature3Hovering, setIsFeature3Hovering] = useState(false)
-  const [hasFeature3Shown, setHasFeature3Shown] = useState(false)
   const [isCartHovering, setIsCartHovering] = useState(false)
-  const [hasCartShown, setHasCartShown] = useState(false)
   const [isFeature4Hovering, setIsFeature4Hovering] = useState(false)
-  const [hasFeature4Shown, setHasFeature4Shown] = useState(false)
   const [inputValue, setInputValue] = useState("")
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -35,7 +40,7 @@ export default function Features() {
         initial={{ opacity: 0, y: 50 }}
         animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
         transition={{ duration: 0.5, delay: 0 }}
-        className="container mx-auto flex flex-col items-center gap-6 sm:gap-12"
+        className="container mx-auto flex flex-col items-center gap-6 sm:gap-12 px-4 sm:px-6"
       >
         <h2
           className={cn(
@@ -45,15 +50,15 @@ export default function Features() {
         >
           Features
         </h2>
-        <div>
+        <div className="w-full max-w-7xl">
           <div className="grid grid-cols-12 gap-4 justify-center">
               <motion.div
-                className="group border-secondary/40 text-card-foreground relative col-span-12 flex flex-col overflow-hidden rounded-xl border-2 p-6 shadow-xl transition-all ease-in-out md:col-span-6 xl:col-span-6 xl:col-start-1"
+                className="group border-secondary/40 text-card-foreground relative col-span-12 flex flex-col overflow-hidden rounded-xl border-2 p-4 sm:p-6 shadow-xl transition-all ease-in-out md:col-span-6 xl:col-span-6 xl:col-start-1 mx-2 sm:mx-0"
                 onMouseEnter={() => setIsCliHovering(true)}
                 onMouseLeave={() => setIsCliHovering(false)}
-                ref={ref}
+                ref={feature1Ref}
                 initial={{ opacity: 0, y: 50 }}
-                animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+                animate={isFeature1InView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
                 transition={{ duration: 0.5, delay: 0.5 }}
                 whileHover={{
                   scale: 1.02,
@@ -126,14 +131,14 @@ export default function Features() {
               </motion.div>
 
               <motion.div
-                className="group border-secondary/40 text-card-foreground relative col-span-12 flex flex-col overflow-hidden rounded-xl border-2 p-6 shadow-xl transition-all ease-in-out md:col-span-6 xl:col-span-6 xl:col-start-7"
+                className="group border-secondary/40 text-card-foreground relative col-span-12 flex flex-col overflow-hidden rounded-xl border-2 p-4 sm:p-6 shadow-xl transition-all ease-in-out md:col-span-6 xl:col-span-6 xl:col-start-7 mx-2 sm:mx-0"
                 onMouseEnter={() => {
                   setIsFeature3Hovering(true)
-                  setHasFeature3Shown(true)
                 }}
                 onMouseLeave={() => setIsFeature3Hovering(false)}
+                ref={feature2Ref}
                 initial={{ opacity: 0, y: 50 }}
-                animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+                animate={isFeature2InView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
                 transition={{ duration: 0.5, delay: 1.0 }}
                 whileHover={{
                   scale: 1.02,
@@ -157,7 +162,7 @@ export default function Features() {
                         <motion.div
                           className="flex items-center justify-between p-4 rounded-lg bg-success/10 border border-success/30"
                           initial={{ opacity: 0, x: -20 }}
-                          animate={hasFeature3Shown ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
+                          animate={(isFeature2InView || isFeature3Hovering) ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
                           transition={{ duration: 0.5, delay: 0.1 }}
                         >
                           <div className="flex items-center gap-3">
@@ -175,7 +180,7 @@ export default function Features() {
                         <motion.div
                           className="flex items-center justify-between p-4 rounded-lg bg-info/20 border border-info/30"
                           initial={{ opacity: 0, x: -20 }}
-                          animate={hasFeature3Shown ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
+                          animate={(isFeature2InView || isFeature3Hovering) ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
                           transition={{ duration: 0.5, delay: 0.2 }}
                         >
                           <div className="flex items-center gap-3">
@@ -193,7 +198,7 @@ export default function Features() {
                         <motion.div
                           className="flex items-center justify-between p-4 rounded-lg bg-warning/20 border border-warning/30"
                           initial={{ opacity: 0, x: -20 }}
-                          animate={hasFeature3Shown ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
+                          animate={(isFeature2InView || isFeature3Hovering) ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
                           transition={{ duration: 0.5, delay: 0.3 }}
                         >
                           <div className="flex items-center gap-3">
@@ -214,14 +219,14 @@ export default function Features() {
               </motion.div>
 
               <motion.div
-                className="group border-secondary/40 text-card-foreground relative col-span-12 flex flex-col overflow-hidden rounded-xl border-2 p-6 shadow-xl transition-all ease-in-out md:col-span-6 xl:col-span-6 xl:col-start-1"
+                className="group border-secondary/40 text-card-foreground relative col-span-12 flex flex-col overflow-hidden rounded-xl border-2 p-4 sm:p-6 shadow-xl transition-all ease-in-out md:col-span-6 xl:col-span-6 xl:col-start-1 mx-2 sm:mx-0"
                 onMouseEnter={() => {
                   setIsCartHovering(true)
-                  setHasCartShown(true)
                 }}
                 onMouseLeave={() => setIsCartHovering(false)}
+                ref={feature3Ref}
                 initial={{ opacity: 0, y: 50 }}
-                animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+                animate={isFeature3InView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
                 transition={{ duration: 0.5, delay: 1.5 }}
                 whileHover={{
                   scale: 1.02,
@@ -258,7 +263,7 @@ export default function Features() {
                         <motion.div
                           className="flex items-center justify-between p-3 rounded-lg bg-card border border-neutral-200"
                           initial={{ opacity: 0, x: -20 }}
-                          animate={hasCartShown ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
+                          animate={(isFeature3InView || isCartHovering) ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
                           transition={{ duration: 0.4, delay: 0.1 }}
                         >
                           <div className="flex items-center gap-3 flex-1">
@@ -283,7 +288,7 @@ export default function Features() {
                         <motion.div
                           className="flex items-center justify-between p-3 rounded-lg bg-card border border-neutral-200"
                           initial={{ opacity: 0, x: -20 }}
-                          animate={hasCartShown ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
+                          animate={(isFeature3InView || isCartHovering) ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
                           transition={{ duration: 0.4, delay: 0.2 }}
                         >
                           <div className="flex items-center gap-3 flex-1">
@@ -308,7 +313,7 @@ export default function Features() {
                         <motion.div
                           className="pt-3 border-t-2 border-neutral-200 flex items-center justify-between"
                           initial={{ opacity: 0 }}
-                          animate={hasCartShown ? { opacity: 1 } : { opacity: 0 }}
+                          animate={(isFeature3InView || isCartHovering) ? { opacity: 1 } : { opacity: 0 }}
                           transition={{ duration: 0.4, delay: 0.3 }}
                         >
                           <span className="text-base font-bold text-foreground">Total</span>
@@ -319,7 +324,7 @@ export default function Features() {
                         <motion.button
                           className="w-full bg-primary hover:bg-primary/90 text-foreground font-bold py-3 rounded-lg transition-colors mt-2"
                           initial={{ opacity: 0, y: 10 }}
-                          animate={hasCartShown ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+                          animate={(isFeature3InView || isCartHovering) ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
                           transition={{ duration: 0.4, delay: 0.4 }}
                         >
                           Continue to Checkout →
@@ -331,14 +336,14 @@ export default function Features() {
               </motion.div>
 
               <motion.div
-                className="group border-secondary/40 text-card-foreground relative col-span-12 flex flex-col overflow-hidden rounded-xl border-2 p-6 shadow-xl transition-all ease-in-out md:col-span-6 xl:col-span-6 xl:col-start-7"
+                className="group border-secondary/40 text-card-foreground relative col-span-12 flex flex-col overflow-hidden rounded-xl border-2 p-4 sm:p-6 shadow-xl transition-all ease-in-out md:col-span-6 xl:col-span-6 xl:col-start-7 mx-2 sm:mx-0"
                 onMouseEnter={() => {
                   setIsFeature4Hovering(true)
-                  setHasFeature4Shown(true)
                 }}
                 onMouseLeave={() => setIsFeature4Hovering(false)}
+                ref={feature4Ref}
                 initial={{ opacity: 0, y: 50 }}
-                animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+                animate={isFeature4InView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
                 transition={{ duration: 0.5, delay: 2.0 }}
                 whileHover={{
                   scale: 1.02,
@@ -374,7 +379,7 @@ export default function Features() {
                           <motion.div
                             className="bg-success/20 border border-success/40 rounded-xl p-2 ml-auto max-w-[85%]"
                             initial={{ opacity: 0, x: 20 }}
-                            animate={hasFeature4Shown ? { opacity: 1, x: 0 } : { opacity: 0, x: 20 }}
+                            animate={(isFeature4InView || isFeature4Hovering) ? { opacity: 1, x: 0 } : { opacity: 0, x: 20 }}
                             transition={{ duration: 0.5, delay: 0.3 }}
                           >
                             <p className="text-[10px] text-white/90">Order #1234 at Umari Coffee Cart is being prepared! 👨‍🍳</p>
@@ -383,7 +388,7 @@ export default function Features() {
                           <motion.div
                             className="bg-success/20 border border-success/40 rounded-xl p-2 ml-auto max-w-[85%]"
                             initial={{ opacity: 0, x: 20 }}
-                            animate={hasFeature4Shown ? { opacity: 1, x: 0 } : { opacity: 0, x: 20 }}
+                            animate={(isFeature4InView || isFeature4Hovering) ? { opacity: 1, x: 0 } : { opacity: 0, x: 20 }}
                             transition={{ duration: 0.5, delay: 0.6 }}
                           >
                             <p className="text-[10px] text-white/90">Order #1234 is ready for pickup! 🎉</p>
@@ -392,7 +397,7 @@ export default function Features() {
                           <motion.div
                             className="flex items-center gap-1 text-[10px] text-neutral-500 justify-end"
                             initial={{ opacity: 0 }}
-                            animate={hasFeature4Shown ? { opacity: 1 } : { opacity: 0 }}
+                            animate={(isFeature4InView || isFeature4Hovering) ? { opacity: 1 } : { opacity: 0 }}
                             transition={{ duration: 0.5, delay: 0.9 }}
                           >
                             <span>Delivered</span>

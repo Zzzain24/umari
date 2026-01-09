@@ -148,7 +148,7 @@ export function LandingNavbar() {
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
         <div className="fixed inset-0 z-[9998] bg-black/50 backdrop-blur-sm md:hidden">
-          <div className="absolute top-20 left-4 right-4 bg-background/95 backdrop-blur-md border border-border/50 rounded-2xl shadow-2xl p-6">
+          <div className="absolute top-25 left-6 right-6 max-w-sm mx-auto bg-background/95 backdrop-blur-md border border-border/50 rounded-2xl shadow-2xl p-6">
             <nav className="flex flex-col space-y-4">
               <Link
                 href="/#features"

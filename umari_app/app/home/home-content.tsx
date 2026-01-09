@@ -76,9 +76,11 @@ export function HomeContent({ menus }: HomeContentProps) {
             <p className="text-muted-foreground mb-4">
               View and manage incoming orders in real-time.
             </p>
-            <Button className="w-full bg-secondary hover:bg-secondary/90 text-secondary-foreground">
-              View Orders
-            </Button>
+            <Link href="/orders">
+              <Button className="w-full bg-secondary hover:bg-secondary/90 text-secondary-foreground">
+                View Orders
+              </Button>
+            </Link>
           </motion.div>
 
           {/* Payments Card */}

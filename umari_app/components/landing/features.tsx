@@ -23,6 +23,11 @@ export default function Features() {
   const [isCartHovering, setIsCartHovering] = useState(false)
   const [isFeature4Hovering, setIsFeature4Hovering] = useState(false)
   const [inputValue, setInputValue] = useState("")
+  const [activePopover, setActivePopover] = useState<string | null>('customer1')
+
+  const togglePopover = (id: string) => {
+    setActivePopover(activePopover === id ? null : id)
+  }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter") {
@@ -75,7 +80,7 @@ export default function Features() {
                     </p>
                   </div>
                 </div>
-                <div className="pointer-events-none flex grow items-center justify-center select-none relative min-h-[400px]">
+                <div className="pointer-events-none flex grow items-center justify-center select-none relative min-h-[520px]">
                   <div
                     className="relative w-full h-full rounded-xl overflow-hidden"
                     style={{ borderRadius: "20px" }}
@@ -94,22 +99,67 @@ export default function Features() {
 
                         {/* Menu Items */}
                         <div className="flex-1 space-y-3">
-                          {[
-                            { name: "Latte", price: "$8.00", emoji: "☕️" },
-                            { name: "Croissant", price: "$3.00", emoji: "🥐" },
-                            { name: "Avocado Toast", price: "$6.00", emoji: "🥑" },
-                          ].map((item, index) => (
-                            <div
-                              key={index}
-                              className="flex items-center justify-between p-3 rounded-lg bg-white/60 backdrop-blur-sm border border-neutral-200/50"
-                            >
+                          {/* Latte with options */}
+                          <div className="p-3 rounded-lg bg-white/60 backdrop-blur-sm border border-neutral-200/50">
+                            <div className="flex items-center justify-between">
                               <div className="flex items-center gap-3">
-                                <span className="text-xl">{item.emoji}</span>
-                                <span className="text-sm font-medium text-neutral-700">{item.name}</span>
+                                <span className="text-xl">☕️</span>
+                                <span className="text-sm font-medium text-neutral-700">Latte</span>
                               </div>
-                              <span className="text-sm font-semibold text-primary">{item.price}</span>
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm font-semibold text-primary">$8.00</span>
+                                <div className="flex items-center gap-1">
+                                  <span className="w-5 h-5 rounded-full bg-neutral-200 flex items-center justify-center text-[10px] font-bold text-neutral-600">-</span>
+                                  <span className="text-xs font-medium w-4 text-center">2</span>
+                                  <span className="w-5 h-5 rounded-full bg-primary flex items-center justify-center text-[10px] font-bold text-white">+</span>
+                                </div>
+                              </div>
                             </div>
-                          ))}
+                            <div className="ml-8 mt-2 flex gap-2">
+                              <span className="px-2 py-0.5 text-[10px] bg-primary/10 text-primary rounded-full border border-primary/30">Single Shot</span>
+                              <span className="px-2 py-0.5 text-[10px] bg-neutral-100 text-neutral-500 rounded-full border border-neutral-200">Double Shot +$1</span>
+                            </div>
+                          </div>
+
+                          {/* Croissant with options */}
+                          <div className="p-3 rounded-lg bg-white/60 backdrop-blur-sm border border-neutral-200/50">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <span className="text-xl">🥐</span>
+                                <span className="text-sm font-medium text-neutral-700">Croissant</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm font-semibold text-primary">$3.00</span>
+                                <div className="flex items-center gap-1">
+                                  <span className="w-5 h-5 rounded-full bg-neutral-200 flex items-center justify-center text-[10px] font-bold text-neutral-600">-</span>
+                                  <span className="text-xs font-medium w-4 text-center">1</span>
+                                  <span className="w-5 h-5 rounded-full bg-primary flex items-center justify-center text-[10px] font-bold text-white">+</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="ml-8 mt-2 flex flex-wrap gap-1.5">
+                              <span className="px-2 py-0.5 text-[10px] bg-neutral-100 text-neutral-500 rounded-full border border-neutral-200">Chocolate</span>
+                              <span className="px-2 py-0.5 text-[10px] bg-primary/10 text-primary rounded-full border border-primary/30">Pistachio</span>
+                            </div>
+                          </div>
+
+                          {/* Avocado Toast */}
+                          <div className="p-3 rounded-lg bg-white/60 backdrop-blur-sm border border-neutral-200/50">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <span className="text-xl">🥑</span>
+                                <span className="text-sm font-medium text-neutral-700">Avocado Toast</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm font-semibold text-primary">$6.00</span>
+                                <div className="flex items-center gap-1">
+                                  <span className="w-5 h-5 rounded-full bg-neutral-200 flex items-center justify-center text-[10px] font-bold text-neutral-600">-</span>
+                                  <span className="text-xs font-medium w-4 text-center">1</span>
+                                  <span className="w-5 h-5 rounded-full bg-primary flex items-center justify-center text-[10px] font-bold text-white">+</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         </div>
 
                         {/* QR Code */}
@@ -155,61 +205,141 @@ export default function Features() {
                     </p>
                   </div>
                 </div>
-                <div className="flex grow items-center justify-center select-none relative min-h-[400px] p-4">
+                <div className="flex grow items-center justify-center select-none relative min-h-[480px] p-4">
                   <div className="w-full max-w-lg">
                     <div className="relative rounded-2xl border border-white/10 bg-black/5 dark:bg-white/5 backdrop-blur-sm">
+                      {/* Click outside overlay to close popover */}
+                      {activePopover && (
+                        <div
+                          className="fixed inset-0 z-20"
+                          onClick={() => setActivePopover(null)}
+                        />
+                      )}
                       <div className="p-6 space-y-4">
+                        {/* Order #1234 - Ready */}
                         <motion.div
-                          className="flex items-center justify-between p-4 rounded-lg bg-success/10 border border-success/30"
+                          className="relative p-4 rounded-lg bg-success/10 border border-success/30"
                           initial={{ opacity: 0, x: -20 }}
                           animate={(isFeature2InView || isFeature3Hovering) ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
                           transition={{ duration: 0.5, delay: 0.1 }}
                         >
-                          <div className="flex items-center gap-3">
-                            <div className="w-2 h-2 rounded-full bg-success animate-pulse"></div>
+                          <div className="flex items-center justify-between mb-2">
                             <span className="text-sm font-medium">Order #1234</span>
+                            <span className="px-2 py-1 text-xs bg-success/30 border border-success/50 rounded text-foreground">Ready</span>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm text-foreground">$15.50</span>
-                            <button className="px-2 py-1 text-xs bg-success/30 hover:bg-success/50 border border-success/50 rounded text-foreground transition-colors">
-                              Send SMS
-                            </button>
+                          <div className="flex items-center justify-between text-xs text-muted-foreground">
+                            <div className="flex items-center gap-3 pointer-events-auto">
+                              <div className="relative">
+                                <button onClick={() => togglePopover('customer1')} className={cn("underline underline-offset-2 cursor-pointer transition-colors", activePopover === 'customer1' ? "text-primary font-medium" : "hover:text-primary")}>Sarah M.</button>
+                                {activePopover === 'customer1' && (
+                                  <div className="absolute left-0 top-6 z-30 w-44 bg-white rounded-lg shadow-xl border border-neutral-200 p-3">
+                                    <div className="absolute -top-2 left-4 w-3 h-3 bg-white border-l border-t border-neutral-200 rotate-45"></div>
+                                    <p className="text-xs font-medium text-neutral-800 mb-2">Sarah Miller</p>
+                                    <div className="space-y-1.5">
+                                      <div className="flex items-center gap-2 text-[10px] text-neutral-600"><span>📧</span><span>sarah@email.com</span></div>
+                                      <div className="flex items-center gap-2 text-[10px] text-neutral-600"><span>📱</span><span>(555) 123-4567</span></div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                              <div className="relative">
+                                <button onClick={() => togglePopover('items1')} className={cn("underline underline-offset-2 cursor-pointer transition-colors", activePopover === 'items1' ? "text-primary font-medium" : "hover:text-primary")}>2x Latte</button>
+                                {activePopover === 'items1' && (
+                                  <div className="absolute left-0 top-6 z-30 w-40 bg-white rounded-lg shadow-xl border border-neutral-200 p-3">
+                                    <div className="absolute -top-2 left-4 w-3 h-3 bg-white border-l border-t border-neutral-200 rotate-45"></div>
+                                    <p className="text-xs font-medium text-neutral-800 mb-2">2 items</p>
+                                    <div className="flex justify-between text-[10px]"><span className="text-neutral-700">2x Latte</span><span className="text-neutral-600">$16.00</span></div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            <span className="text-sm text-foreground font-medium">$15.50</span>
                           </div>
                         </motion.div>
 
+                        {/* Order #1235 - Received */}
                         <motion.div
-                          className="flex items-center justify-between p-4 rounded-lg bg-info/20 border border-info/30"
+                          className="relative p-4 rounded-lg bg-warning/20 border border-warning/30"
                           initial={{ opacity: 0, x: -20 }}
                           animate={(isFeature2InView || isFeature3Hovering) ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
                           transition={{ duration: 0.5, delay: 0.2 }}
                         >
-                          <div className="flex items-center gap-3">
-                            <div className="w-2 h-2 rounded-full bg-info animate-pulse"></div>
+                          <div className="flex items-center justify-between mb-2">
                             <span className="text-sm font-medium">Order #1235</span>
+                            <span className="px-2 py-1 text-xs bg-warning/30 border border-warning/50 rounded text-foreground">Received</span>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm text-foreground">$22.00</span>
-                            <button className="px-2 py-1 text-xs bg-info/30 hover:bg-info/50 border border-info/50 rounded text-foreground transition-colors">
-                              Send SMS
-                            </button>
+                          <div className="flex items-center justify-between text-xs text-muted-foreground">
+                            <div className="flex items-center gap-3 pointer-events-auto">
+                              <div className="relative">
+                                <button onClick={() => togglePopover('customer2')} className={cn("underline underline-offset-2 cursor-pointer transition-colors", activePopover === 'customer2' ? "text-primary font-medium" : "hover:text-primary")}>John D.</button>
+                                {activePopover === 'customer2' && (
+                                  <div className="absolute left-0 top-6 z-30 w-44 bg-white rounded-lg shadow-xl border border-neutral-200 p-3">
+                                    <div className="absolute -top-2 left-4 w-3 h-3 bg-white border-l border-t border-neutral-200 rotate-45"></div>
+                                    <p className="text-xs font-medium text-neutral-800 mb-2">John Davis</p>
+                                    <div className="space-y-1.5">
+                                      <div className="flex items-center gap-2 text-[10px] text-neutral-600"><span>📧</span><span>john.d@email.com</span></div>
+                                      <div className="flex items-center gap-2 text-[10px] text-neutral-600"><span>📱</span><span>(555) 987-6543</span></div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                              <div className="relative">
+                                <button onClick={() => togglePopover('items2')} className={cn("underline underline-offset-2 cursor-pointer transition-colors", activePopover === 'items2' ? "text-primary font-medium" : "hover:text-primary")}>1x Croissant +1</button>
+                                {activePopover === 'items2' && (
+                                  <div className="absolute left-0 top-6 z-30 w-44 bg-white rounded-lg shadow-xl border border-neutral-200 p-3">
+                                    <div className="absolute -top-2 left-4 w-3 h-3 bg-white border-l border-t border-neutral-200 rotate-45"></div>
+                                    <p className="text-xs font-medium text-neutral-800 mb-2">2 items</p>
+                                    <div className="space-y-1.5">
+                                      <div className="flex justify-between text-[10px]"><span className="text-neutral-700">1x Croissant</span><span className="text-neutral-600">$3.00</span></div>
+                                      <div className="flex justify-between text-[10px]"><span className="text-neutral-700">1x Latte</span><span className="text-neutral-600">$8.00</span></div>
+                                      <div className="pl-2 text-[9px] text-neutral-500">• Double Shot (+$1)</div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            <span className="text-sm text-foreground font-medium">$22.00</span>
                           </div>
                         </motion.div>
 
+                        {/* Order #1236 - Cancelled */}
                         <motion.div
-                          className="flex items-center justify-between p-4 rounded-lg bg-warning/20 border border-warning/30"
+                          className="relative p-4 rounded-lg bg-destructive/10 border border-destructive/30"
                           initial={{ opacity: 0, x: -20 }}
                           animate={(isFeature2InView || isFeature3Hovering) ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
                           transition={{ duration: 0.5, delay: 0.3 }}
                         >
-                          <div className="flex items-center gap-3">
-                            <div className="w-2 h-2 rounded-full bg-warning animate-pulse"></div>
+                          <div className="flex items-center justify-between mb-2">
                             <span className="text-sm font-medium">Order #1236</span>
+                            <span className="px-2 py-1 text-xs bg-destructive/30 border border-destructive/50 rounded text-foreground">Cancelled</span>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm text-foreground">$8.75</span>
-                            <button className="px-2 py-1 text-xs bg-warning/30 hover:bg-warning/50 border border-warning/50 rounded text-foreground transition-colors">
-                              Send SMS
-                            </button>
+                          <div className="flex items-center justify-between text-xs text-muted-foreground">
+                            <div className="flex items-center gap-3 pointer-events-auto">
+                              <div className="relative">
+                                <button onClick={() => togglePopover('customer3')} className={cn("underline underline-offset-2 cursor-pointer transition-colors", activePopover === 'customer3' ? "text-primary font-medium" : "hover:text-primary")}>Mike R.</button>
+                                {activePopover === 'customer3' && (
+                                  <div className="absolute left-0 top-6 z-30 w-44 bg-white rounded-lg shadow-xl border border-neutral-200 p-3">
+                                    <div className="absolute -top-2 left-4 w-3 h-3 bg-white border-l border-t border-neutral-200 rotate-45"></div>
+                                    <p className="text-xs font-medium text-neutral-800 mb-2">Mike Roberts</p>
+                                    <div className="space-y-1.5">
+                                      <div className="flex items-center gap-2 text-[10px] text-neutral-600"><span>📧</span><span>mike.r@email.com</span></div>
+                                      <div className="flex items-center gap-2 text-[10px] text-neutral-600"><span>📱</span><span>(555) 456-7890</span></div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                              <div className="relative">
+                                <button onClick={() => togglePopover('items3')} className={cn("underline underline-offset-2 cursor-pointer transition-colors", activePopover === 'items3' ? "text-primary font-medium" : "hover:text-primary")}>1x Espresso</button>
+                                {activePopover === 'items3' && (
+                                  <div className="absolute left-0 top-6 z-30 w-40 bg-white rounded-lg shadow-xl border border-neutral-200 p-3">
+                                    <div className="absolute -top-2 left-4 w-3 h-3 bg-white border-l border-t border-neutral-200 rotate-45"></div>
+                                    <p className="text-xs font-medium text-neutral-800 mb-2">1 item</p>
+                                    <div className="flex justify-between text-[10px]"><span className="text-neutral-700">1x Espresso</span><span className="text-neutral-600">$8.75</span></div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            <span className="text-sm text-foreground font-medium">$8.75</span>
                           </div>
                         </motion.div>
                       </div>
@@ -353,60 +483,68 @@ export default function Features() {
                 }}
               >
                 <div className="flex flex-col gap-4">
-                  <h3 className="text-2xl leading-none font-semibold tracking-tight">SMS Order Notifications</h3>
+                  <h3 className="text-2xl leading-none font-semibold tracking-tight">Real-time Order Tracking</h3>
                   <div className="text-md text-muted-foreground flex flex-col gap-2 text-sm">
                     <p className="max-w-[460px]">
-                      Automatically notify customers via SMS when their order is ready for pickup. Keep everyone
-                      informed.
+                      Customers track orders via order number and email lookup. Status updates pushed instantly when you mark orders as ready.
                     </p>
                   </div>
                 </div>
                 <div className="flex grow items-center justify-center select-none relative min-h-[300px] p-4">
-                  <div className="w-full max-w-[200px]">
+                  <div className="w-full max-w-[300px]">
                     <motion.div
-                      className="relative rounded-2xl border-4 border-neutral-800 bg-black shadow-2xl overflow-hidden"
-                      style={{ aspectRatio: "9/19.5" }}
-                      initial={{ rotateY: 0 }}
-                      animate={isFeature4Hovering ? { rotateY: [0, 5, -5, 0] } : { rotateY: 0 }}
-                      transition={{ duration: 2, repeat: isFeature4Hovering ? Number.POSITIVE_INFINITY : 0 }}
+                      className="relative rounded-xl border border-neutral-200 bg-white shadow-xl overflow-hidden"
+                      initial={{ scale: 1 }}
+                      animate={isFeature4Hovering ? { scale: 1.02 } : { scale: 1 }}
+                      transition={{ duration: 0.3 }}
                     >
-                      {/* Phone notch */}
-                      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-4 bg-black rounded-b-xl z-10"></div>
-
-                      {/* Phone screen */}
-                      <div className="w-full h-full bg-gradient-to-b from-blue-900 to-blue-950 p-2">
-                        <div className="mt-4 space-y-2">
-                          <motion.div
-                            className="bg-success/20 border border-success/40 rounded-xl p-2 ml-auto max-w-[85%]"
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={(isFeature4InView || isFeature4Hovering) ? { opacity: 1, x: 0 } : { opacity: 0, x: 20 }}
-                            transition={{ duration: 0.5, delay: 0.3 }}
-                          >
-                            <p className="text-[10px] text-white/90">Order #1234 at Umari Coffee Cart is being prepared! 👨‍🍳</p>
-                          </motion.div>
-
-                          <motion.div
-                            className="bg-success/20 border border-success/40 rounded-xl p-2 ml-auto max-w-[85%]"
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={(isFeature4InView || isFeature4Hovering) ? { opacity: 1, x: 0 } : { opacity: 0, x: 20 }}
-                            transition={{ duration: 0.5, delay: 0.6 }}
-                          >
-                            <p className="text-[10px] text-white/90">Order #1234 is ready for pickup! 🎉</p>
-                          </motion.div>
-
-                          <motion.div
-                            className="flex items-center gap-1 text-[10px] text-neutral-500 justify-end"
-                            initial={{ opacity: 0 }}
-                            animate={(isFeature4InView || isFeature4Hovering) ? { opacity: 1 } : { opacity: 0 }}
-                            transition={{ duration: 0.5, delay: 0.9 }}
-                          >
-                            <span>Delivered</span>
-                            <svg className="w-3 h-3 text-success" fill="currentColor" viewBox="0 0 20 20">
-                              <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" />
-                            </svg>
-                          </motion.div>
-                        </div>
+                      {/* Header */}
+                      <div className="p-4 border-b border-neutral-200">
+                        <p className="text-lg font-semibold text-neutral-800">Order Status</p>
                       </div>
+
+                      {/* Order Details */}
+                      <div className="p-4 space-y-3">
+                        <motion.div
+                          className="flex justify-between items-center"
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={(isFeature4InView || isFeature4Hovering) ? { opacity: 1, x: 0 } : { opacity: 0, x: -10 }}
+                          transition={{ duration: 0.4, delay: 0.2 }}
+                        >
+                          <span className="text-sm text-neutral-500">Order Number:</span>
+                          <span className="text-sm font-mono font-medium text-neutral-800">ORD-1234-A3F2</span>
+                        </motion.div>
+
+                        <motion.div
+                          className="flex justify-between items-center"
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={(isFeature4InView || isFeature4Hovering) ? { opacity: 1, x: 0 } : { opacity: 0, x: -10 }}
+                          transition={{ duration: 0.4, delay: 0.3 }}
+                        >
+                          <span className="text-sm text-neutral-500">Status:</span>
+                          <span className="text-sm font-medium text-blue-600">Ready</span>
+                        </motion.div>
+
+                        <motion.div
+                          className="flex justify-between items-center"
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={(isFeature4InView || isFeature4Hovering) ? { opacity: 1, x: 0 } : { opacity: 0, x: -10 }}
+                          transition={{ duration: 0.4, delay: 0.4 }}
+                        >
+                          <span className="text-sm text-neutral-500">Payment:</span>
+                          <span className="text-sm font-medium text-green-600">Succeeded</span>
+                        </motion.div>
+                      </div>
+
+                      {/* Auto-refresh notice */}
+                      <motion.div
+                        className="px-4 py-3 border-t border-neutral-200 bg-neutral-50"
+                        initial={{ opacity: 0 }}
+                        animate={(isFeature4InView || isFeature4Hovering) ? { opacity: 1 } : { opacity: 0 }}
+                        transition={{ duration: 0.4, delay: 0.5 }}
+                      >
+                        <p className="text-xs text-center text-neutral-500">Status updates automatically</p>
+                      </motion.div>
                     </motion.div>
                   </div>
                 </div>

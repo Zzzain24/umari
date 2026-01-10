@@ -38,7 +38,7 @@ export default async function EditMenuPage({ params }: PageProps) {
   // Fetch menu items
   const { data: menuItems, error: itemsError } = await supabase
     .from('menu_items')
-    .select('id, name, price')
+    .select('id, name, price, is_sold_out')
     .eq('menu_id', id)
     .order('created_at', { ascending: true })
 
@@ -80,6 +80,7 @@ export default async function EditMenuPage({ params }: PageProps) {
       id: item.id,
       name: item.name,
       price: item.price,
+      is_sold_out: item.is_sold_out || false,
       options: itemOptions.length > 0 ? itemOptions : undefined,
     }
   })

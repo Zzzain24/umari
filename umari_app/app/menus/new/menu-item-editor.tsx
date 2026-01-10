@@ -150,7 +150,7 @@ export function MenuItemEditor({ item, onUpdate, onDelete }: MenuItemEditorProps
       </div>
 
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="flex items-center gap-2">
             <div>
               <h4 className="text-sm font-medium text-foreground">Options/Variations</h4>
@@ -162,7 +162,7 @@ export function MenuItemEditor({ item, onUpdate, onDelete }: MenuItemEditorProps
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowOptions(!showOptions)}
-                className="h-8 w-8 p-0"
+                className="h-8 w-8 p-0 shrink-0"
               >
                 {showOptions ? (
                   <ChevronUp className="w-4 h-4" />
@@ -177,7 +177,7 @@ export function MenuItemEditor({ item, onUpdate, onDelete }: MenuItemEditorProps
             variant="outline"
             size="sm"
             onClick={handleAddOption}
-            className="border-border hover:bg-secondary/10"
+            className="border-border hover:bg-secondary/10 w-full sm:w-auto shrink-0"
           >
             <Plus className="w-4 h-4 mr-2" />
             Add Option

@@ -77,7 +77,7 @@ export function MenuList({ menus }: MenuListProps) {
   return (
     <>
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
             <h1 className="text-4xl font-bold text-foreground mb-2">
               Your Menus
@@ -86,8 +86,8 @@ export function MenuList({ menus }: MenuListProps) {
               Manage and organize your menus
             </p>
           </div>
-          <Link href="/menus/new">
-            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
+          <Link href="/menus/new" className="self-start sm:self-auto">
+            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground w-full sm:w-auto">
               <Plus className="w-4 h-4 mr-2" />
               Create New Menu
             </Button>

@@ -1,11 +1,13 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useMemo } from "react"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { useCart } from "@/contexts/cart-context"
 import { MenuItemOptions } from "./menu-item-options"
 import { QuantitySelector } from "./quantity-selector"
 import { calculateItemPrice, validateRequiredOptions } from "@/lib/cart-utils"
+import { cn } from "@/lib/utils"
 import type { SelectedOption } from "@/lib/types"
 
 interface MenuItemViewProps {
@@ -13,6 +15,7 @@ interface MenuItemViewProps {
     id: string
     name: string
     price: number
+    is_sold_out?: boolean
     options?: Array<{
       id: string
       name: string
@@ -27,13 +30,16 @@ export function MenuItemView({ item }: MenuItemViewProps) {
   const [quantity, setQuantity] = useState(1)
   const [selectedOptions, setSelectedOptions] = useState<SelectedOption[]>([])
 
-  // Validate that all required options are selected
+  // Validate that all required options are selected and item is not sold out
   const isValid = useMemo(() => {
+    if (item.is_sold_out) {
+      return false
+    }
     if (!item.options || item.options.length === 0) {
       return true
     }
     return validateRequiredOptions(item.options, selectedOptions)
-  }, [item.options, selectedOptions])
+  }, [item.options, item.is_sold_out, selectedOptions])
 
   // Calculate total price (base + options) * quantity
   const totalPrice = useMemo(() => {
@@ -56,13 +62,24 @@ export function MenuItemView({ item }: MenuItemViewProps) {
   }
 
   return (
-    <div className="border-b border-border pb-6 last:border-b-0 last:pb-0">
+    <div className={cn(
+      "border-b border-border pb-6 last:border-b-0 last:pb-0",
+      item.is_sold_out && "opacity-60"
+    )}>
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1">
-          <h3 className="text-xl font-semibold text-foreground mb-1">
-            {item.name}
-          </h3>
-          <p className="text-base text-muted-foreground">
+          <div className="flex items-center gap-2 mb-1">
+            <h3 className="text-xl font-semibold text-foreground">
+              {item.name}
+            </h3>
+            {item.is_sold_out && (
+              <Badge variant="destructive">Sold Out</Badge>
+            )}
+          </div>
+          <p className={cn(
+            "text-base text-muted-foreground",
+            item.is_sold_out && "line-through"
+          )}>
             ${item.price.toFixed(2)}
           </p>
         </div>
@@ -99,7 +116,12 @@ export function MenuItemView({ item }: MenuItemViewProps) {
           className="w-full"
           size="lg"
         >
-          {!isValid ? "Select required options" : "Add to Cart"}
+          {item.is_sold_out
+            ? "Sold Out"
+            : !isValid
+              ? "Select required options"
+              : "Add to Cart"
+          }
         </Button>
       </div>
     </div>

@@ -8,6 +8,7 @@ export interface CreateMenuData {
   items: Array<{
     name: string
     price: number
+    is_sold_out?: boolean
     options?: Array<{
       name: string
       options: Array<{
@@ -69,6 +70,7 @@ export async function createMenu(data: CreateMenuData) {
       menu_id: menu.id,
       name: item.name.trim(),
       price: item.price,
+      is_sold_out: item.is_sold_out || false,
     }))
 
     const { data: insertedItems, error: itemsError } = await supabase

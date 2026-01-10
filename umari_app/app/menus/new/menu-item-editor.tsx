@@ -8,15 +8,17 @@ import { Label } from "@/components/ui/label"
 import { X, Plus, ChevronDown, ChevronUp } from "lucide-react"
 import type { MenuItemOption } from "@/lib/types"
 import { MenuItemOptionEditor } from "./menu-item-option-editor"
+import { Switch } from "@/components/ui/switch"
 
 interface MenuItemEditorProps {
   item: {
     id?: string
     name: string
     price: number
+    is_sold_out?: boolean
     options?: MenuItemOption[]
   }
-  onUpdate: (item: { id?: string; name: string; price: number; options?: MenuItemOption[] }) => void
+  onUpdate: (item: { id?: string; name: string; price: number; is_sold_out?: boolean; options?: MenuItemOption[] }) => void
   onDelete: () => void
 }
 
@@ -105,18 +107,30 @@ export function MenuItemEditor({ item, onUpdate, onDelete }: MenuItemEditorProps
 
   return (
     <div className="border border-border rounded-lg p-6 space-y-4 bg-card">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-foreground">Menu Item</h3>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={onDelete}
-          className="text-destructive hover:text-destructive hover:bg-destructive/10"
-        >
-          <X className="w-4 h-4 mr-2" />
-          Delete Item
-        </Button>
+      <div className="flex items-center justify-between gap-2">
+        <h3 className="text-lg font-semibold text-foreground shrink-0">Menu Item</h3>
+        <div className="flex items-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <Label htmlFor={`sold-out-${item.id || 'new'}`} className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">
+              Sold Out
+            </Label>
+            <Switch
+              id={`sold-out-${item.id || 'new'}`}
+              checked={item.is_sold_out || false}
+              onCheckedChange={(checked) => onUpdate({ ...item, is_sold_out: checked })}
+            />
+          </div>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={onDelete}
+            className="text-destructive hover:text-destructive hover:bg-destructive/10 px-2 sm:px-3"
+          >
+            <X className="w-4 h-4 sm:mr-2" />
+            <span className="hidden sm:inline">Delete Item</span>
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

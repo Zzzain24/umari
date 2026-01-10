@@ -10,6 +10,7 @@ export interface UpdateMenuData {
     id?: string
     name: string
     price: number
+    is_sold_out?: boolean
     options?: Array<{
       id?: string
       name: string
@@ -138,6 +139,7 @@ export async function updateMenu(
           .update({
             name: item.name.trim(),
             price: item.price,
+            is_sold_out: item.is_sold_out || false,
           })
           .eq('id', item.id)
 
@@ -228,6 +230,7 @@ export async function updateMenu(
             menu_id: menuId,
             name: item.name.trim(),
             price: item.price,
+            is_sold_out: item.is_sold_out || false,
           })
           .select()
           .single()

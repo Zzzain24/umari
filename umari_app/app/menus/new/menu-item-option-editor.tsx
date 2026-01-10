@@ -163,7 +163,7 @@ export function MenuItemOptionEditor({ option, onUpdate, onDelete }: MenuItemOpt
                 value={optionValue.value || ''}
                 onChange={(e) => handleOptionValueChange(index, e.target.value)}
                 placeholder={`Value ${index + 1}`}
-                className="bg-background border-border text-foreground flex-1"
+                className="bg-background border-border text-foreground flex-[2] sm:flex-1"
               />
               <div className="flex items-center gap-2">
                 <div className="relative">
@@ -174,7 +174,7 @@ export function MenuItemOptionEditor({ option, onUpdate, onDelete }: MenuItemOpt
                     value={priceInputs[index] || ''}
                     onChange={(e) => handleOptionPriceChange(index, e)}
                     placeholder="0.00"
-                    className="bg-background border-border text-foreground w-24 pl-8"
+                    className="bg-background border-border text-foreground w-20 sm:w-24 pl-8"
                   />
                 </div>
                 {option.options.length > 1 && (

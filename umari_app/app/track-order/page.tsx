@@ -238,6 +238,11 @@ function TrackOrderContent() {
                   </span>
                 </div>
               </div>
+              
+              {/* Auto-refresh notice */}
+              <p className="text-xs text-center text-muted-foreground mt-4 pt-4 border-t border-border">
+                Status updates automatically every 20 seconds
+              </p>
             </div>
 
             {/* Items Card */}
@@ -283,16 +288,11 @@ function TrackOrderContent() {
             )}
 
             {/* Business Info */}
-            <div className="bg-muted/30 border border-border rounded-lg p-4">
+            <div className="bg-white border border-border rounded-lg p-4">
               <p className="text-xs text-muted-foreground mb-1">From</p>
               <p className="font-medium">{order.menu_name}</p>
               <p className="text-sm text-muted-foreground">{order.business_name}</p>
             </div>
-
-            {/* Auto-refresh notice */}
-            <p className="text-xs text-center text-muted-foreground">
-              Status updates automatically every 20 seconds
-            </p>
           </div>
         )}
       </div>

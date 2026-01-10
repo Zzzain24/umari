@@ -289,7 +289,7 @@ function OrderSummary({
         </div>
       </div>
 
-      <div className="bg-muted/30 border border-border rounded-lg p-4">
+      <div className="bg-white border border-border rounded-lg p-4">
         <p className="text-xs text-muted-foreground mb-1">Ordering from</p>
         <p className="font-medium">{menuName}</p>
       </div>

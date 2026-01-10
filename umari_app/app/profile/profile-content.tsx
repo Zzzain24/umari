@@ -226,19 +226,19 @@ export function ProfileContent({ userData }: ProfileContentProps) {
 
           {/* Edit Mode Action Buttons */}
           {isEditing && (
-            <div className="flex gap-3 justify-end">
+            <div className="flex gap-3 justify-end w-full sm:w-auto mt-6">
               <Button
                 variant="outline"
                 onClick={handleCancel}
                 disabled={isLoading}
-                className="border-border hover:bg-secondary/10"
+                className="border-border hover:bg-secondary/10 flex-1 sm:flex-none"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleSave}
                 disabled={isLoading}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground flex-1 sm:flex-none"
               >
                 {isLoading ? "Saving..." : "Save Changes"}
               </Button>

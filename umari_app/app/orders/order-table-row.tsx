@@ -1,14 +1,19 @@
 "use client"
 
+import { useState } from "react"
 import type { Order } from "@/lib/types"
 import { OrderStatusDropdown } from "./order-status-dropdown"
 import { OrderItemsPopover } from "./order-items-popover"
 import { CustomerPopover } from "./customer-popover"
+import { RefundConfirmationDialog } from "./refund-confirmation-dialog"
+import { Button } from "@/components/ui/button"
+import { RotateCcw } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 
 interface OrderTableRowProps {
   order: Order
   onStatusChange: (orderId: string, newStatus: Order['order_status']) => void
+  onRefund?: (orderId: string) => void
 }
 
 const statusConfig: Record<Order['order_status'], {
@@ -29,10 +34,30 @@ const statusConfig: Record<Order['order_status'], {
   },
 }
 
-export function OrderTableRow({ order, onStatusChange }: OrderTableRowProps) {
+export function OrderTableRow({ order, onStatusChange, onRefund }: OrderTableRowProps) {
+  const [isRefundDialogOpen, setIsRefundDialogOpen] = useState(false)
+  const [isRefunding, setIsRefunding] = useState(false)
   const status = statusConfig[order.order_status]
   const createdAt = new Date(order.created_at)
   const timeAgo = formatDistanceToNow(createdAt, { addSuffix: false })
+  
+  const canRefund = order.payment_status === 'succeeded' && order.order_status !== 'cancelled'
+
+  const handleRefundClick = () => {
+    setIsRefundDialogOpen(true)
+  }
+
+  const handleRefundConfirm = async () => {
+    if (!onRefund) return
+    
+    setIsRefunding(true)
+    try {
+      await onRefund(order.id)
+      setIsRefundDialogOpen(false)
+    } finally {
+      setIsRefunding(false)
+    }
+  }
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -74,11 +99,33 @@ export function OrderTableRow({ order, onStatusChange }: OrderTableRowProps) {
         </span>
       </td>
       <td className="px-4 py-3.5">
-        <OrderStatusDropdown
-          currentStatus={order.order_status}
-          onStatusChange={(newStatus) => onStatusChange(order.id, newStatus)}
-        />
+        <div className="flex items-center gap-2">
+          <OrderStatusDropdown
+            currentStatus={order.order_status}
+            onStatusChange={(newStatus) => onStatusChange(order.id, newStatus)}
+          />
+          {canRefund && onRefund && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRefundClick}
+              className="h-8 px-3 text-xs font-medium border-destructive/50 text-destructive hover:bg-destructive/10"
+              disabled={isRefunding}
+            >
+              <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
+              Refund
+            </Button>
+          )}
+        </div>
       </td>
+      <RefundConfirmationDialog
+        open={isRefundDialogOpen}
+        onOpenChange={setIsRefundDialogOpen}
+        onConfirm={handleRefundConfirm}
+        orderTotal={order.total}
+        platformFee={order.platform_fee}
+        isLoading={isRefunding}
+      />
     </tr>
   )
 }

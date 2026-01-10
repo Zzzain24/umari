@@ -76,6 +76,38 @@ export async function POST(request: NextRequest) {
         break
       }
 
+      case 'charge.refunded': {
+        const charge = event.data.object as Stripe.Charge
+        // Extract payment intent ID from charge (can be string or expanded object)
+        const paymentIntentId = typeof charge.payment_intent === 'string' 
+          ? charge.payment_intent 
+          : charge.payment_intent?.id
+
+        if (!paymentIntentId) {
+          console.log('No payment intent ID found in charge.refunded event')
+          break
+        }
+
+        // Find order by payment intent ID and update both statuses
+        const { data: order } = await supabaseAdmin
+          .from('orders')
+          .select('id, payment_status')
+          .eq('stripe_payment_intent_id', paymentIntentId)
+          .single()
+
+        if (order && order.payment_status === 'succeeded') {
+          await supabaseAdmin
+            .from('orders')
+            .update({
+              payment_status: 'refunded',
+              order_status: 'cancelled',
+              updated_at: new Date().toISOString(),
+            })
+            .eq('stripe_payment_intent_id', paymentIntentId)
+        }
+        break
+      }
+
       default:
         console.log(`Unhandled event type: ${event.type}`)
     }

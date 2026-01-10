@@ -37,7 +37,7 @@ export function OrderStatusDropdown({
           variant="outline"
           size="sm"
           disabled={disabled}
-          className="h-8 px-3 text-xs font-medium border-border/60 hover:bg-accent/50"
+          className="h-8 w-full sm:w-auto px-3 text-xs font-medium border-border/60 hover:bg-accent/50"
         >
           Update
           <ChevronDown className="w-3.5 h-3.5 ml-1.5" />

@@ -1,14 +1,19 @@
 "use client"
 
+import { useState } from "react"
 import type { Order } from "@/lib/types"
 import { OrderStatusDropdown } from "./order-status-dropdown"
 import { OrderItemsPopover } from "./order-items-popover"
 import { CustomerPopover } from "./customer-popover"
+import { RefundConfirmationDialog } from "./refund-confirmation-dialog"
+import { Button } from "@/components/ui/button"
+import { RotateCcw } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 
 interface OrderCardProps {
   order: Order
   onStatusChange: (orderId: string, newStatus: Order['order_status']) => void
+  onRefund?: (orderId: string) => void
 }
 
 const statusConfig: Record<Order['order_status'], {
@@ -29,10 +34,30 @@ const statusConfig: Record<Order['order_status'], {
   },
 }
 
-export function OrderCard({ order, onStatusChange }: OrderCardProps) {
+export function OrderCard({ order, onStatusChange, onRefund }: OrderCardProps) {
+  const [isRefundDialogOpen, setIsRefundDialogOpen] = useState(false)
+  const [isRefunding, setIsRefunding] = useState(false)
   const status = statusConfig[order.order_status]
   const createdAt = new Date(order.created_at)
   const timeAgo = formatDistanceToNow(createdAt, { addSuffix: false })
+  
+  const canRefund = order.payment_status === 'succeeded' && order.order_status !== 'cancelled'
+
+  const handleRefundClick = () => {
+    setIsRefundDialogOpen(true)
+  }
+
+  const handleRefundConfirm = async () => {
+    if (!onRefund) return
+    
+    setIsRefunding(true)
+    try {
+      await onRefund(order.id)
+      setIsRefundDialogOpen(false)
+    } finally {
+      setIsRefunding(false)
+    }
+  }
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -82,13 +107,35 @@ export function OrderCard({ order, onStatusChange }: OrderCardProps) {
         </div>
       </div>
 
-      {/* Footer - Status Update */}
-      <div className="px-5 py-3 border-t border-border/40">
-        <OrderStatusDropdown
-          currentStatus={order.order_status}
-          onStatusChange={(newStatus) => onStatusChange(order.id, newStatus)}
-        />
+      {/* Footer - Status Update and Refund */}
+      <div className="px-5 py-3 border-t border-border/40 flex items-center justify-center gap-2 sm:justify-start">
+        <div className="flex-1 sm:flex-none">
+          <OrderStatusDropdown
+            currentStatus={order.order_status}
+            onStatusChange={(newStatus) => onStatusChange(order.id, newStatus)}
+          />
+        </div>
+        {canRefund && onRefund && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRefundClick}
+            className="flex-1 sm:flex-none border-destructive/50 text-destructive hover:bg-destructive/10 text-xs font-medium"
+          >
+            <RotateCcw className="w-3.5 h-3.5 mr-2" />
+            Refund Order
+          </Button>
+        )}
       </div>
+
+      <RefundConfirmationDialog
+        open={isRefundDialogOpen}
+        onOpenChange={setIsRefundDialogOpen}
+        onConfirm={handleRefundConfirm}
+        orderTotal={order.total}
+        platformFee={order.platform_fee}
+        isLoading={isRefunding}
+      />
     </div>
   )
 }

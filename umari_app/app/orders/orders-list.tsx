@@ -106,6 +106,53 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
     handleDateRangeChange(dateRange)
   }
 
+  const handleRefund = async (orderId: string) => {
+    const previousOrders = orders
+    setOrders(prev => prev.map(order =>
+      order.id === orderId
+        ? { 
+            ...order, 
+            payment_status: 'refunded',
+            order_status: 'cancelled',
+            updated_at: new Date().toISOString() 
+          }
+        : order
+    ))
+
+    try {
+      const response = await fetch('/api/orders/refund', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ orderId }),
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        toast({
+          title: "Order refunded",
+          description: "The order has been refunded and the Umari fee has been reimbursed.",
+        })
+      } else {
+        setOrders(previousOrders)
+        toast({
+          title: "Error",
+          description: result.error || "Failed to refund order",
+          variant: "destructive"
+        })
+      }
+    } catch (error: any) {
+      setOrders(previousOrders)
+      toast({
+        title: "Error",
+        description: error.message || "Failed to refund order",
+        variant: "destructive"
+      })
+    }
+  }
+
   // Loading state
   if (isLoading) {
     return (
@@ -185,6 +232,7 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
                   key={order.id}
                   order={order}
                   onStatusChange={handleStatusUpdate}
+                  onRefund={handleRefund}
                 />
               ))}
             </tbody>
@@ -206,6 +254,7 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
               <OrderCard
                 order={order}
                 onStatusChange={handleStatusUpdate}
+                onRefund={handleRefund}
               />
             </motion.div>
           ))}

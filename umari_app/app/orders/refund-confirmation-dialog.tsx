@@ -40,23 +40,25 @@ export function RefundConfirmationDialog({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Refund Order</AlertDialogTitle>
-          <AlertDialogDescription className="space-y-3">
-            <p>
-              Are you sure you want to refund this order? This action cannot be undone.
-            </p>
-            <div className="bg-muted/50 rounded-lg p-3 space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Refund Amount:</span>
-                <span className="font-medium">{formatCurrency(orderTotal)}</span>
-              </div>
-              <div className="flex justify-between text-green-600 dark:text-green-400">
-                <span>Umari Fee Reimbursement:</span>
-                <span className="font-medium">+{formatCurrency(platformFee)}</span>
-              </div>
-              <div className="pt-2 border-t border-border/50">
-                <p className="text-xs text-muted-foreground">
-                  Note: Stripe processing fees are non-refundable and will be absorbed by the business.
-                </p>
+          <AlertDialogDescription asChild>
+            <div className="text-muted-foreground text-sm space-y-3">
+              <p>
+                Are you sure you want to refund this order? This action cannot be undone.
+              </p>
+              <div className="bg-muted/50 rounded-lg p-3 space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Refund Amount:</span>
+                  <span className="font-medium">{formatCurrency(orderTotal)}</span>
+                </div>
+                <div className="flex justify-between text-green-600 dark:text-green-400">
+                  <span>Umari Fee Reimbursement:</span>
+                  <span className="font-medium">+{formatCurrency(platformFee)}</span>
+                </div>
+                <div className="pt-2 border-t border-border/50">
+                  <p className="text-xs text-muted-foreground">
+                    Note: Stripe processing fees are non-refundable and will be absorbed by the business.
+                  </p>
+                </div>
               </div>
             </div>
           </AlertDialogDescription>

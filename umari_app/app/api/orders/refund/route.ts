@@ -71,7 +71,8 @@ export async function POST(request: NextRequest) {
     try {
       const refund = await stripe.refunds.create({
         payment_intent: order.stripe_payment_intent_id,
-        refund_application_fee: true, // Umari fee reimbursed to business
+        refund_application_fee: true,
+        reverse_transfer: true,
       })
 
       // Update order in database

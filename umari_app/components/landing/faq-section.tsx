@@ -18,7 +18,7 @@ export function FAQSection() {
     },
     {
       question: "Who is Umari for?",
-      answer: "Umari is great for pop-ups, coffee carts, bakeries, markets, and any small business selling in person.",
+      answer: "Umari is great for pop-ups, coffee carts, artisans, markets, and any small business selling in person.",
     },
     {
       question: "Do I or my customers need to download an app?",
@@ -26,7 +26,11 @@ export function FAQSection() {
     },
     {
       question: "How do I get paid?",
-      answer:"Payments are processed securely through Stripe and deposited directly into your bank account. No waiting, no manual transfers",
+      answer:"Payments are processed securely through Stripe and deposited directly into your bank account. No waiting, no manual transfers.",
+    },
+    {
+      question: "How do I issue a refund?",
+      answer: "If you need to issue a refund, the Umari platform fee (2%) will be fully reimbursed. However, Stripe's processing fee (2.9% + $0.30) is non-refundable as Stripe does not return their fees on refunded transactions.",
     },
   ]
 
@@ -100,7 +104,7 @@ export function FAQSection() {
               <AnimatePresence>
                 {openItems.includes(index) && (
                   <motion.div
-                    className="mt-4 text-primary leading-relaxed overflow-hidden"
+                    className="mt-4 text-foreground leading-relaxed overflow-hidden"
                     initial={{ opacity: 0, height: 0, marginTop: 0 }}
                     animate={{ opacity: 1, height: "auto", marginTop: 16 }}
                     exit={{ opacity: 0, height: 0, marginTop: 0 }}

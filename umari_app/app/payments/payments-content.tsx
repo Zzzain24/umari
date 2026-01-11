@@ -8,21 +8,18 @@ import { PaymentSettingsCard } from './components/payment-settings-card'
 import { AnalyticsPreview } from './components/analytics-preview'
 import { DisconnectButton } from './components/disconnect-button'
 import { useToast } from '@/hooks/use-toast'
-import type { StripeAccount, PaymentSettings } from '@/lib/types'
+import type { StripeAccount } from '@/lib/types'
 
 interface PaymentsContentProps {
   user: User
   stripeAccount: StripeAccount | null
-  paymentSettings: PaymentSettings | null
 }
 
 export function PaymentsContent({
   user,
   stripeAccount: initialStripeAccount,
-  paymentSettings: initialPaymentSettings
 }: PaymentsContentProps) {
   const [stripeAccount, setStripeAccount] = useState(initialStripeAccount)
-  const [paymentSettings, setPaymentSettings] = useState(initialPaymentSettings)
   const { toast } = useToast()
 
   // Check for OAuth callback success/error
@@ -187,11 +184,8 @@ export function PaymentsContent({
         ) : (
           /* Connected State */
           <>
-            {/* Payment Settings */}
-            <PaymentSettingsCard
-              paymentSettings={paymentSettings}
-              onUpdate={setPaymentSettings}
-            />
+            {/* Payment Fees */}
+            <PaymentSettingsCard />
 
             {/* Analytics Preview */}
             <AnalyticsPreview stripeAccount={stripeAccount} />

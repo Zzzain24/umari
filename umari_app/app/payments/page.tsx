@@ -21,20 +21,12 @@ export default async function PaymentsPage() {
     .eq('user_id', user.id)
     .single()
 
-  // Fetch payment settings
-  const { data: paymentSettings } = await supabase
-    .from('payment_settings')
-    .select('*')
-    .eq('user_id', user.id)
-    .single()
-
   return (
     <div className="min-h-screen bg-background pt-24">
       <Navbar />
       <PaymentsContent
         user={user}
         stripeAccount={stripeAccount}
-        paymentSettings={paymentSettings}
       />
     </div>
   )

@@ -1,116 +1,65 @@
 "use client"
 
-import { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
-import { updatePaymentSettings } from '../actions'
-import { useToast } from '@/hooks/use-toast'
-import type { PaymentSettings } from '@/lib/types'
+import { CreditCard, Percent, Calculator } from 'lucide-react'
 
-interface PaymentSettingsCardProps {
-  paymentSettings: PaymentSettings | null
-  onUpdate: (settings: PaymentSettings) => void
-}
-
-export function PaymentSettingsCard({ paymentSettings, onUpdate }: PaymentSettingsCardProps) {
-  const [isEditing, setIsEditing] = useState(false)
-  const { toast } = useToast()
-
-  const handleSave = async (formData: FormData) => {
-    const result = await updatePaymentSettings(formData)
-
-    if (result.success && result.data) {
-      onUpdate(result.data)
-      setIsEditing(false)
-      toast({
-        title: 'Settings Updated',
-        description: 'Your payment settings have been saved.',
-      })
-    } else {
-      toast({
-        title: 'Update Failed',
-        description: result.error || 'Failed to update settings',
-        variant: 'destructive',
-      })
-    }
-  }
-
+export function PaymentSettingsCard() {
   return (
     <div className="bg-card border border-border rounded-lg p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold">Payment Settings</h2>
-        {!isEditing && (
-          <Button variant="outline" onClick={() => setIsEditing(true)}>
-            Edit
-          </Button>
-        )}
+      <div className="mb-4">
+        <h2 className="text-xl font-semibold">Payment Fees</h2>
+        <p className="text-sm text-muted-foreground mt-1">
+          Simple, transparent pricing on every transaction
+        </p>
       </div>
 
-      {isEditing ? (
-        <form action={handleSave} className="space-y-4">
-          <div>
-            <Label className="mb-2 block">Monetization Model</Label>
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="radio"
-                  name="monetization_model"
-                  value="application_fee"
-                  defaultChecked={paymentSettings?.monetization_model === 'application_fee' || !paymentSettings}
-                  className="w-4 h-4"
-                />
-                <span>Application Fee ({paymentSettings?.application_fee_percentage || 2.0}%)</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer opacity-50">
-                <input
-                  type="radio"
-                  name="monetization_model"
-                  value="subscription"
-                  disabled
-                  className="w-4 h-4"
-                />
-                <span>Subscription (Coming Soon)</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="radio"
-                  name="monetization_model"
-                  value="none"
-                  defaultChecked={paymentSettings?.monetization_model === 'none'}
-                  className="w-4 h-4"
-                />
-                <span>No Fee (Free)</span>
-              </label>
+      <div className="space-y-3">
+        {/* Umari Fee */}
+        <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <Percent className="w-4 h-4 text-primary" />
+            </div>
+            <div>
+              <p className="font-medium text-sm">Umari Platform Fee</p>
+              <p className="text-xs text-muted-foreground">Per transaction</p>
             </div>
           </div>
-
-          <div className="flex gap-2">
-            <Button type="submit">Save Changes</Button>
-            <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>
-              Cancel
-            </Button>
-          </div>
-        </form>
-      ) : (
-        <div className="space-y-2 text-sm">
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Revenue Model:</span>
-            <span className="font-medium capitalize">
-              {paymentSettings?.monetization_model?.replace('_', ' ') || 'Not Set'}
-            </span>
-          </div>
-          {paymentSettings?.monetization_model === 'application_fee' && (
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Platform Fee:</span>
-              <span className="font-medium">{paymentSettings.application_fee_percentage}%</span>
-            </div>
-          )}
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Currency:</span>
-            <span className="font-medium uppercase">{paymentSettings?.default_currency || 'USD'}</span>
-          </div>
+          <span className="text-lg font-bold">2%</span>
         </div>
-      )}
+
+        {/* Stripe Fee */}
+        <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <CreditCard className="w-4 h-4 text-primary" />
+            </div>
+            <div>
+              <p className="font-medium text-sm">Stripe Processing Fee</p>
+              <p className="text-xs text-muted-foreground">Per transaction</p>
+            </div>
+          </div>
+          <span className="text-lg font-bold">2.9% + $0.30</span>
+        </div>
+
+        {/* Total */}
+        <div className="flex items-center justify-between p-3 bg-primary/5 border border-primary/20 rounded-lg">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <Calculator className="w-4 h-4 text-primary" />
+            </div>
+            <div>
+              <p className="font-medium text-sm">Total Fees</p>
+              <p className="text-xs text-muted-foreground">Of transaction value</p>
+            </div>
+          </div>
+          <span className="text-lg font-bold text-primary">~5%</span>
+        </div>
+      </div>
+
+      <p className="text-xs text-muted-foreground mt-4 pt-4 border-t border-border">
+        Stripe handles all payment processing and provides your payment dashboard.
+        Fees are automatically deducted from each transaction.
+      </p>
     </div>
   )
 }

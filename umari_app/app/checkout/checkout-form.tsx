@@ -108,7 +108,7 @@ function CheckoutFormContent({
         }
       }
     } catch (error) {
-      console.error('Failed to load cart:', error)
+      // Failed to load cart from localStorage
     }
   }, [menuId, platformFeePercentage])
 
@@ -683,7 +683,7 @@ export function CheckoutForm(props: CheckoutFormProps) {
         if (parsed.customerPhone) setCustomerPhone(parsed.customerPhone)
       }
     } catch (error) {
-      console.error('Failed to load customer info from localStorage:', error)
+      // Failed to load customer info from localStorage
     }
   }, [menuId])
 
@@ -701,7 +701,7 @@ export function CheckoutForm(props: CheckoutFormProps) {
           customerPhone,
         }))
       } catch (error) {
-        console.error('Failed to save customer info to localStorage:', error)
+        // Failed to save customer info to localStorage
       }
     }
   }, [customerName, customerEmail, customerPhone, menuId])

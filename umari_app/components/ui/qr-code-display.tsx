@@ -114,7 +114,6 @@ export function QRCodeDisplay({
 
       img.src = url
     } catch (error) {
-      console.error("PNG download error:", error)
       toast({
         title: "Download Failed",
         description: "Please try again.",

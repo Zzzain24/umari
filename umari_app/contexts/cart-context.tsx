@@ -32,7 +32,6 @@ export function CartProvider({ children, menuId, menuItems }: CartProviderProps)
     setIsInitialized(false)
 
     if (!isLocalStorageAvailable()) {
-      console.warn("localStorage is not available")
       setIsInitialized(true)
       return
     }
@@ -46,7 +45,6 @@ export function CartProvider({ children, menuId, menuItems }: CartProviderProps)
         }
       }
     } catch (error) {
-      console.error("Failed to load cart from localStorage:", error)
       localStorage.removeItem(storageKey)
     } finally {
       setIsInitialized(true)
@@ -63,7 +61,6 @@ export function CartProvider({ children, menuId, menuItems }: CartProviderProps)
     try {
       localStorage.setItem(storageKey, JSON.stringify(cart))
     } catch (error) {
-      console.error("Failed to save cart to localStorage:", error)
       if (error instanceof Error && error.name === "QuotaExceededError") {
         toast({
           title: "Storage Full",

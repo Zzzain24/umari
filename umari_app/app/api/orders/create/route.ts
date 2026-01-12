@@ -166,7 +166,6 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (orderError || !order) {
-      console.error('Order creation error:', orderError)
       return NextResponse.json(
         { error: 'Failed to create order' },
         { status: 500 }
@@ -179,9 +178,8 @@ export async function POST(request: NextRequest) {
       orderId: order.id,
     })
   } catch (error: any) {
-    console.error('Order creation error:', error)
     return NextResponse.json(
-      { error: error.message || 'Failed to create order' },
+      { error: 'Failed to create order' },
       { status: 500 }
     )
   }

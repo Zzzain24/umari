@@ -29,16 +29,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log('Refreshing account status for:', stripeAccount.stripe_account_id)
-
     // Fetch latest account details from Stripe
     const account = await stripe.accounts.retrieve(stripeAccount.stripe_account_id)
-
-    console.log('Stripe account status:', {
-      charges_enabled: account.charges_enabled,
-      payouts_enabled: account.payouts_enabled,
-      details_submitted: account.details_submitted,
-    })
 
     // Update database with current account status
     const { error: updateError } = await supabase
@@ -56,14 +48,11 @@ export async function POST(request: NextRequest) {
       .eq('user_id', user.id)
 
     if (updateError) {
-      console.error('Database update error:', updateError)
       return NextResponse.json(
         { error: 'Failed to update account status' },
         { status: 500 }
       )
     }
-
-    console.log('Database updated successfully')
 
     return NextResponse.json({
       success: true,
@@ -76,11 +65,11 @@ export async function POST(request: NextRequest) {
       },
     })
   } catch (err: any) {
-    console.error('Refresh account error:', err)
+    // Log error type only, not sensitive details
     return NextResponse.json(
       {
-        error: err.message,
-        type: err.type,
+        error: 'Failed to refresh account status',
+        type: err.type || 'unknown',
       },
       { status: 500 }
     )

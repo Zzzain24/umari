@@ -29,8 +29,7 @@ export async function POST(request: NextRequest) {
       process.env.STRIPE_WEBHOOK_SECRET!
     )
   } catch (err: any) {
-    console.error('Webhook signature verification failed:', err.message)
-    return NextResponse.json({ error: err.message }, { status: 400 })
+    return NextResponse.json({ error: 'Invalid webhook signature' }, { status: 400 })
   }
 
   // Handle the event
@@ -84,7 +83,6 @@ export async function POST(request: NextRequest) {
           : charge.payment_intent?.id
 
         if (!paymentIntentId) {
-          console.log('No payment intent ID found in charge.refunded event')
           break
         }
 
@@ -109,12 +107,12 @@ export async function POST(request: NextRequest) {
       }
 
       default:
-        console.log(`Unhandled event type: ${event.type}`)
+        // Unhandled event type - no action needed
+        break
     }
 
     return NextResponse.json({ received: true })
   } catch (err: any) {
-    console.error('Webhook handler error:', err)
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    return NextResponse.json({ error: 'Webhook processing failed' }, { status: 500 })
   }
 }

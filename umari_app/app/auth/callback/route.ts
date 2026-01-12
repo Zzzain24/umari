@@ -10,7 +10,6 @@ export async function GET(request: NextRequest) {
   const errorDescription = searchParams.get('error_description')
 
   if (error || errorCode) {
-    console.error('Auth callback error:', { error, errorCode, errorDescription })
     // If this is an email confirmation error, redirect to confirm email page
     // Otherwise, redirect to auth error page
     if (errorCode === 'otp_expired' || errorCode === 'email_not_confirmed') {
@@ -46,17 +45,15 @@ export async function GET(request: NextRequest) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (error) {
-      console.error('Error exchanging code for session:', error)
       return NextResponse.redirect(`${origin}/confirm-email?error=invalid_token`)
     }
 
     if (data?.session) {
-      console.log('Session created successfully for user:', data.user?.email)
-      // Return response with cookies set
+      // Session created successfully
       return response
     }
 
-    console.error('No session data returned from exchangeCodeForSession')
+    // No session data returned
     return NextResponse.redirect(`${origin}/confirm-email?error=invalid_token`)
   }
 

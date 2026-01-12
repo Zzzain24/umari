@@ -83,7 +83,6 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (stripeError || !stripeAccount) {
-      console.error('Stripe account query error:', stripeError)
       return NextResponse.json(
         { error: 'Business has not connected Stripe account' },
         { status: 400 }
@@ -105,17 +104,75 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (settingsError || !paymentSettings) {
-      console.error('Payment settings error:', settingsError)
-      console.error('User ID:', menu.user_id)
       return NextResponse.json(
         { error: 'Payment settings not found. Please configure payment settings in your account.' },
         { status: 500 }
       )
     }
 
-    // Calculate totals
-    // Customer pays only the subtotal - platform fee is deducted from business share
-    const subtotal = cart.reduce((sum: number, item: any) => sum + item.totalPrice, 0)
+    // Fetch menu items from database to verify prices server-side
+    const { data: menuItems, error: menuItemsError } = await supabaseAdmin
+      .from('menu_items')
+      .select('id, price, name')
+      .eq('menu_id', menuId)
+
+    if (menuItemsError || !menuItems) {
+      return NextResponse.json(
+        { error: 'Failed to verify menu items' },
+        { status: 500 }
+      )
+    }
+
+    // Create a lookup map for menu item prices
+    const menuItemPrices = new Map<string, number>()
+    menuItems.forEach((item: { id: string; price: number }) => {
+      menuItemPrices.set(item.id, item.price)
+    })
+
+    // Validate and recalculate cart totals server-side
+    let serverCalculatedSubtotal = 0
+    for (const cartItem of cart) {
+      if (!cartItem.id || typeof cartItem.quantity !== 'number' || cartItem.quantity < 1) {
+        return NextResponse.json(
+          { error: 'Invalid cart item format' },
+          { status: 400 }
+        )
+      }
+
+      const serverPrice = menuItemPrices.get(cartItem.id)
+      if (serverPrice === undefined) {
+        return NextResponse.json(
+          { error: `Menu item not found: ${cartItem.name || cartItem.id}` },
+          { status: 400 }
+        )
+      }
+
+      // Calculate item total (base price * quantity + options)
+      let itemTotal = serverPrice * cartItem.quantity
+
+      // Add option prices if present (options are trusted as they're calculated client-side
+      // but the base price is verified server-side)
+      if (cartItem.optionsPrice && typeof cartItem.optionsPrice === 'number') {
+        itemTotal += cartItem.optionsPrice * cartItem.quantity
+      }
+
+      serverCalculatedSubtotal += itemTotal
+    }
+
+    // Round to 2 decimal places to avoid floating point issues
+    serverCalculatedSubtotal = Math.round(serverCalculatedSubtotal * 100) / 100
+    const clientSubtotal = Math.round(cart.reduce((sum: number, item: any) => sum + item.totalPrice, 0) * 100) / 100
+
+    // Allow small tolerance for floating point differences (1 cent)
+    if (Math.abs(serverCalculatedSubtotal - clientSubtotal) > 0.01) {
+      return NextResponse.json(
+        { error: 'Cart prices have changed. Please refresh and try again.' },
+        { status: 400 }
+      )
+    }
+
+    // Use server-calculated subtotal for payment
+    const subtotal = serverCalculatedSubtotal
     const platformFeePercentage = parseFloat(paymentSettings.application_fee_percentage.toString())
     const platformFee = (subtotal * platformFeePercentage) / 100
     const total = subtotal // Customer pays subtotal only, platform fee comes from business share
@@ -152,9 +209,8 @@ export async function POST(request: NextRequest) {
       total,
     })
   } catch (error: any) {
-    console.error('Payment Intent creation error:', error)
     return NextResponse.json(
-      { error: error.message || 'Failed to create payment intent' },
+      { error: 'Failed to create payment intent' },
       { status: 500 }
     )
   }

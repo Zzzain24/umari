@@ -30,8 +30,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log('Creating account link for:', stripeAccount.stripe_account_id)
-
     // Create an Account Link for the user to complete onboarding
     // This redirects them to Stripe's hosted onboarding flow
     const accountLink = await stripe.accountLinks.create({
@@ -41,19 +39,15 @@ export async function POST(request: NextRequest) {
       type: 'account_onboarding',
     })
 
-    console.log('Account link created:', accountLink.url)
-
     return NextResponse.json({
       success: true,
       url: accountLink.url,
     })
   } catch (err: any) {
-    console.error('Account link creation error:', err)
     return NextResponse.json(
       {
-        error: err.message,
-        type: err.type,
-        details: err.raw?.message || 'Unknown error',
+        error: 'Failed to create account link',
+        type: err.type || 'unknown',
       },
       { status: 500 }
     )

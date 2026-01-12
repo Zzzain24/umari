@@ -209,14 +209,14 @@ export function ProfileContent({ userData }: ProfileContentProps) {
             <p className="text-sm text-muted-foreground">Legal</p>
             <div className="flex gap-4 text-sm">
               <a
-                href="#"
+                href="/terms"
                 className="text-primary hover:text-primary/80 transition-colors"
               >
                 Terms of Service
               </a>
               <span className="text-muted-foreground">•</span>
               <a
-                href="#"
+                href="/privacy"
                 className="text-primary hover:text-primary/80 transition-colors"
               >
                 Privacy Policy

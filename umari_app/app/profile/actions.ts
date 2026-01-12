@@ -60,8 +60,7 @@ export async function deleteUserAccount(
             stripe_user_id: stripeAccount.stripe_account_id,
           })
         } catch (stripeError) {
-          // Log but don't fail - account deletion should proceed
-          console.error('Stripe deauthorization error:', stripeError)
+          // Stripe deauthorization failed - continue with account deletion
         }
       }
     }
@@ -74,7 +73,6 @@ export async function deleteUserAccount(
     })
 
     if (rpcError) {
-      console.error("Error in delete_user_account RPC:", rpcError)
       return {
         success: false,
         error: "Failed to delete user data",
@@ -86,7 +84,6 @@ export async function deleteUserAccount(
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
 
     if (!supabaseServiceKey) {
-      console.error("Missing SUPABASE_SERVICE_ROLE_KEY")
       return {
         success: false,
         error: "Server configuration error",
@@ -105,7 +102,6 @@ export async function deleteUserAccount(
     )
 
     if (deleteAuthError) {
-      console.error("Error deleting auth account:", deleteAuthError)
       return {
         success: false,
         error: "Failed to delete authentication account",
@@ -114,10 +110,9 @@ export async function deleteUserAccount(
 
     return { success: true }
   } catch (error: any) {
-    console.error("Unexpected error during account deletion:", error)
     return {
       success: false,
-      error: error.message || "An unexpected error occurred",
+      error: "An unexpected error occurred",
     }
   }
 }

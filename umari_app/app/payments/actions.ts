@@ -110,10 +110,9 @@ export async function disconnectStripeAccount(): Promise<{ success: boolean; err
     revalidatePath('/payments')
     return { success: true }
   } catch (error: any) {
-    console.error('Disconnect error:', error)
     return {
       success: false,
-      error: error.message || 'Failed to disconnect',
+      error: 'Failed to disconnect Stripe account',
     }
   }
 }

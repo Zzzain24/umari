@@ -58,7 +58,6 @@ export async function GET(request: NextRequest) {
       })
 
     if (dbError) {
-      console.error('Database error:', dbError)
       return NextResponse.redirect(
         new URL('/payments?error=database_error', request.url)
       )
@@ -95,9 +94,8 @@ export async function GET(request: NextRequest) {
       new URL('/payments?success=true', request.url)
     )
   } catch (err: any) {
-    console.error('Stripe OAuth error:', err)
     return NextResponse.redirect(
-      new URL(`/payments?error=${encodeURIComponent(err.message)}`, request.url)
+      new URL('/payments?error=oauth_failed', request.url)
     )
   }
 }

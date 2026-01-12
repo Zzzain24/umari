@@ -47,7 +47,6 @@ export default async function CheckoutPage({ searchParams }: PageProps) {
     .single()
 
   if (stripeError) {
-    console.error('Stripe account query error:', stripeError)
     return (
       <div className="min-h-screen bg-background pt-24">
         <div className="container max-w-2xl mx-auto px-4 py-8">
@@ -100,7 +99,6 @@ export default async function CheckoutPage({ searchParams }: PageProps) {
         .eq('user_id', menu.user_id)
     }
   } catch (error) {
-    console.error('Error fetching Stripe account status:', error)
     // Fall back to database value if Stripe API call fails
     chargesEnabled = stripeAccount.charges_enabled === true
   }

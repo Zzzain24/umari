@@ -87,13 +87,17 @@ export async function GET(request: NextRequest) {
     }
 
     // Create default payment settings if not exists
+    const defaultCurrency = account.default_currency || 'usd'
     const { error: settingsError } = await supabase
       .from('payment_settings')
       .upsert({
         user_id: user.id,
-        monetization_model: 'application_fee',
-        application_fee_percentage: parseFloat(process.env.STRIPE_PLATFORM_FEE_PERCENTAGE || '2.0'),
-        default_currency: account.default_currency || 'usd',
+        default_currency: defaultCurrency,
+        accepts_cards: true,
+        accepts_apple_pay: true,
+        accepts_google_pay: true,
+        auto_payout_enabled: true,
+        supported_currencies: [defaultCurrency],
       })
 
     if (settingsError) {

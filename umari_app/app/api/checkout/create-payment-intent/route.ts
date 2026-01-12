@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
     // Check if business has connected Stripe account (use admin client to bypass RLS)
     const { data: stripeAccount, error: stripeError } = await supabaseAdmin
       .from('stripe_accounts')
-      .select('stripe_account_id, charges_enabled')
+      .select('stripe_account_id, charges_enabled, currency')
       .eq('user_id', menu.user_id)
       .single()
 
@@ -96,18 +96,40 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get payment settings for platform fee (use admin client to bypass RLS)
-    const { data: paymentSettings, error: settingsError } = await supabaseAdmin
+    // Get payment settings for currency (use admin client to bypass RLS)
+    let { data: paymentSettings, error: settingsError } = await supabaseAdmin
       .from('payment_settings')
-      .select('application_fee_percentage, default_currency')
+      .select('default_currency')
       .eq('user_id', menu.user_id)
       .single()
 
+    // If payment settings don't exist but Stripe is connected, create them
     if (settingsError || !paymentSettings) {
-      return NextResponse.json(
-        { error: 'Payment settings not found. Please configure payment settings in your account.' },
-        { status: 500 }
-      )
+      const defaultCurrency = stripeAccount?.currency || 'usd'
+      
+      // Try to create payment settings
+      const { data: newPaymentSettings, error: createError } = await supabaseAdmin
+        .from('payment_settings')
+        .upsert({
+          user_id: menu.user_id,
+          default_currency: defaultCurrency,
+          accepts_cards: true,
+          accepts_apple_pay: true,
+          accepts_google_pay: true,
+          auto_payout_enabled: true,
+          supported_currencies: [defaultCurrency],
+        })
+        .select('default_currency')
+        .single()
+
+      if (createError || !newPaymentSettings) {
+        return NextResponse.json(
+          { error: 'Payment settings not found. Please configure payment settings in your account.' },
+          { status: 500 }
+        )
+      }
+      
+      paymentSettings = newPaymentSettings
     }
 
     // Fetch menu items from database to verify prices server-side
@@ -173,7 +195,7 @@ export async function POST(request: NextRequest) {
 
     // Use server-calculated subtotal for payment
     const subtotal = serverCalculatedSubtotal
-    const platformFeePercentage = parseFloat(paymentSettings.application_fee_percentage.toString())
+    const platformFeePercentage = parseFloat(process.env.STRIPE_PLATFORM_FEE_PERCENTAGE || '2.0')
     const platformFee = (subtotal * platformFeePercentage) / 100
     const total = subtotal // Customer pays subtotal only, platform fee comes from business share
 

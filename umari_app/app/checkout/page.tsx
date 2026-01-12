@@ -42,7 +42,7 @@ export default async function CheckoutPage({ searchParams }: PageProps) {
   // Check if business has connected Stripe account (use admin client to bypass RLS for guest checkout)
   const { data: stripeAccount, error: stripeError } = await supabaseAdmin
     .from('stripe_accounts')
-    .select('stripe_account_id, charges_enabled')
+    .select('stripe_account_id, charges_enabled, currency')
     .eq('user_id', menu.user_id)
     .single()
 
@@ -121,27 +121,49 @@ export default async function CheckoutPage({ searchParams }: PageProps) {
   }
 
   // Get payment settings (use admin client to bypass RLS for guest checkout)
-  const { data: paymentSettings, error: paymentSettingsError } = await supabaseAdmin
+  let { data: paymentSettings, error: paymentSettingsError } = await supabaseAdmin
     .from('payment_settings')
-    .select('application_fee_percentage, default_currency')
+    .select('default_currency')
     .eq('user_id', menu.user_id)
     .single()
 
+  // If payment settings don't exist but Stripe is connected, create them
   if (paymentSettingsError || !paymentSettings) {
-    return (
-      <div className="min-h-screen bg-background pt-24">
-        <div className="container max-w-2xl mx-auto px-4 py-8">
-          <div className="bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-lg p-6">
-            <h1 className="text-xl font-semibold text-yellow-900 dark:text-yellow-100 mb-2">
-              Payment Settings Not Found
-            </h1>
-            <p className="text-yellow-800 dark:text-yellow-200">
-              Payment settings have not been configured for this business. Please contact the business owner.
-            </p>
+    const defaultCurrency = stripeAccount?.currency || 'usd'
+    
+    // Try to create payment settings
+    const { data: newPaymentSettings, error: createError } = await supabaseAdmin
+      .from('payment_settings')
+      .upsert({
+        user_id: menu.user_id,
+        default_currency: defaultCurrency,
+        accepts_cards: true,
+        accepts_apple_pay: true,
+        accepts_google_pay: true,
+        auto_payout_enabled: true,
+        supported_currencies: [defaultCurrency],
+      })
+      .select('default_currency')
+      .single()
+
+    if (createError || !newPaymentSettings) {
+      return (
+        <div className="min-h-screen bg-background pt-24">
+          <div className="container max-w-2xl mx-auto px-4 py-8">
+            <div className="bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-lg p-6">
+              <h1 className="text-xl font-semibold text-yellow-900 dark:text-yellow-100 mb-2">
+                Payment Settings Not Found
+              </h1>
+              <p className="text-yellow-800 dark:text-yellow-200">
+                Payment settings have not been configured for this business. Please contact the business owner.
+              </p>
+            </div>
           </div>
         </div>
-      </div>
-    )
+      )
+    }
+    
+    paymentSettings = newPaymentSettings
   }
 
   return (
@@ -159,7 +181,7 @@ export default async function CheckoutPage({ searchParams }: PageProps) {
         <CheckoutForm
           menuId={menuId}
           menuName={menu.name}
-          platformFeePercentage={paymentSettings?.application_fee_percentage || 2.0}
+          platformFeePercentage={parseFloat(process.env.STRIPE_PLATFORM_FEE_PERCENTAGE || '2.0')}
         />
       </div>
     </div>

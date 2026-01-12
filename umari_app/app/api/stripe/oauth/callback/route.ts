@@ -67,7 +67,7 @@ export async function GET(request: NextRequest) {
     const account = await stripe.accounts.retrieve(response.stripe_user_id)
 
     // Update account status
-    await supabase
+    const { error: updateError } = await supabase
       .from('stripe_accounts')
       .update({
         charges_enabled: account.charges_enabled,
@@ -80,8 +80,14 @@ export async function GET(request: NextRequest) {
       })
       .eq('user_id', user.id)
 
+    if (updateError) {
+      return NextResponse.redirect(
+        new URL('/payments?error=update_failed', request.url)
+      )
+    }
+
     // Create default payment settings if not exists
-    await supabase
+    const { error: settingsError } = await supabase
       .from('payment_settings')
       .upsert({
         user_id: user.id,
@@ -89,6 +95,12 @@ export async function GET(request: NextRequest) {
         application_fee_percentage: parseFloat(process.env.STRIPE_PLATFORM_FEE_PERCENTAGE || '2.0'),
         default_currency: account.default_currency || 'usd',
       })
+
+    if (settingsError) {
+      return NextResponse.redirect(
+        new URL('/payments?error=settings_creation_failed', request.url)
+      )
+    }
 
     return NextResponse.redirect(
       new URL('/payments?success=true', request.url)

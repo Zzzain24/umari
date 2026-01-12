@@ -154,17 +154,17 @@ export async function POST(request: NextRequest) {
     // Validate and recalculate cart totals server-side
     let serverCalculatedSubtotal = 0
     for (const cartItem of cart) {
-      if (!cartItem.id || typeof cartItem.quantity !== 'number' || cartItem.quantity < 1) {
+      if (!cartItem.menuItemId || typeof cartItem.quantity !== 'number' || cartItem.quantity < 1) {
         return NextResponse.json(
           { error: 'Invalid cart item format' },
           { status: 400 }
         )
       }
 
-      const serverPrice = menuItemPrices.get(cartItem.id)
+      const serverPrice = menuItemPrices.get(cartItem.menuItemId)
       if (serverPrice === undefined) {
         return NextResponse.json(
-          { error: `Menu item not found: ${cartItem.name || cartItem.id}` },
+          { error: `Menu item not found: ${cartItem.itemName || cartItem.menuItemId}` },
           { status: 400 }
         )
       }

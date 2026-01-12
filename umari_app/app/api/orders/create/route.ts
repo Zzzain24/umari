@@ -109,19 +109,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get payment settings for platform fee calculation
-    const { data: paymentSettings, error: settingsError } = await supabaseAdmin
-      .from('payment_settings')
-      .select('application_fee_percentage')
-      .eq('user_id', menu.user_id)
-      .single()
-
-    if (settingsError || !paymentSettings) {
-      return NextResponse.json(
-        { error: 'Payment settings not found' },
-        { status: 500 }
-      )
-    }
+    // Payment settings not needed for order creation - fee percentage comes from env
 
     // Get Stripe account ID
     const { data: stripeAccount, error: stripeError } = await supabaseAdmin
@@ -140,7 +128,7 @@ export async function POST(request: NextRequest) {
     // Calculate totals
     // Customer pays only subtotal - platform fee is deducted from business share
     const subtotal = cart.reduce((sum: number, item: any) => sum + item.totalPrice, 0)
-    const platformFeePercentage = parseFloat(paymentSettings.application_fee_percentage.toString())
+    const platformFeePercentage = parseFloat(process.env.STRIPE_PLATFORM_FEE_PERCENTAGE || '2.0')
     const platformFee = (subtotal * platformFeePercentage) / 100
     const total = subtotal // Customer pays subtotal only, platform fee comes from business share
 

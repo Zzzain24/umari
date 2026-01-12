@@ -29,7 +29,6 @@ export async function GET(request: NextRequest) {
       .single()
 
     if (error || !order) {
-      console.error('Order lookup error:', error)
       return NextResponse.json(
         { error: 'Order not found or email does not match' },
         { status: 404 }
@@ -67,7 +66,6 @@ export async function GET(request: NextRequest) {
       business_email: order.business_email,
     })
   } catch (err: any) {
-    console.error('Order lookup error:', err)
     return NextResponse.json(
       { error: 'Failed to retrieve order' },
       { status: 500 }

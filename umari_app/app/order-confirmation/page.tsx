@@ -172,7 +172,6 @@ export default async function OrderConfirmationPage({ searchParams }: PageProps)
       </div>
     )
   } catch (error) {
-    console.error('Order confirmation error:', error)
     notFound()
   }
 }

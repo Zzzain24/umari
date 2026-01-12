@@ -37,33 +37,8 @@ export async function deleteUserAccount(
       }
     }
 
-    // Check if business has orders
-    const { data: orders, error: ordersError } = await supabase
-      .from('orders')
-      .select('id')
-      .eq('business_user_id', userId)
-      .limit(1)
-
-    const hasOrders = orders && orders.length > 0
-
-    if (hasOrders) {
-      // Transfer orders to system account (preserves referential integrity)
-      // The business_name and business_email columns in orders preserve the business info
-      const { error: transferError } = await supabase
-        .from('orders')
-        .update({ business_user_id: DELETED_BUSINESS_ID })
-        .eq('business_user_id', userId)
-
-      if (transferError) {
-        console.error('Error transferring orders:', transferError)
-        return {
-          success: false,
-          error: 'Failed to transfer order history'
-        }
-      }
-    }
-
-    // Delete Stripe account connection (if exists)
+    // Step 1: Handle Stripe deauthorization first (external API call)
+    // This is done before the transaction since it's an external service
     const { data: stripeAccount } = await supabase
       .from('stripe_accounts')
       .select('stripe_account_id')
@@ -71,7 +46,6 @@ export async function deleteUserAccount(
       .single()
 
     if (stripeAccount) {
-      // Deauthorize Stripe account
       const secretKey = process.env.STRIPE_SECRET_KEY
       const clientId = process.env.NEXT_PUBLIC_STRIPE_CLIENT_ID
 
@@ -86,41 +60,30 @@ export async function deleteUserAccount(
             stripe_user_id: stripeAccount.stripe_account_id,
           })
         } catch (stripeError) {
-          // Log but don't fail - account deletion should proceed
-          console.error('Stripe deauthorization error:', stripeError)
+          // Stripe deauthorization failed - continue with account deletion
         }
       }
-
-      // Delete Stripe account record
-      await supabase.from('stripe_accounts').delete().eq('user_id', userId)
     }
 
-    // Delete payment settings
-    await supabase.from('payment_settings').delete().eq('user_id', userId)
+    // Step 2: Delete all user data atomically using the database function
+    // This ensures all database operations succeed or fail together
+    const { error: rpcError } = await supabase.rpc('delete_user_account', {
+      p_user_id: userId,
+      p_system_account_id: DELETED_BUSINESS_ID,
+    })
 
-    // Delete menus (cascade will handle menu_items and menu_item_options)
-    await supabase.from('menus').delete().eq('user_id', userId)
-
-    // Delete user profile
-    const { error: deleteUserError } = await supabase
-      .from("users")
-      .delete()
-      .eq("id", userId)
-
-    if (deleteUserError) {
-      console.error("Error deleting user:", deleteUserError)
+    if (rpcError) {
       return {
         success: false,
-        error: "Failed to delete user account",
+        error: "Failed to delete user data",
       }
     }
 
-    // Create admin client for auth deletion
+    // Step 3: Delete from Supabase auth using admin client
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
 
     if (!supabaseServiceKey) {
-      console.error("Missing SUPABASE_SERVICE_ROLE_KEY")
       return {
         success: false,
         error: "Server configuration error",
@@ -134,13 +97,11 @@ export async function deleteUserAccount(
       },
     })
 
-    // Delete from Supabase auth using admin client
     const { error: deleteAuthError } = await adminClient.auth.admin.deleteUser(
       userId
     )
 
     if (deleteAuthError) {
-      console.error("Error deleting auth account:", deleteAuthError)
       return {
         success: false,
         error: "Failed to delete authentication account",
@@ -149,10 +110,9 @@ export async function deleteUserAccount(
 
     return { success: true }
   } catch (error: any) {
-    console.error("Unexpected error during account deletion:", error)
     return {
       success: false,
-      error: error.message || "An unexpected error occurred",
+      error: "An unexpected error occurred",
     }
   }
 }

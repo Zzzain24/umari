@@ -112,9 +112,8 @@ export async function POST(request: NextRequest) {
       throw stripeError
     }
   } catch (error: any) {
-    console.error('Refund error:', error)
     return NextResponse.json(
-      { success: false, error: error.message || 'Failed to process refund' },
+      { success: false, error: 'Failed to process refund' },
       { status: 500 }
     )
   }

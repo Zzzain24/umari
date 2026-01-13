@@ -205,12 +205,12 @@ export async function POST(request: NextRequest) {
 
     // Create Payment Intent with Stripe Connect
     // Include 'card' payment method type to enable Apple Pay and Google Pay
+    // Using direct charges so business pays Stripe fees, platform collects application fee
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amountInCents,
       currency: paymentSettings.default_currency || 'usd',
       payment_method_types: ['card'], // Enables card payments and wallet payments (Apple Pay, Google Pay)
       application_fee_amount: applicationFeeInCents,
-      on_behalf_of: stripeAccount.stripe_account_id,
       transfer_data: {
         destination: stripeAccount.stripe_account_id,
       },

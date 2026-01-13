@@ -17,7 +17,7 @@ export function AboutContent() {
 
   return (
     <div className="min-h-screen w-full relative bg-background">
-      {/* Pearl Mist Background with Top Glow */}
+      {/* Pearl Mist Background with Top Glow Border */}
       <div
         className="absolute inset-0 z-0"
         style={{

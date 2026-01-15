@@ -119,20 +119,29 @@ export async function POST(request: NextRequest) {
 
         const menuName = menuData?.name || fullOrder.business_name || 'Your Business'
 
-        // Send email asynchronously (don't block response)
-        sendOrderRefundEmail({
-          orderNumber: fullOrder.order_number,
-          customerName: fullOrder.customer_name,
-          customerEmail: fullOrder.customer_email,
-          businessName: fullOrder.business_name || menuName,
-          items: fullOrder.items as any[],
-          subtotal: fullOrder.subtotal,
-          total: fullOrder.total,
-          orderDate: fullOrder.created_at,
-          orderStatus: 'cancelled',
+        // Send email asynchronously (wrap in Promise.resolve to ensure tracking in serverless)
+        Promise.resolve().then(async () => {
+          try {
+            const result = await sendOrderRefundEmail({
+              orderNumber: fullOrder.order_number,
+              customerName: fullOrder.customer_name,
+              customerEmail: fullOrder.customer_email,
+              businessName: fullOrder.business_name || menuName,
+              items: fullOrder.items as any[],
+              subtotal: fullOrder.subtotal,
+              total: fullOrder.total,
+              orderDate: fullOrder.created_at,
+              orderStatus: 'cancelled',
+            })
+            if (!result.success) {
+              console.error('Failed to send order refund email:', result.error)
+            }
+          } catch (error) {
+            // Log email errors but don't fail the refund
+            console.error('Failed to send order refund email:', error)
+          }
         }).catch((error) => {
-          // Log email errors but don't fail the refund
-          console.error('Failed to send order refund email:', error)
+          console.error('Unexpected error in email promise chain:', error)
         })
       }
 

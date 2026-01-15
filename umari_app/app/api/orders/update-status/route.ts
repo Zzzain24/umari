@@ -72,20 +72,29 @@ export async function POST(request: Request) {
 
       const menuName = menuData?.name || order.business_name || 'Your Business'
 
-      // Send email asynchronously
-      sendOrderStatusUpdateEmail({
-        orderNumber: order.order_number,
-        customerName: order.customer_name,
-        customerEmail: order.customer_email,
-        businessName: order.business_name || menuName,
-        items: order.items as any[],
-        subtotal: order.subtotal,
-        total: order.total,
-        orderDate: order.created_at,
-        orderStatus: 'ready',
+      // Send email asynchronously (wrap in Promise.resolve to ensure tracking in serverless)
+      Promise.resolve().then(async () => {
+        try {
+          const result = await sendOrderStatusUpdateEmail({
+            orderNumber: order.order_number,
+            customerName: order.customer_name,
+            customerEmail: order.customer_email,
+            businessName: order.business_name || menuName,
+            items: order.items as any[],
+            subtotal: order.subtotal,
+            total: order.total,
+            orderDate: order.created_at,
+            orderStatus: 'ready',
+          })
+          if (!result.success) {
+            console.error('Failed to send order status update email:', result.error)
+          }
+        } catch (error) {
+          // Log email errors but don't fail the status update
+          console.error('Failed to send order status update email:', error)
+        }
       }).catch((error) => {
-        // Log email errors but don't fail the status update
-        console.error('Failed to send order status update email:', error)
+        console.error('Unexpected error in email promise chain:', error)
       })
     }
 

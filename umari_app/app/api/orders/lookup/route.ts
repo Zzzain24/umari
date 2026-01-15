@@ -56,7 +56,6 @@ export async function GET(request: NextRequest) {
       order_status: order.order_status,
       payment_status: order.payment_status,
       order_type: order.order_type,
-      special_instructions: order.special_instructions,
       created_at: order.created_at,
       customer_name: order.customer_name,
       customer_email: order.customer_email,

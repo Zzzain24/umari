@@ -106,6 +106,20 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    // Register Apple Pay domain on the connected account for wallet payments
+    // This enables Apple Pay and Google Pay for Direct Charges
+    const appDomain = process.env.NEXT_PUBLIC_APP_DOMAIN || 'umari.app'
+    try {
+      await stripe.applePayDomains.create(
+        { domain_name: appDomain },
+        { stripeAccount: response.stripe_user_id }
+      )
+    } catch (domainError: any) {
+      // Ignore if domain already registered or if there's an issue
+      // Apple Pay will still work if the domain is registered on the platform
+      console.error('Apple Pay domain registration:', domainError.message)
+    }
+
     return NextResponse.redirect(
       new URL('/payments?success=true', request.url)
     )

@@ -206,11 +206,14 @@ export async function POST(request: NextRequest) {
     // Create Payment Intent with Stripe Connect using Direct Charges
     // Direct charges: business pays Stripe fees, platform collects application fee
     // The charge appears on the connected account's Stripe dashboard
+    // Using automatic_payment_methods to enable Apple Pay, Google Pay, and other wallets
     const paymentIntent = await stripe.paymentIntents.create(
       {
         amount: amountInCents,
         currency: paymentSettings.default_currency || 'usd',
-        payment_method_types: ['card'],
+        automatic_payment_methods: {
+          enabled: true,
+        },
         application_fee_amount: applicationFeeInCents,
         metadata: {
           menu_id: menuId,

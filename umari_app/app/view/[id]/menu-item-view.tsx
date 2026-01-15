@@ -117,7 +117,7 @@ export function MenuItemView({ item }: MenuItemViewProps) {
         <div className="space-y-2">
           <p className="text-sm text-muted-foreground">Special Instructions (optional)</p>
           <Textarea
-            placeholder="E.g., no onions, extra sauce..."
+            placeholder="E.g., extra hot, light ice..."
             value={specialInstructions}
             onChange={(e) => setSpecialInstructions(e.target.value)}
             className="resize-none h-20"

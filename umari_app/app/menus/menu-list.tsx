@@ -2,13 +2,19 @@
 
 import type { Menu } from "@/lib/types"
 import { Button } from "@/components/ui/button"
-import { Plus } from "lucide-react"
+import { Plus, Eye, Pencil, Share2, Trash2, MoreHorizontal } from "lucide-react"
 import Link from "next/link"
-import { MenuCard } from "./menu-card"
 import { MenusEmpty } from "./menus-empty"
 import { deleteMenu } from "./actions"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
+import { Separator } from "@/components/ui/separator"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,6 +39,23 @@ export function MenuList({ menus }: MenuListProps) {
 
   const handleDeleteClick = (menuId: string) => {
     setDeleteMenuId(menuId)
+  }
+
+  const handleShare = async (menuId: string) => {
+    const shareUrl = `${window.location.origin}/view/${menuId}`
+    try {
+      await navigator.clipboard.writeText(shareUrl)
+      toast({
+        title: "Link copied!",
+        description: "Menu link has been copied to clipboard.",
+      })
+    } catch {
+      toast({
+        title: "Failed to copy",
+        description: "Please try again.",
+        variant: "destructive",
+      })
+    }
   }
 
   const handleDeleteConfirm = async () => {
@@ -76,28 +99,146 @@ export function MenuList({ menus }: MenuListProps) {
 
   return (
     <>
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-          <div>
-            <h1 className="text-4xl font-bold text-foreground mb-2">
-              Your Menus
-            </h1>
-            <p className="text-muted-foreground">
-              Manage and organize your menus
-            </p>
-          </div>
-          <Link href="/menus/new" className="self-start sm:self-auto">
-            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground w-full sm:w-auto">
-              <Plus className="w-4 h-4 mr-2" />
-              Create New Menu
-            </Button>
-          </Link>
-        </div>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative">
+        {/* Decorative blur elements */}
+        <div className="absolute top-20 right-20 w-72 h-72 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-40 left-10 w-96 h-96 bg-primary/3 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {menus.map((menu) => (
-            <MenuCard key={menu.id} menu={menu} onDelete={handleDeleteClick} />
-          ))}
+        <div className="relative">
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+            <div>
+              <h1 className="text-3xl font-bold text-foreground mb-1">
+                Your Menus
+              </h1>
+              <p className="text-muted-foreground text-sm">
+                Manage and organize your menus
+              </p>
+            </div>
+            <Link href="/menus/new" className="self-start sm:self-auto">
+              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                <Plus className="w-4 h-4 mr-2" />
+                Create New Menu
+              </Button>
+            </Link>
+          </div>
+
+          {/* Menu List */}
+          <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
+            {/* Table Header - Desktop Only */}
+            <div className="hidden sm:grid sm:grid-cols-12 gap-4 px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              <div className="col-span-5">Menu Name</div>
+              <div className="col-span-2">Items</div>
+              <div className="col-span-3">Created</div>
+              <div className="col-span-2 text-right">Actions</div>
+            </div>
+
+            <Separator className="mb-1" />
+
+            {/* Menu Rows */}
+            {menus.map((menu, index) => {
+              const formattedDate = new Date(menu.created_at).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+              })
+              const itemCount = menu.items_count || 0
+              const itemText = itemCount === 1 ? 'item' : 'items'
+
+              return (
+                <div key={menu.id}>
+                  {/* Desktop Row */}
+                  <div className="hidden sm:grid sm:grid-cols-12 gap-4 items-center px-4 py-3 group hover:bg-accent/50 rounded-lg transition-colors">
+                    <div className="col-span-5">
+                      <Link href={`/menus/${menu.id}/edit`} className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+                        {menu.name}
+                      </Link>
+                    </div>
+                    <div className="col-span-2">
+                      <span className="text-sm text-muted-foreground">{itemCount} {itemText}</span>
+                    </div>
+                    <div className="col-span-3">
+                      <span className="text-sm text-muted-foreground">{formattedDate}</span>
+                    </div>
+                    <div className="col-span-2 flex items-center justify-end gap-1">
+                      <Link href={`/view/${menu.id}`} target="_blank" rel="noopener noreferrer">
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                      </Link>
+                      <Link href={`/menus/${menu.id}/edit`}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <Pencil className="w-4 h-4" />
+                        </Button>
+                      </Link>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => handleShare(menu.id)}
+                      >
+                        <Share2 className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                        onClick={() => handleDeleteClick(menu.id)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Mobile Row */}
+                  <div className="sm:hidden flex items-center justify-between py-3 px-4 hover:bg-accent/50 rounded-lg transition-colors">
+                    <div className="flex-1 min-w-0">
+                      <Link href={`/menus/${menu.id}/edit`} className="text-sm font-medium text-foreground hover:text-primary transition-colors block truncate">
+                        {menu.name}
+                      </Link>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {itemCount} {itemText} · {formattedDate}
+                      </p>
+                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 ml-2">
+                          <MoreHorizontal className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem asChild>
+                          <Link href={`/view/${menu.id}`} target="_blank" rel="noopener noreferrer">
+                            <Eye className="w-4 h-4 mr-2" />
+                            View
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link href={`/menus/${menu.id}/edit`}>
+                            <Pencil className="w-4 h-4 mr-2" />
+                            Edit
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleShare(menu.id)}>
+                          <Share2 className="w-4 h-4 mr-2" />
+                          Share
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleDeleteClick(menu.id)}
+                          className="text-destructive focus:text-destructive"
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+
+                  {index < menus.length - 1 && <Separator />}
+                </div>
+              )
+            })}
+          </div>
         </div>
       </main>
 

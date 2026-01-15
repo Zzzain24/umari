@@ -10,8 +10,8 @@ interface MenuCarouselSectionProps {
 
 export function MenuCarouselSection({ menus }: MenuCarouselSectionProps) {
   return (
-    <div className="bg-card border-2 border-secondary/40 rounded-xl p-8 shadow-lg">
-      <h2 className="text-2xl font-semibold text-foreground mb-6">Your Menus</h2>
+    <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
+      <h2 className="text-lg font-semibold text-foreground mb-4">Your Menus</h2>
 
       {menus.length === 0 ? (
         <MenuCarouselEmpty />

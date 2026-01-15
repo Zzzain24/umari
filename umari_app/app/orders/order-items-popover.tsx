@@ -71,6 +71,11 @@ export function OrderItemsPopover({ items }: OrderItemsPopoverProps) {
                     ))}
                   </div>
                 )}
+                {item.specialInstructions && (
+                  <p className="text-xs text-muted-foreground italic pl-4 mt-1">
+                    Note: {item.specialInstructions}
+                  </p>
+                )}
               </div>
             ))}
           </div>

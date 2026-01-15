@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Textarea } from "@/components/ui/textarea"
 import { useCart } from "@/contexts/cart-context"
 import { MenuItemOptions } from "./menu-item-options"
 import { QuantitySelector } from "./quantity-selector"
@@ -29,6 +30,7 @@ export function MenuItemView({ item }: MenuItemViewProps) {
   const { addToCart } = useCart()
   const [quantity, setQuantity] = useState(1)
   const [selectedOptions, setSelectedOptions] = useState<SelectedOption[]>([])
+  const [specialInstructions, setSpecialInstructions] = useState("")
 
   // Validate that all required options are selected and item is not sold out
   const isValid = useMemo(() => {
@@ -54,11 +56,12 @@ export function MenuItemView({ item }: MenuItemViewProps) {
       quantity,
       selectedOptions,
       totalPrice,
+      specialInstructions: specialInstructions.trim() || undefined,
     })
 
-    // Reset quantity and optionally keep or reset options
+    // Reset quantity and special instructions
     setQuantity(1)
-    // Optionally reset options: setSelectedOptions([])
+    setSpecialInstructions("")
   }
 
   return (
@@ -108,6 +111,18 @@ export function MenuItemView({ item }: MenuItemViewProps) {
               ${totalPrice.toFixed(2)}
             </p>
           </div>
+        </div>
+
+        {/* Special Instructions */}
+        <div className="space-y-2">
+          <p className="text-sm text-muted-foreground">Special Instructions (optional)</p>
+          <Textarea
+            placeholder="E.g., no onions, extra sauce..."
+            value={specialInstructions}
+            onChange={(e) => setSpecialInstructions(e.target.value)}
+            className="resize-none h-20"
+            maxLength={200}
+          />
         </div>
 
         <Button

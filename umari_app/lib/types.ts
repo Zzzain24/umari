@@ -129,7 +129,6 @@ export interface Order {
   customer_phone: string | null
   order_status: 'received' | 'ready' | 'cancelled'
   order_type: string | null
-  special_instructions: string | null
   created_at: string
   updated_at: string
   completed_at: string | null

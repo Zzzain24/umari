@@ -284,14 +284,6 @@ function TrackOrderContent() {
               </div>
             </div>
 
-            {/* Special Instructions */}
-            {order.special_instructions && (
-              <div className="bg-muted/50 border border-border rounded-lg p-4">
-                <p className="text-sm font-medium mb-1">Special Instructions:</p>
-                <p className="text-sm text-muted-foreground">{order.special_instructions}</p>
-              </div>
-            )}
-
             {/* Business Info */}
             <div className="bg-white border border-border rounded-lg p-4">
               <p className="text-xs text-muted-foreground mb-1">From</p>

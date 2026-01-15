@@ -171,20 +171,30 @@ export async function POST(request: NextRequest) {
     const menuName = menuData?.name || order.business_name || 'Your Business'
 
     // Send confirmation email asynchronously (don't block response)
+    // Wrap in Promise.resolve to ensure promise is tracked in serverless environments
     if (customerEmail && (finalPaymentStatus === 'succeeded' || finalPaymentStatus === 'pending')) {
-      sendOrderConfirmationEmail({
-        orderNumber: order.order_number,
-        customerName,
-        customerEmail,
-        businessName: order.business_name || menuName,
-        items: cart,
-        subtotal,
-        total,
-        orderDate: order.created_at,
-        orderStatus: 'received',
+      Promise.resolve().then(async () => {
+        try {
+          const result = await sendOrderConfirmationEmail({
+            orderNumber: order.order_number,
+            customerName,
+            customerEmail,
+            businessName: order.business_name || menuName,
+            items: cart,
+            subtotal,
+            total,
+            orderDate: order.created_at,
+            orderStatus: 'received',
+          })
+          if (!result.success) {
+            console.error('Failed to send order confirmation email:', result.error)
+          }
+        } catch (error) {
+          // Log email errors but don't fail the order creation
+          console.error('Failed to send order confirmation email:', error)
+        }
       }).catch((error) => {
-        // Log email errors but don't fail the order creation
-        console.error('Failed to send order confirmation email:', error)
+        console.error('Unexpected error in email promise chain:', error)
       })
     }
 

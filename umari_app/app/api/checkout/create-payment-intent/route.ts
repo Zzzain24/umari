@@ -203,25 +203,27 @@ export async function POST(request: NextRequest) {
     const amountInCents = Math.round(total * 100)
     const applicationFeeInCents = Math.round(platformFee * 100)
 
-    // Create Payment Intent with Stripe Connect
-    // Include 'card' payment method type to enable Apple Pay and Google Pay
-    // Using direct charges so business pays Stripe fees, platform collects application fee
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: amountInCents,
-      currency: paymentSettings.default_currency || 'usd',
-      payment_method_types: ['card'], // Enables card payments and wallet payments (Apple Pay, Google Pay)
-      application_fee_amount: applicationFeeInCents,
-      transfer_data: {
-        destination: stripeAccount.stripe_account_id,
+    // Create Payment Intent with Stripe Connect using Direct Charges
+    // Direct charges: business pays Stripe fees, platform collects application fee
+    // The charge appears on the connected account's Stripe dashboard
+    const paymentIntent = await stripe.paymentIntents.create(
+      {
+        amount: amountInCents,
+        currency: paymentSettings.default_currency || 'usd',
+        payment_method_types: ['card'],
+        application_fee_amount: applicationFeeInCents,
+        metadata: {
+          menu_id: menuId,
+          business_user_id: menu.user_id,
+          customer_name: customerName,
+          customer_email: customerEmail,
+          customer_phone: customerPhone || '',
+        },
       },
-      metadata: {
-        menu_id: menuId,
-        business_user_id: menu.user_id,
-        customer_name: customerName,
-        customer_email: customerEmail,
-        customer_phone: customerPhone || '',
-      },
-    })
+      {
+        stripeAccount: stripeAccount.stripe_account_id,
+      }
+    )
 
     return NextResponse.json({
       clientSecret: paymentIntent.client_secret,

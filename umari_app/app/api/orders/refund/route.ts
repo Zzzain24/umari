@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     // Verify the order belongs to the business owner
     const { data: order, error: orderError } = await supabase
       .from('orders')
-      .select('id, business_user_id, payment_status, order_status, stripe_payment_intent_id')
+      .select('id, business_user_id, payment_status, order_status, stripe_payment_intent_id, stripe_account_id')
       .eq('id', orderId)
       .eq('business_user_id', user.id)
       .single()
@@ -68,12 +68,17 @@ export async function POST(request: NextRequest) {
     }
 
     // Create refund via Stripe with application fee refund
+    // For Direct Charges, refund must be made on the connected account
     try {
-      const refund = await stripe.refunds.create({
-        payment_intent: order.stripe_payment_intent_id,
-        refund_application_fee: true,
-        reverse_transfer: true,
-      })
+      const refund = await stripe.refunds.create(
+        {
+          payment_intent: order.stripe_payment_intent_id,
+          refund_application_fee: true,
+        },
+        {
+          stripeAccount: order.stripe_account_id,
+        }
+      )
 
       // Update order in database
       const { error: updateError } = await supabase

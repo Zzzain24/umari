@@ -48,6 +48,7 @@ export interface CartItem {
   quantity: number
   selectedOptions: SelectedOption[]
   totalPrice: number
+  specialInstructions?: string
 }
 
 export interface MenuItemForCart {

@@ -284,6 +284,11 @@ function OrderSummary({
                     ))}
                   </div>
                 )}
+                {item.specialInstructions && (
+                  <p className="text-xs text-muted-foreground italic mt-1">
+                    Note: {item.specialInstructions}
+                  </p>
+                )}
               </div>
               <span className="font-medium ml-4">${item.totalPrice.toFixed(2)}</span>
             </div>

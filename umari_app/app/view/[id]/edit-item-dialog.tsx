@@ -10,6 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
+import { Textarea } from "@/components/ui/textarea"
 import { useCart } from "@/contexts/cart-context"
 import { calculateItemPrice, validateRequiredOptions } from "@/lib/cart-utils"
 import type { CartItem, SelectedOption } from "@/lib/types"
@@ -28,6 +29,9 @@ export function EditItemDialog({ item, isOpen, onClose }: EditItemDialogProps) {
   const [selectedOptions, setSelectedOptions] = useState<SelectedOption[]>(
     item.selectedOptions
   )
+  const [specialInstructions, setSpecialInstructions] = useState(
+    item.specialInstructions || ""
+  )
 
   // Get the full menu item with all available options
   const menuItem = getMenuItem(item.menuItemId)
@@ -36,6 +40,7 @@ export function EditItemDialog({ item, isOpen, onClose }: EditItemDialogProps) {
   useEffect(() => {
     setQuantity(item.quantity)
     setSelectedOptions(item.selectedOptions)
+    setSpecialInstructions(item.specialInstructions || "")
   }, [item])
 
   // Validate that all required options are selected
@@ -56,6 +61,7 @@ export function EditItemDialog({ item, isOpen, onClose }: EditItemDialogProps) {
       quantity,
       selectedOptions,
       totalPrice,
+      specialInstructions: specialInstructions.trim() || undefined,
     })
     onClose()
   }
@@ -81,6 +87,18 @@ export function EditItemDialog({ item, isOpen, onClose }: EditItemDialogProps) {
           <div className="space-y-2">
             <p className="text-sm font-medium text-foreground">Quantity</p>
             <QuantitySelector quantity={quantity} onChange={setQuantity} />
+          </div>
+
+          {/* Special Instructions */}
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-foreground">Special Instructions (optional)</p>
+            <Textarea
+              placeholder="E.g., no onions, extra sauce..."
+              value={specialInstructions}
+              onChange={(e) => setSpecialInstructions(e.target.value)}
+              className="resize-none h-20"
+              maxLength={200}
+            />
           </div>
 
           <div className="flex items-center justify-between pt-4 border-t border-border">

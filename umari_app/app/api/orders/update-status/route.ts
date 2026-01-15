@@ -1,5 +1,12 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
+import { createClient as createAdminClient } from '@supabase/supabase-js'
+import { sendOrderStatusUpdateEmail } from '@/lib/email'
+
+const supabaseAdmin = createAdminClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
 
 export async function POST(request: Request) {
   try {
@@ -25,10 +32,10 @@ export async function POST(request: Request) {
       )
     }
 
-    // Verify the order belongs to the business owner
+    // Verify the order belongs to the business owner and fetch full order details
     const { data: order, error: orderError } = await supabase
       .from('orders')
-      .select('id, business_user_id, order_status')
+      .select('*, menu_id, business_name')
       .eq('id', orderId)
       .eq('business_user_id', user.id)
       .single()
@@ -52,6 +59,34 @@ export async function POST(request: Request) {
 
     if (updateError) {
       throw updateError
+    }
+
+    // Send status update email if status changed to "ready" (not "cancelled" - that's handled by refund endpoints)
+    if (newStatus === 'ready' && order.customer_email && order.customer_name) {
+      // Fetch menu name for email context
+      const { data: menuData } = await supabaseAdmin
+        .from('menus')
+        .select('name')
+        .eq('id', order.menu_id)
+        .single()
+
+      const menuName = menuData?.name || order.business_name || 'Your Business'
+
+      // Send email asynchronously
+      sendOrderStatusUpdateEmail({
+        orderNumber: order.order_number,
+        customerName: order.customer_name,
+        customerEmail: order.customer_email,
+        businessName: order.business_name || menuName,
+        items: order.items as any[],
+        subtotal: order.subtotal,
+        total: order.total,
+        orderDate: order.created_at,
+        orderStatus: 'ready',
+      }).catch((error) => {
+        // Log email errors but don't fail the status update
+        console.error('Failed to send order status update email:', error)
+      })
     }
 
     return NextResponse.json({ success: true })

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { sendOrderConfirmationEmail } from '@/lib/email'
 
 // Use service role to bypass RLS for order creation
 const supabaseAdmin = createClient(
@@ -150,7 +151,7 @@ export async function POST(request: NextRequest) {
         payment_status: finalPaymentStatus, // Provided by checkout flow or webhook
         order_status: 'received',
       })
-      .select('id, order_number')
+      .select('id, order_number, business_name, business_email, menu_id, created_at, items, subtotal, total, customer_name, customer_email')
       .single()
 
     if (orderError || !order) {
@@ -158,6 +159,33 @@ export async function POST(request: NextRequest) {
         { error: 'Failed to create order' },
         { status: 500 }
       )
+    }
+
+    // Fetch menu name for email personalization
+    const { data: menuData } = await supabaseAdmin
+      .from('menus')
+      .select('name')
+      .eq('id', menuId)
+      .single()
+
+    const menuName = menuData?.name || order.business_name || 'Your Business'
+
+    // Send confirmation email asynchronously (don't block response)
+    if (customerEmail && (finalPaymentStatus === 'succeeded' || finalPaymentStatus === 'pending')) {
+      sendOrderConfirmationEmail({
+        orderNumber: order.order_number,
+        customerName,
+        customerEmail,
+        businessName: order.business_name || menuName,
+        items: cart,
+        subtotal,
+        total,
+        orderDate: order.created_at,
+        orderStatus: 'received',
+      }).catch((error) => {
+        // Log email errors but don't fail the order creation
+        console.error('Failed to send order confirmation email:', error)
+      })
     }
 
     return NextResponse.json({

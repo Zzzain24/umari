@@ -231,6 +231,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       clientSecret: paymentIntent.client_secret,
       paymentIntentId: paymentIntent.id,
+      stripeAccountId: stripeAccount.stripe_account_id,
       subtotal,
       platformFee,
       total,

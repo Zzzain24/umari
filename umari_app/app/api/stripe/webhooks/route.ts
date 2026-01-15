@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
+import { sendOrderRefundEmail } from '@/lib/email'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2024-12-18.acacia',
@@ -94,6 +95,7 @@ export async function POST(request: NextRequest) {
           .single()
 
         if (order && order.payment_status === 'succeeded') {
+          // Update both payment_status to 'refunded' AND order_status to 'cancelled'
           await supabaseAdmin
             .from('orders')
             .update({
@@ -102,6 +104,41 @@ export async function POST(request: NextRequest) {
               updated_at: new Date().toISOString(),
             })
             .eq('stripe_payment_intent_id', paymentIntentId)
+
+          // Fetch full order details for email
+          const { data: fullOrder } = await supabaseAdmin
+            .from('orders')
+            .select('*, menu_id, business_name')
+            .eq('stripe_payment_intent_id', paymentIntentId)
+            .single()
+
+          // Send refund email asynchronously if customer email exists
+          if (fullOrder && fullOrder.customer_email && fullOrder.customer_name) {
+            // Fetch menu name for email context
+            const { data: menuData } = await supabaseAdmin
+              .from('menus')
+              .select('name')
+              .eq('id', fullOrder.menu_id)
+              .single()
+
+            const menuName = menuData?.name || fullOrder.business_name || 'Your Business'
+
+            // Send email asynchronously (don't block webhook response)
+            sendOrderRefundEmail({
+              orderNumber: fullOrder.order_number,
+              customerName: fullOrder.customer_name,
+              customerEmail: fullOrder.customer_email,
+              businessName: fullOrder.business_name || menuName,
+              items: fullOrder.items as any[],
+              subtotal: fullOrder.subtotal,
+              total: fullOrder.total,
+              orderDate: fullOrder.created_at,
+              orderStatus: 'cancelled',
+            }).catch((error) => {
+              // Log email errors but don't fail the webhook
+              console.error('Failed to send order refund email from webhook:', error)
+            })
+          }
         }
         break
       }

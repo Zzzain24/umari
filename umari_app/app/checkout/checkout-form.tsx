@@ -12,18 +12,24 @@ import { isLocalStorageAvailable } from '@/lib/cart-utils'
 import type { CartItem } from '@/lib/types'
 import { Loader2, ArrowLeft } from 'lucide-react'
 
-// Initialize Stripe
-let stripePromise: Promise<any> | null = null
+// Initialize Stripe - for Direct Charges, we need to pass the connected account ID
+const stripePromiseCache = new Map<string, Promise<any>>()
 
-const getStripe = () => {
-  if (!stripePromise) {
+const getStripe = (stripeAccountId?: string) => {
+  const cacheKey = stripeAccountId || 'platform'
+
+  if (!stripePromiseCache.has(cacheKey)) {
     const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
     if (!publishableKey) {
       throw new Error('NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is not set')
     }
-    stripePromise = loadStripe(publishableKey)
+
+    // For Direct Charges, load Stripe with the connected account
+    const options = stripeAccountId ? { stripeAccount: stripeAccountId } : undefined
+    stripePromiseCache.set(cacheKey, loadStripe(publishableKey, options))
   }
-  return stripePromise
+
+  return stripePromiseCache.get(cacheKey)!
 }
 
 interface CheckoutFormProps {
@@ -35,6 +41,7 @@ interface CheckoutFormProps {
 interface CheckoutFormContentProps extends CheckoutFormProps {
   paymentIntentData: {
     paymentIntentId: string
+    stripeAccountId: string
     subtotal: number
     platformFee: number
     total: number
@@ -52,6 +59,7 @@ interface CheckoutFormContentProps extends CheckoutFormProps {
     clientSecret: string,
     data: {
       paymentIntentId: string
+      stripeAccountId: string
       subtotal: number
       platformFee: number
       total: number
@@ -149,6 +157,7 @@ function CheckoutFormContent({
       // Notify parent with clientSecret and payment intent data (including customer info)
       onClientSecretReady(data.clientSecret, {
         paymentIntentId: data.paymentIntentId,
+        stripeAccountId: data.stripeAccountId,
         subtotal: data.subtotal,
         platformFee: data.platformFee,
         total: data.total,
@@ -654,8 +663,10 @@ function PaymentFormContent({
 export function CheckoutForm(props: CheckoutFormProps) {
   const { menuId } = props
   const [clientSecret, setClientSecret] = useState<string | null>(null)
+  const [stripeAccountId, setStripeAccountId] = useState<string | null>(null)
   const [paymentIntentData, setPaymentIntentData] = useState<{
     paymentIntentId: string
+    stripeAccountId: string
     subtotal: number
     platformFee: number
     total: number
@@ -708,6 +719,7 @@ export function CheckoutForm(props: CheckoutFormProps) {
 
   const handleClientSecretReady = (secret: string, data: {
     paymentIntentId: string
+    stripeAccountId: string
     subtotal: number
     platformFee: number
     total: number
@@ -716,6 +728,7 @@ export function CheckoutForm(props: CheckoutFormProps) {
     customerPhone: string
   }) => {
     setClientSecret(secret)
+    setStripeAccountId(data.stripeAccountId)
     setPaymentIntentData(data)
     // Persist customer data in parent state to survive navigation
     setCustomerName(data.customerName)
@@ -728,6 +741,7 @@ export function CheckoutForm(props: CheckoutFormProps) {
     // Customer info persists in parent state (customerName, customerEmail, customerPhone)
     setPaymentIntentData(null)
     setClientSecret(null)
+    setStripeAccountId(null)
   }
 
   // Always wrap in Elements, but only provide clientSecret when we have it
@@ -746,9 +760,9 @@ export function CheckoutForm(props: CheckoutFormProps) {
 
   return (
     <Elements
-      stripe={getStripe()}
+      stripe={getStripe(stripeAccountId || undefined)}
       options={stripeOptions}
-      key={clientSecret || 'initial'} // Force re-render when clientSecret changes
+      key={`${stripeAccountId || 'initial'}-${clientSecret || 'no-secret'}`} // Force re-render when account or secret changes
     >
       <CheckoutFormContent
         {...props}

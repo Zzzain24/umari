@@ -48,7 +48,7 @@ export default async function OrderConfirmationPage({ searchParams }: PageProps)
             </div>
             <h1 className="text-3xl font-bold mb-2">Order Confirmed!</h1>
             <p className="text-muted-foreground">
-              Thank you for your order. Please check you email for your order confirmation.
+              Thank you for your order. Please check you email for your order confirmation and order status updates.
             </p>
           </div>
 

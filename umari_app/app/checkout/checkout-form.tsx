@@ -12,7 +12,8 @@ import { isLocalStorageAvailable } from '@/lib/cart-utils'
 import type { CartItem } from '@/lib/types'
 import { Loader2, ArrowLeft } from 'lucide-react'
 
-// Initialize Stripe - for Direct Charges, we need to pass the connected account ID
+// Initialize Stripe with connected account context for consistent payment methods
+// Always passes stripeAccountId when available to ensure PaymentElement shows correct payment options
 const stripePromiseCache = new Map<string, Promise<any>>()
 
 const getStripe = (stripeAccountId?: string) => {
@@ -24,7 +25,8 @@ const getStripe = (stripeAccountId?: string) => {
       throw new Error('NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is not set')
     }
 
-    // For Direct Charges, load Stripe with the connected account
+    // Load Stripe with connected account context for consistent payment methods
+    // The payment intent creation API handles which account to charge based on test_mode
     const options = stripeAccountId ? { stripeAccount: stripeAccountId } : undefined
     stripePromiseCache.set(cacheKey, loadStripe(publishableKey, options))
   }
@@ -764,15 +766,15 @@ export function CheckoutForm(props: CheckoutFormProps) {
         },
       }
 
-  // When testMode is TRUE, use Destination Charges (no stripeAccount parameter)
-  // When testMode is FALSE, use Direct Charges (with stripeAccount parameter)
-  const shouldUseStripeAccount = !testMode && stripeAccountId
-
+  // Always use connected account context for payment methods to ensure consistent payment options
+  // The payment intent creation API handles which account to charge based on test_mode:
+  // - test_mode = TRUE: Creates payment intent on platform account with on_behalf_of (Destination Charges)
+  // - test_mode = FALSE: Creates payment intent on connected account (Direct Charges)
   return (
     <Elements
-      stripe={getStripe(shouldUseStripeAccount ? stripeAccountId : undefined)}
+      stripe={getStripe(stripeAccountId || undefined)}
       options={stripeOptions}
-      key={`${shouldUseStripeAccount ? stripeAccountId : 'platform'}-${clientSecret || 'no-secret'}`} // Force re-render when account or secret changes
+      key={`${stripeAccountId || 'platform'}-${clientSecret || 'no-secret'}`} // Force re-render when account or secret changes
     >
       <CheckoutFormContent
         {...props}

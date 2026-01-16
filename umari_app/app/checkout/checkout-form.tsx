@@ -648,6 +648,7 @@ function PaymentFormContent({
               wallets: {
                 applePay: 'auto',
                 googlePay: 'auto',
+                cashapp: 'auto',
               },
             }}
           />
@@ -766,15 +767,17 @@ export function CheckoutForm(props: CheckoutFormProps) {
         },
       }
 
-  // Always use connected account context for payment methods to ensure consistent payment options
-  // The payment intent creation API handles which account to charge based on test_mode:
-  // - test_mode = TRUE: Creates payment intent on platform account with on_behalf_of (Destination Charges)
-  // - test_mode = FALSE: Creates payment intent on connected account (Direct Charges)
+  // Match Stripe initialization to where payment intent was created:
+  // - test_mode = TRUE: Payment intent on platform account → load Stripe without stripeAccount
+  // - test_mode = FALSE: Payment intent on connected account → load Stripe with stripeAccount
+  // The clientSecret must match the Stripe instance context
+  const stripeInstance = testMode ? getStripe(undefined) : getStripe(stripeAccountId || undefined)
+  
   return (
     <Elements
-      stripe={getStripe(stripeAccountId || undefined)}
+      stripe={stripeInstance}
       options={stripeOptions}
-      key={`${stripeAccountId || 'platform'}-${clientSecret || 'no-secret'}`} // Force re-render when account or secret changes
+      key={`${testMode ? 'platform' : stripeAccountId || 'platform'}-${clientSecret || 'no-secret'}`} // Force re-render when account or secret changes
     >
       <CheckoutFormContent
         {...props}

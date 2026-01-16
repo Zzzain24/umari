@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
     // Check if business has connected Stripe account (use admin client to bypass RLS)
     const { data: stripeAccount, error: stripeError } = await supabaseAdmin
       .from('stripe_accounts')
-      .select('stripe_account_id, charges_enabled, currency')
+      .select('stripe_account_id, charges_enabled, currency, test_mode')
       .eq('user_id', menu.user_id)
       .single()
 
@@ -195,7 +195,9 @@ export async function POST(request: NextRequest) {
 
     // Use server-calculated subtotal for payment
     const subtotal = serverCalculatedSubtotal
-    const platformFeePercentage = parseFloat(process.env.STRIPE_PLATFORM_FEE_PERCENTAGE || '2.0')
+    const platformFeePercentage = stripeAccount.test_mode
+      ? 0
+      : parseFloat(process.env.STRIPE_PLATFORM_FEE_PERCENTAGE || '2.0')
     const platformFee = (subtotal * platformFeePercentage) / 100
     const total = subtotal // Customer pays subtotal only, platform fee comes from business share
 

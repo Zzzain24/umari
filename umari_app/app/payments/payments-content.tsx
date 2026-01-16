@@ -185,7 +185,7 @@ export function PaymentsContent({
           /* Connected State */
           <>
             {/* Payment Fees */}
-            <PaymentSettingsCard />
+            <PaymentSettingsCard testMode={stripeAccount?.test_mode ?? false} />
 
             {/* Analytics Preview */}
             <AnalyticsPreview stripeAccount={stripeAccount} />

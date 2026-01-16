@@ -90,6 +90,7 @@ export interface StripeAccount {
   currency: string | null
   email: string | null
   business_name: string | null
+  test_mode: boolean
   connected_at: string
   updated_at: string
 }

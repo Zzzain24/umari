@@ -1,12 +1,24 @@
 "use client"
 
-import { CreditCard, Percent, Calculator } from 'lucide-react'
+import { CreditCard, Percent, Calculator, Sparkles } from 'lucide-react'
 
-export function PaymentSettingsCard() {
+interface PaymentSettingsCardProps {
+  testMode?: boolean
+}
+
+export function PaymentSettingsCard({ testMode = false }: PaymentSettingsCardProps) {
   return (
     <div className="bg-card border border-border rounded-lg p-6">
       <div className="mb-4">
-        <h2 className="text-xl font-semibold">Payment Fees</h2>
+        <div className="flex items-center gap-3">
+          <h2 className="text-xl font-semibold">Payment Fees</h2>
+          {testMode && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium bg-primary/10 text-primary border border-primary/20 rounded-full">
+              <Sparkles className="w-3 h-3" />
+              Early Adopter
+            </span>
+          )}
+        </div>
         <p className="text-sm text-muted-foreground mt-1">
           Simple, transparent pricing on every transaction
         </p>
@@ -24,7 +36,7 @@ export function PaymentSettingsCard() {
               <p className="text-xs text-muted-foreground">Per transaction</p>
             </div>
           </div>
-          <span className="text-lg font-bold">2%</span>
+          <span className="text-lg font-bold">{testMode ? '0%' : '2%'}</span>
         </div>
 
         {/* Stripe Fee */}
@@ -38,7 +50,7 @@ export function PaymentSettingsCard() {
               <p className="text-xs text-muted-foreground">Per transaction</p>
             </div>
           </div>
-          <span className="text-lg font-bold">2.9% + $0.30</span>
+          <span className="text-lg font-bold">{testMode ? '0%' : '2.9% + $0.30'}</span>
         </div>
 
         {/* Total */}
@@ -52,7 +64,7 @@ export function PaymentSettingsCard() {
               <p className="text-xs text-muted-foreground">Of transaction value</p>
             </div>
           </div>
-          <span className="text-lg font-bold text-primary">~5%</span>
+          <span className="text-lg font-bold text-primary">{testMode ? '0%' : '~5%'}</span>
         </div>
       </div>
 

@@ -8,7 +8,7 @@ import { OrderCard } from "./order-card"
 import { OrderTableRow } from "./order-table-row"
 import { OrdersEmpty } from "./orders-empty"
 import { DateRangePicker } from "./date-range-picker"
-import { OrderSkeleton } from "./order-skeleton"
+import { OrderSkeleton, OrderTableRowSkeleton } from "./order-skeleton"
 import { useToast } from "@/hooks/use-toast"
 import { motion, AnimatePresence } from "framer-motion"
 import { RefreshCw, Search } from "lucide-react"
@@ -179,7 +179,45 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
           onSearchChange={setSearchQuery}
           isLoading={true}
         />
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        
+        {/* Desktop Table Skeleton */}
+        <div className="hidden lg:block mt-6">
+          <div className="bg-card rounded-xl border border-border/60 overflow-hidden">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-border/60 bg-accent/30">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    Order ID
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    Customer
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    Items
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    Total
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    Date
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    Action
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {[1, 2, 3, 4, 5, 6].map(i => <OrderTableRowSkeleton key={i} />)}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Mobile/Tablet Card Skeleton */}
+        <div className="lg:hidden mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
           {[1, 2, 3, 4, 5, 6].map(i => <OrderSkeleton key={i} />)}
         </div>
       </main>

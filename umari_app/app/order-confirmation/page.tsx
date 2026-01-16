@@ -48,7 +48,7 @@ export default async function OrderConfirmationPage({ searchParams }: PageProps)
             </div>
             <h1 className="text-3xl font-bold mb-2">Order Confirmed!</h1>
             <p className="text-muted-foreground">
-              Thank you for your order. We've received your payment.
+              Thank you for your order. We've received your payment. Please check you email for your order confirmation.
             </p>
           </div>
 
@@ -70,11 +70,10 @@ export default async function OrderConfirmationPage({ searchParams }: PageProps)
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Payment Status:</span>
                 <span
-                  className={`font-medium capitalize ${
-                    order.payment_status === 'succeeded'
-                      ? 'text-green-600 dark:text-green-400'
-                      : ''
-                  }`}
+                  className={`font-medium capitalize ${order.payment_status === 'succeeded'
+                    ? 'text-green-600 dark:text-green-400'
+                    : ''
+                    }`}
                 >
                   {order.payment_status}
                 </span>

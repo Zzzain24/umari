@@ -1,5 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton"
 
+// Card skeleton for mobile/tablet view
 export function OrderSkeleton() {
   return (
     <div className="bg-card rounded-xl border border-border/60">
@@ -29,5 +30,37 @@ export function OrderSkeleton() {
         </div>
       </div>
     </div>
+  )
+}
+
+// Table row skeleton for desktop view
+export function OrderTableRowSkeleton() {
+  return (
+    <tr className="border-b border-border/40">
+      <td className="px-4 py-3.5">
+        <Skeleton className="h-4 w-20" />
+      </td>
+      <td className="px-4 py-3.5">
+        <Skeleton className="h-4 w-24" />
+      </td>
+      <td className="px-4 py-3.5">
+        <Skeleton className="h-4 w-16" />
+      </td>
+      <td className="px-4 py-3.5">
+        <Skeleton className="h-4 w-16" />
+      </td>
+      <td className="px-4 py-3.5">
+        <Skeleton className="h-4 w-20" />
+      </td>
+      <td className="px-4 py-3.5">
+        <Skeleton className="h-6 w-20 rounded-full" />
+      </td>
+      <td className="px-4 py-3.5">
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-8 w-24" />
+          <Skeleton className="h-8 w-20" />
+        </div>
+      </td>
+    </tr>
   )
 }

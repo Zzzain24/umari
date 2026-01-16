@@ -36,6 +36,7 @@ interface CheckoutFormProps {
   menuId: string
   menuName: string
   platformFeePercentage: number
+  testMode?: boolean
 }
 
 interface CheckoutFormContentProps extends CheckoutFormProps {
@@ -666,7 +667,7 @@ function PaymentFormContent({
 }
 
 export function CheckoutForm(props: CheckoutFormProps) {
-  const { menuId } = props
+  const { menuId, testMode = false } = props
   const [clientSecret, setClientSecret] = useState<string | null>(null)
   const [stripeAccountId, setStripeAccountId] = useState<string | null>(null)
   const [paymentIntentData, setPaymentIntentData] = useState<{
@@ -763,11 +764,15 @@ export function CheckoutForm(props: CheckoutFormProps) {
         },
       }
 
+  // When testMode is TRUE, use Destination Charges (no stripeAccount parameter)
+  // When testMode is FALSE, use Direct Charges (with stripeAccount parameter)
+  const shouldUseStripeAccount = !testMode && stripeAccountId
+
   return (
     <Elements
-      stripe={getStripe(stripeAccountId || undefined)}
+      stripe={getStripe(shouldUseStripeAccount ? stripeAccountId : undefined)}
       options={stripeOptions}
-      key={`${stripeAccountId || 'initial'}-${clientSecret || 'no-secret'}`} // Force re-render when account or secret changes
+      key={`${shouldUseStripeAccount ? stripeAccountId : 'platform'}-${clientSecret || 'no-secret'}`} // Force re-render when account or secret changes
     >
       <CheckoutFormContent
         {...props}

@@ -42,7 +42,7 @@ export default async function CheckoutPage({ searchParams }: PageProps) {
   // Check if business has connected Stripe account (use admin client to bypass RLS for guest checkout)
   const { data: stripeAccount, error: stripeError } = await supabaseAdmin
     .from('stripe_accounts')
-    .select('stripe_account_id, charges_enabled, currency')
+    .select('stripe_account_id, charges_enabled, currency, test_mode')
     .eq('user_id', menu.user_id)
     .single()
 
@@ -182,6 +182,7 @@ export default async function CheckoutPage({ searchParams }: PageProps) {
           menuId={menuId}
           menuName={menu.name}
           platformFeePercentage={parseFloat(process.env.STRIPE_PLATFORM_FEE_PERCENTAGE || '2.0')}
+          testMode={stripeAccount?.test_mode ?? false}
         />
       </div>
     </div>

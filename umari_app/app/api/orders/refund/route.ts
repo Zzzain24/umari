@@ -74,18 +74,44 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create refund via Stripe with application fee refund
-    // For Direct Charges, refund must be made on the connected account
-    try {
-      const refund = await stripe.refunds.create(
-        {
-          payment_intent: order.stripe_payment_intent_id,
-          refund_application_fee: true,
-        },
-        {
-          stripeAccount: order.stripe_account_id,
-        }
+    // Get test_mode flag from stripe_accounts to determine charge type
+    const { data: stripeAccount, error: stripeAccountError } = await supabaseAdmin
+      .from('stripe_accounts')
+      .select('test_mode')
+      .eq('user_id', order.business_user_id)
+      .single()
+
+    if (stripeAccountError || !stripeAccount) {
+      return NextResponse.json(
+        { success: false, error: 'Stripe account not found for this order' },
+        { status: 500 }
       )
+    }
+
+    // Create refund via Stripe
+    // For Direct Charges (test_mode = FALSE): refund on connected account with application fee refund
+    // For Destination Charges (test_mode = TRUE): refund on platform account (transfer reversal handled automatically)
+    try {
+      let refund: Stripe.Refund
+
+      if (stripeAccount.test_mode) {
+        // Destination Charges: refund on platform account
+        // Transfer reversal is handled automatically by Stripe
+        refund = await stripe.refunds.create({
+          payment_intent: order.stripe_payment_intent_id,
+        })
+      } else {
+        // Direct Charges: refund on connected account with application fee refund
+        refund = await stripe.refunds.create(
+          {
+            payment_intent: order.stripe_payment_intent_id,
+            refund_application_fee: true,
+          },
+          {
+            stripeAccount: order.stripe_account_id,
+          }
+        )
+      }
 
       // Update order in database (both payment_status to 'refunded' AND order_status to 'cancelled')
       const { error: updateError } = await supabase

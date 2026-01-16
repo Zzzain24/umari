@@ -205,18 +205,26 @@ export async function POST(request: NextRequest) {
     const amountInCents = Math.round(total * 100)
     const applicationFeeInCents = Math.round(platformFee * 100)
 
-    // Create Payment Intent with Stripe Connect using Direct Charges
-    // Direct charges: business pays Stripe fees, platform collects application fee
-    // The charge appears on the connected account's Stripe dashboard
+    // Create Payment Intent with Stripe Connect
+    // When test_mode is TRUE: use Destination Charges (platform absorbs all fees)
+    // When test_mode is FALSE: use Direct Charges (business pays Stripe fees, platform collects application fee)
     // Using automatic_payment_methods to enable Apple Pay, Google Pay, and other wallets
-    const paymentIntent = await stripe.paymentIntents.create(
-      {
+    let paymentIntent: Stripe.PaymentIntent
+
+    if (stripeAccount.test_mode) {
+      // Destination Charges: charge on platform account, transfer full amount to connected account
+      // Platform absorbs all Stripe fees (2.9% + $0.30)
+      paymentIntent = await stripe.paymentIntents.create({
         amount: amountInCents,
         currency: paymentSettings.default_currency || 'usd',
         automatic_payment_methods: {
           enabled: true,
         },
-        application_fee_amount: applicationFeeInCents,
+        on_behalf_of: stripeAccount.stripe_account_id,
+        transfer_data: {
+          amount: amountInCents,
+          destination: stripeAccount.stripe_account_id,
+        },
         metadata: {
           menu_id: menuId,
           business_user_id: menu.user_id,
@@ -224,11 +232,31 @@ export async function POST(request: NextRequest) {
           customer_email: customerEmail,
           customer_phone: customerPhone || '',
         },
-      },
-      {
-        stripeAccount: stripeAccount.stripe_account_id,
-      }
-    )
+      })
+    } else {
+      // Direct Charges: charge on connected account, business pays Stripe fees
+      // The charge appears on the connected account's Stripe dashboard
+      paymentIntent = await stripe.paymentIntents.create(
+        {
+          amount: amountInCents,
+          currency: paymentSettings.default_currency || 'usd',
+          automatic_payment_methods: {
+            enabled: true,
+          },
+          application_fee_amount: applicationFeeInCents,
+          metadata: {
+            menu_id: menuId,
+            business_user_id: menu.user_id,
+            customer_name: customerName,
+            customer_email: customerEmail,
+            customer_phone: customerPhone || '',
+          },
+        },
+        {
+          stripeAccount: stripeAccount.stripe_account_id,
+        }
+      )
+    }
 
     return NextResponse.json({
       clientSecret: paymentIntent.client_secret,

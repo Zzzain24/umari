@@ -212,6 +212,20 @@ export async function POST(request: NextRequest) {
     let paymentIntent: Stripe.PaymentIntent
 
     if (stripeAccount.test_mode) {
+      // Ensure Apple Pay domains are registered on platform account for Destination Charges
+      // Apple Pay domains must be registered on the account where payment intents are created
+      const appDomains = ['umari.app', 'www.umari.app']
+      for (const domain of appDomains) {
+        try {
+          await stripe.applePayDomains.create({
+            domain_name: domain,
+          })
+        } catch (domainError: any) {
+          // Ignore if domain already registered or if there's an issue
+          // This is safe to call on every payment intent - Stripe will handle duplicates
+        }
+      }
+
       // Destination Charges: charge on platform account, transfer full amount to connected account
       // Platform absorbs all Stripe fees (2.9% + $0.30)
       paymentIntent = await stripe.paymentIntents.create({

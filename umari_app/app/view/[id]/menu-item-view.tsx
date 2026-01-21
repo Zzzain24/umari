@@ -43,6 +43,11 @@ export function MenuItemView({ item }: MenuItemViewProps) {
     return validateRequiredOptions(item.options, selectedOptions)
   }, [item.options, item.is_sold_out, selectedOptions])
 
+  // Calculate options price separately
+  const optionsPrice = useMemo(() => {
+    return selectedOptions.reduce((sum, opt) => sum + opt.additionalPrice, 0)
+  }, [selectedOptions])
+
   // Calculate total price (base + options) * quantity
   const totalPrice = useMemo(() => {
     return calculateItemPrice(item.price, selectedOptions, quantity)
@@ -55,6 +60,7 @@ export function MenuItemView({ item }: MenuItemViewProps) {
       basePrice: item.price,
       quantity,
       selectedOptions,
+      optionsPrice,
       totalPrice,
       specialInstructions: specialInstructions.trim() || undefined,
     })

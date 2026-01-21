@@ -6,18 +6,22 @@ import { motion, useInView } from "framer-motion"
 import { useEffect, useRef, useState } from "react"
 import { geist } from "@/lib/fonts"
 import { cn } from "@/lib/utils"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 export default function Features() {
+  const isMobile = useIsMobile()
+  // Use a lower threshold on mobile (0.1) vs desktop (0.3) to ensure animations trigger
+  const viewThreshold = isMobile ? 0.1 : 0.3
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, amount: 0.3 })
+  const isInView = useInView(ref, { once: true, amount: viewThreshold })
   const feature1Ref = useRef(null)
   const feature2Ref = useRef(null)
   const feature3Ref = useRef(null)
   const feature4Ref = useRef(null)
-  const isFeature1InView = useInView(feature1Ref, { once: true, amount: 0.3 })
-  const isFeature2InView = useInView(feature2Ref, { once: true, amount: 0.3 })
-  const isFeature3InView = useInView(feature3Ref, { once: true, amount: 0.3 })
-  const isFeature4InView = useInView(feature4Ref, { once: true, amount: 0.3 })
+  const isFeature1InView = useInView(feature1Ref, { once: true, amount: viewThreshold })
+  const isFeature2InView = useInView(feature2Ref, { once: true, amount: viewThreshold })
+  const isFeature3InView = useInView(feature3Ref, { once: true, amount: viewThreshold })
+  const isFeature4InView = useInView(feature4Ref, { once: true, amount: viewThreshold })
   const [isCliHovering, setIsCliHovering] = useState(false)
   const [isFeature3Hovering, setIsFeature3Hovering] = useState(false)
   const [isCartHovering, setIsCartHovering] = useState(false)
@@ -43,7 +47,7 @@ export default function Features() {
       <motion.div
         ref={ref}
         initial={{ opacity: 0, y: 50 }}
-        animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+        animate={isInView ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0 }}
         className="container mx-auto flex flex-col items-center gap-6 sm:gap-12 px-4 sm:px-6"
       >
@@ -62,9 +66,9 @@ export default function Features() {
               onMouseEnter={() => setIsCliHovering(true)}
               onMouseLeave={() => setIsCliHovering(false)}
               ref={feature1Ref}
-              initial={{ opacity: 0, y: 50 }}
-              animate={isFeature1InView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-              transition={{ duration: 0.5, delay: 0.5 }}
+              initial={{ opacity: isMobile ? 1 : 0, y: isMobile ? 0 : 50 }}
+              animate={isFeature1InView ? { opacity: 1, y: 0 } : { opacity: isMobile ? 1 : 0, y: isMobile ? 0 : 50 }}
+              transition={{ duration: 0.5, delay: isMobile ? 0 : 0.5 }}
               whileHover={{
                 scale: 1.02,
                 borderColor: "rgba(100, 120, 130, 0.6)",
@@ -187,9 +191,9 @@ export default function Features() {
               }}
               onMouseLeave={() => setIsFeature3Hovering(false)}
               ref={feature2Ref}
-              initial={{ opacity: 0, y: 50 }}
-              animate={isFeature2InView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-              transition={{ duration: 0.5, delay: 1.0 }}
+              initial={{ opacity: isMobile ? 1 : 0, y: isMobile ? 0 : 50 }}
+              animate={isFeature2InView ? { opacity: 1, y: 0 } : { opacity: isMobile ? 1 : 0, y: isMobile ? 0 : 50 }}
+              transition={{ duration: 0.5, delay: isMobile ? 0 : 1.0 }}
               whileHover={{
                 scale: 1.02,
                 borderColor: "rgba(100, 120, 130, 0.6)",
@@ -219,9 +223,9 @@ export default function Features() {
                       {/* Order #1234 - Ready */}
                       <motion.div
                         className="relative p-4 rounded-lg bg-success/10 border border-success/30"
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={(isFeature2InView || isFeature3Hovering) ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
-                        transition={{ duration: 0.5, delay: 0.1 }}
+                        initial={{ opacity: isMobile ? 1 : 0, x: isMobile ? 0 : -20 }}
+                        animate={(isFeature2InView || isFeature3Hovering || isMobile) ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
+                        transition={{ duration: 0.5, delay: isMobile ? 0 : 0.1 }}
                       >
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-sm font-medium">Order #1234</span>
@@ -260,9 +264,9 @@ export default function Features() {
                       {/* Order #1235 - Received */}
                       <motion.div
                         className="relative p-4 rounded-lg bg-warning/20 border border-warning/30"
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={(isFeature2InView || isFeature3Hovering) ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
-                        transition={{ duration: 0.5, delay: 0.2 }}
+                        initial={{ opacity: isMobile ? 1 : 0, x: isMobile ? 0 : -20 }}
+                        animate={(isFeature2InView || isFeature3Hovering || isMobile) ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
+                        transition={{ duration: 0.5, delay: isMobile ? 0 : 0.2 }}
                       >
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-sm font-medium">Order #1235</span>
@@ -305,9 +309,9 @@ export default function Features() {
                       {/* Order #1236 - Cancelled */}
                       <motion.div
                         className="relative p-4 rounded-lg bg-destructive/10 border border-destructive/30"
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={(isFeature2InView || isFeature3Hovering) ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
-                        transition={{ duration: 0.5, delay: 0.3 }}
+                        initial={{ opacity: isMobile ? 1 : 0, x: isMobile ? 0 : -20 }}
+                        animate={(isFeature2InView || isFeature3Hovering || isMobile) ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
+                        transition={{ duration: 0.5, delay: isMobile ? 0 : 0.3 }}
                       >
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-sm font-medium">Order #1236</span>
@@ -355,9 +359,9 @@ export default function Features() {
               }}
               onMouseLeave={() => setIsCartHovering(false)}
               ref={feature3Ref}
-              initial={{ opacity: 0, y: 50 }}
-              animate={isFeature3InView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-              transition={{ duration: 0.5, delay: 1.5 }}
+              initial={{ opacity: isMobile ? 1 : 0, y: isMobile ? 0 : 50 }}
+              animate={isFeature3InView ? { opacity: 1, y: 0 } : { opacity: isMobile ? 1 : 0, y: isMobile ? 0 : 50 }}
+              transition={{ duration: 0.5, delay: isMobile ? 0 : 1.5 }}
               whileHover={{
                 scale: 1.02,
                 borderColor: "rgba(100, 120, 130, 0.6)",
@@ -392,9 +396,9 @@ export default function Features() {
                       {/* Item 1 */}
                       <motion.div
                         className="flex items-center justify-between p-3 rounded-lg bg-card border border-neutral-200"
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={(isFeature3InView || isCartHovering) ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
-                        transition={{ duration: 0.4, delay: 0.1 }}
+                        initial={{ opacity: isMobile ? 1 : 0, x: isMobile ? 0 : -20 }}
+                        animate={(isFeature3InView || isCartHovering || isMobile) ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
+                        transition={{ duration: 0.4, delay: isMobile ? 0 : 0.1 }}
                       >
                         <div className="flex items-center gap-3 flex-1">
                           <div className="text-2xl">☕️</div>
@@ -417,9 +421,9 @@ export default function Features() {
                       {/* Item 2 */}
                       <motion.div
                         className="flex items-center justify-between p-3 rounded-lg bg-card border border-neutral-200"
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={(isFeature3InView || isCartHovering) ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
-                        transition={{ duration: 0.4, delay: 0.2 }}
+                        initial={{ opacity: isMobile ? 1 : 0, x: isMobile ? 0 : -20 }}
+                        animate={(isFeature3InView || isCartHovering || isMobile) ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
+                        transition={{ duration: 0.4, delay: isMobile ? 0 : 0.2 }}
                       >
                         <div className="flex items-center gap-3 flex-1">
                           <div className="text-2xl">🥐</div>
@@ -442,9 +446,9 @@ export default function Features() {
                       {/* Total */}
                       <motion.div
                         className="pt-3 border-t-2 border-neutral-200 flex items-center justify-between"
-                        initial={{ opacity: 0 }}
-                        animate={(isFeature3InView || isCartHovering) ? { opacity: 1 } : { opacity: 0 }}
-                        transition={{ duration: 0.4, delay: 0.3 }}
+                        initial={{ opacity: isMobile ? 1 : 0 }}
+                        animate={(isFeature3InView || isCartHovering || isMobile) ? { opacity: 1 } : { opacity: 0 }}
+                        transition={{ duration: 0.4, delay: isMobile ? 0 : 0.3 }}
                       >
                         <span className="text-base font-bold text-foreground">Total</span>
                         <span className="text-lg font-bold text-primary">$19.00</span>
@@ -453,9 +457,9 @@ export default function Features() {
                       {/* Continue Button */}
                       <motion.button
                         className="w-full bg-primary hover:bg-primary/90 text-foreground font-bold py-3 rounded-lg transition-colors mt-2"
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={(isFeature3InView || isCartHovering) ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
-                        transition={{ duration: 0.4, delay: 0.4 }}
+                        initial={{ opacity: isMobile ? 1 : 0, y: isMobile ? 0 : 10 }}
+                        animate={(isFeature3InView || isCartHovering || isMobile) ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+                        transition={{ duration: 0.4, delay: isMobile ? 0 : 0.4 }}
                       >
                         Continue to Checkout →
                       </motion.button>
@@ -472,9 +476,9 @@ export default function Features() {
               }}
               onMouseLeave={() => setIsFeature4Hovering(false)}
               ref={feature4Ref}
-              initial={{ opacity: 0, y: 50 }}
-              animate={isFeature4InView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-              transition={{ duration: 0.5, delay: 2.0 }}
+              initial={{ opacity: isMobile ? 1 : 0, y: isMobile ? 0 : 50 }}
+              animate={isFeature4InView ? { opacity: 1, y: 0 } : { opacity: isMobile ? 1 : 0, y: isMobile ? 0 : 50 }}
+              transition={{ duration: 0.5, delay: isMobile ? 0 : 2.0 }}
               whileHover={{
                 scale: 1.02,
                 borderColor: "rgba(100, 120, 130, 0.6)",
@@ -507,9 +511,9 @@ export default function Features() {
                     <div className="p-4 space-y-3">
                       <motion.div
                         className="flex justify-between items-center"
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={(isFeature4InView || isFeature4Hovering) ? { opacity: 1, x: 0 } : { opacity: 0, x: -10 }}
-                        transition={{ duration: 0.4, delay: 0.2 }}
+                        initial={{ opacity: isMobile ? 1 : 0, x: isMobile ? 0 : -10 }}
+                        animate={(isFeature4InView || isFeature4Hovering || isMobile) ? { opacity: 1, x: 0 } : { opacity: 0, x: -10 }}
+                        transition={{ duration: 0.4, delay: isMobile ? 0 : 0.2 }}
                       >
                         <span className="text-sm text-neutral-500">Order Number:</span>
                         <span className="text-sm font-mono font-medium text-neutral-800">ORD-1234-A3F2</span>
@@ -517,9 +521,9 @@ export default function Features() {
 
                       <motion.div
                         className="flex justify-between items-center"
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={(isFeature4InView || isFeature4Hovering) ? { opacity: 1, x: 0 } : { opacity: 0, x: -10 }}
-                        transition={{ duration: 0.4, delay: 0.3 }}
+                        initial={{ opacity: isMobile ? 1 : 0, x: isMobile ? 0 : -10 }}
+                        animate={(isFeature4InView || isFeature4Hovering || isMobile) ? { opacity: 1, x: 0 } : { opacity: 0, x: -10 }}
+                        transition={{ duration: 0.4, delay: isMobile ? 0 : 0.3 }}
                       >
                         <span className="text-sm text-neutral-500">Status:</span>
                         <span className="text-sm font-medium text-blue-600">Ready</span>
@@ -527,9 +531,9 @@ export default function Features() {
 
                       <motion.div
                         className="flex justify-between items-center"
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={(isFeature4InView || isFeature4Hovering) ? { opacity: 1, x: 0 } : { opacity: 0, x: -10 }}
-                        transition={{ duration: 0.4, delay: 0.4 }}
+                        initial={{ opacity: isMobile ? 1 : 0, x: isMobile ? 0 : -10 }}
+                        animate={(isFeature4InView || isFeature4Hovering || isMobile) ? { opacity: 1, x: 0 } : { opacity: 0, x: -10 }}
+                        transition={{ duration: 0.4, delay: isMobile ? 0 : 0.4 }}
                       >
                         <span className="text-sm text-neutral-500">Payment:</span>
                         <span className="text-sm font-medium text-green-600">Succeeded</span>
@@ -539,9 +543,9 @@ export default function Features() {
                     {/* Auto-refresh notice */}
                     <motion.div
                       className="px-4 py-3 border-t border-neutral-200 bg-neutral-50"
-                      initial={{ opacity: 0 }}
-                      animate={(isFeature4InView || isFeature4Hovering) ? { opacity: 1 } : { opacity: 0 }}
-                      transition={{ duration: 0.4, delay: 0.5 }}
+                      initial={{ opacity: isMobile ? 1 : 0 }}
+                      animate={(isFeature4InView || isFeature4Hovering || isMobile) ? { opacity: 1 } : { opacity: 0 }}
+                      transition={{ duration: 0.4, delay: isMobile ? 0 : 0.5 }}
                     >
                       <p className="text-xs text-center text-neutral-500">Status updates automatically</p>
                     </motion.div>

@@ -144,12 +144,6 @@ export default async function OrderConfirmationPage({ searchParams }: PageProps)
                 <span className="text-muted-foreground">Email:</span>{' '}
                 <span className="font-medium">{order.customer_email}</span>
               </p>
-              {order.customer_phone && (
-                <p>
-                  <span className="text-muted-foreground">Phone:</span>{' '}
-                  <span className="font-medium">{order.customer_phone}</span>
-                </p>
-              )}
             </div>
           </div>
 

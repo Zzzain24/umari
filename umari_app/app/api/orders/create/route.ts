@@ -16,7 +16,6 @@ export async function POST(request: NextRequest) {
       cart,
       customerName,
       customerEmail,
-      customerPhone,
       stripePaymentIntentId,
       paymentStatus,
     } = body
@@ -52,17 +51,6 @@ export async function POST(request: NextRequest) {
         { error: 'Please enter a valid email address' },
         { status: 400 }
       )
-    }
-
-    // Validate phone number format (10-15 digits)
-    if (customerPhone) {
-      const digitsOnly = customerPhone.replace(/\D/g, '')
-      if (digitsOnly.length < 10 || digitsOnly.length > 15) {
-        return NextResponse.json(
-          { error: 'Please enter a valid phone number (10-15 digits)' },
-          { status: 400 }
-        )
-      }
     }
 
     if (!stripePaymentIntentId) {
@@ -143,7 +131,7 @@ export async function POST(request: NextRequest) {
         business_user_id: menu.user_id,
         customer_name: customerName,
         customer_email: customerEmail,
-        customer_phone: customerPhone || null,
+        customer_phone: null,
         items: cart,
         subtotal,
         platform_fee: platformFee,

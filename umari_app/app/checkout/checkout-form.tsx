@@ -50,14 +50,11 @@ interface CheckoutFormContentProps extends CheckoutFormProps {
     total: number
     customerName: string
     customerEmail: string
-    customerPhone: string
   } | null
   customerName: string
   customerEmail: string
-  customerPhone: string
   onCustomerNameChange: (value: string) => void
   onCustomerEmailChange: (value: string) => void
-  onCustomerPhoneChange: (value: string) => void
   onClientSecretReady: (
     clientSecret: string,
     data: {
@@ -68,7 +65,6 @@ interface CheckoutFormContentProps extends CheckoutFormProps {
       total: number
       customerName: string
       customerEmail: string
-      customerPhone: string
     }
   ) => void
   onBackToCustomerInfo: () => void
@@ -81,10 +77,8 @@ function CheckoutFormContent({
   paymentIntentData,
   customerName,
   customerEmail,
-  customerPhone,
   onCustomerNameChange,
   onCustomerEmailChange,
-  onCustomerPhoneChange,
   onClientSecretReady,
   onBackToCustomerInfo,
 }: CheckoutFormContentProps) {
@@ -136,7 +130,7 @@ function CheckoutFormContent({
 
   // Create payment intent when form is ready
   const handleCreatePaymentIntent = async () => {
-    if (!customerName || !customerEmail || !customerPhone || cart.length === 0) {
+    if (!customerName || !customerEmail || cart.length === 0) {
       toast({
         title: 'Missing Information',
         description: 'Please fill in all required fields',
@@ -155,7 +149,6 @@ function CheckoutFormContent({
           cart,
           customerName,
           customerEmail,
-          customerPhone,
         }),
       })
 
@@ -177,7 +170,6 @@ function CheckoutFormContent({
         total: data.total,
         customerName,
         customerEmail,
-        customerPhone,
       })
     } catch (error: any) {
       toast({
@@ -201,7 +193,6 @@ function CheckoutFormContent({
           cart={cart}
           customerName={paymentIntentData.customerName || customerName}
           customerEmail={paymentIntentData.customerEmail || customerEmail}
-          customerPhone={paymentIntentData.customerPhone || customerPhone}
           paymentIntentId={paymentIntentData.paymentIntentId}
           subtotal={paymentIntentData.subtotal}
           platformFee={paymentIntentData.platformFee}
@@ -241,10 +232,8 @@ function CheckoutFormContent({
         menuId={menuId}
         customerName={customerName}
         customerEmail={customerEmail}
-        customerPhone={customerPhone}
         onNameChange={onCustomerNameChange}
         onEmailChange={onCustomerEmailChange}
-        onPhoneChange={onCustomerPhoneChange}
         onCreatePaymentIntent={handleCreatePaymentIntent}
         isCreatingIntent={isCreatingIntent}
         disabled={isCreatingIntent}
@@ -337,39 +326,13 @@ function isValidEmail(email: string): boolean {
   return emailRegex.test(email)
 }
 
-function isValidPhone(phone: string): boolean {
-  // Remove all non-digit characters for validation
-  const digitsOnly = phone.replace(/\D/g, '')
-  // Accept 10-15 digits (covers most international formats)
-  return digitsOnly.length >= 10 && digitsOnly.length <= 15
-}
-
-function formatPhoneNumber(phone: string): string {
-  // Remove all non-digit characters
-  const digitsOnly = phone.replace(/\D/g, '')
-  
-  // Format as XXX-XXX-XXXX for US numbers (10 digits)
-  if (digitsOnly.length <= 3) {
-    return digitsOnly
-  } else if (digitsOnly.length <= 6) {
-    return `${digitsOnly.slice(0, 3)}-${digitsOnly.slice(3)}`
-  } else if (digitsOnly.length <= 10) {
-    return `${digitsOnly.slice(0, 3)}-${digitsOnly.slice(3, 6)}-${digitsOnly.slice(6)}`
-  } else {
-    // For numbers longer than 10 digits, format first 10 as XXX-XXX-XXXX and append the rest
-    return `${digitsOnly.slice(0, 3)}-${digitsOnly.slice(3, 6)}-${digitsOnly.slice(6, 10)}-${digitsOnly.slice(10)}`
-  }
-}
-
 // Customer info form component (before payment intent)
 function CustomerInfoForm({
   menuId,
   customerName,
   customerEmail,
-  customerPhone,
   onNameChange,
   onEmailChange,
-  onPhoneChange,
   onCreatePaymentIntent,
   isCreatingIntent,
   disabled,
@@ -377,21 +340,17 @@ function CustomerInfoForm({
   menuId: string
   customerName: string
   customerEmail: string
-  customerPhone: string
   onNameChange: (value: string) => void
   onEmailChange: (value: string) => void
-  onPhoneChange: (value: string) => void
   onCreatePaymentIntent: () => void
   isCreatingIntent: boolean
   disabled: boolean
 }) {
   const [nameError, setNameError] = useState<string>('')
   const [emailError, setEmailError] = useState<string>('')
-  const [phoneError, setPhoneError] = useState<string>('')
   const [touched, setTouched] = useState({
     name: false,
     email: false,
-    phone: false,
   })
 
   const handleNameChange = (value: string) => {
@@ -416,19 +375,6 @@ function CustomerInfoForm({
     }
   }
 
-  const handlePhoneChange = (value: string) => {
-    // Format the phone number with dashes
-    const formatted = formatPhoneNumber(value)
-    onPhoneChange(formatted)
-    if (touched.phone) {
-      if (formatted && !isValidPhone(formatted)) {
-        setPhoneError('Please enter a valid phone number (10-15 digits)')
-      } else {
-        setPhoneError('')
-      }
-    }
-  }
-
   const handleNameBlur = () => {
     setTouched({ ...touched, name: true })
     if (customerName && !isValidName(customerName)) {
@@ -447,22 +393,11 @@ function CustomerInfoForm({
     }
   }
 
-  const handlePhoneBlur = () => {
-    setTouched({ ...touched, phone: true })
-    if (customerPhone && !isValidPhone(customerPhone)) {
-      setPhoneError('Please enter a valid phone number (10-15 digits)')
-    } else {
-      setPhoneError('')
-    }
-  }
-
   const isFormValid =
     customerName.trim() &&
     isValidName(customerName) &&
     customerEmail.trim() &&
-    isValidEmail(customerEmail) &&
-    customerPhone.trim() &&
-    isValidPhone(customerPhone)
+    isValidEmail(customerEmail)
 
   return (
     <div className="bg-card border border-border rounded-lg p-6">
@@ -501,24 +436,9 @@ function CustomerInfoForm({
           {emailError && (
             <p className="text-sm text-red-500 mt-1">{emailError}</p>
           )}
-        </div>
-
-        <div>
-          <Label htmlFor="customerPhone">Phone *</Label>
-          <Input
-            id="customerPhone"
-            type="tel"
-            value={customerPhone}
-            onChange={(e) => handlePhoneChange(e.target.value)}
-            onBlur={handlePhoneBlur}
-            required
-            disabled={disabled}
-            className={`mt-1 ${phoneError ? 'border-red-500' : ''}`}
-            placeholder="555-123-4567"
-          />
-          {phoneError && (
-            <p className="text-sm text-red-500 mt-1">{phoneError}</p>
-          )}
+          <p className="text-xs text-muted-foreground mt-2">
+            Order confirmation and updates will be sent to this email
+          </p>
         </div>
 
         <Button
@@ -547,7 +467,6 @@ function PaymentFormContent({
   cart,
   customerName,
   customerEmail,
-  customerPhone,
   paymentIntentId,
   subtotal,
   platformFee,
@@ -558,7 +477,6 @@ function PaymentFormContent({
   cart: CartItem[]
   customerName: string
   customerEmail: string
-  customerPhone: string
   paymentIntentId: string
   subtotal: number
   platformFee: number
@@ -604,7 +522,6 @@ function PaymentFormContent({
             cart,
             customerName,
             customerEmail,
-            customerPhone,
             stripePaymentIntentId: paymentIntentId,
             paymentStatus: paymentIntent.status, // Pass actual Stripe payment status
           }),
@@ -692,13 +609,11 @@ export function CheckoutForm(props: CheckoutFormProps) {
     total: number
     customerName: string
     customerEmail: string
-    customerPhone: string
   } | null>(null)
 
   // Customer form state - lifted to parent to persist across navigation
   const [customerName, setCustomerName] = useState('')
   const [customerEmail, setCustomerEmail] = useState('')
-  const [customerPhone, setCustomerPhone] = useState('')
 
   // Load customer info from localStorage on mount
   useEffect(() => {
@@ -711,7 +626,6 @@ export function CheckoutForm(props: CheckoutFormProps) {
         const parsed = JSON.parse(savedCustomerInfo)
         if (parsed.customerName) setCustomerName(parsed.customerName)
         if (parsed.customerEmail) setCustomerEmail(parsed.customerEmail)
-        if (parsed.customerPhone) setCustomerPhone(parsed.customerPhone)
       }
     } catch (error) {
       // Failed to load customer info from localStorage
@@ -723,19 +637,18 @@ export function CheckoutForm(props: CheckoutFormProps) {
     if (!isLocalStorageAvailable()) return
 
     // Only save if at least one field has data
-    if (customerName || customerEmail || customerPhone) {
+    if (customerName || customerEmail) {
       const storageKey = `umari-customer-${menuId}`
       try {
         localStorage.setItem(storageKey, JSON.stringify({
           customerName,
           customerEmail,
-          customerPhone,
         }))
       } catch (error) {
         // Failed to save customer info to localStorage
       }
     }
-  }, [customerName, customerEmail, customerPhone, menuId])
+  }, [customerName, customerEmail, menuId])
 
   const handleClientSecretReady = (secret: string, data: {
     paymentIntentId: string
@@ -745,7 +658,6 @@ export function CheckoutForm(props: CheckoutFormProps) {
     total: number
     customerName: string
     customerEmail: string
-    customerPhone: string
   }) => {
     setClientSecret(secret)
     setStripeAccountId(data.stripeAccountId)
@@ -753,7 +665,6 @@ export function CheckoutForm(props: CheckoutFormProps) {
     // Persist customer data in parent state to survive navigation
     setCustomerName(data.customerName)
     setCustomerEmail(data.customerEmail)
-    setCustomerPhone(data.customerPhone)
   }
 
   const handleBackToCustomerInfo = () => {
@@ -795,10 +706,8 @@ export function CheckoutForm(props: CheckoutFormProps) {
         paymentIntentData={paymentIntentData}
         customerName={customerName}
         customerEmail={customerEmail}
-        customerPhone={customerPhone}
         onCustomerNameChange={setCustomerName}
         onCustomerEmailChange={setCustomerEmail}
-        onCustomerPhoneChange={setCustomerPhone}
         onClientSecretReady={handleClientSecretReady}
         onBackToCustomerInfo={handleBackToCustomerInfo}
       />

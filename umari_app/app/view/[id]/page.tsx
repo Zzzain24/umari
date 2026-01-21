@@ -27,7 +27,7 @@ export default async function ViewMenuPage({ params }: PageProps) {
   // Fetch menu items
   const { data: menuItems, error: itemsError } = await supabase
     .from('menu_items')
-    .select('id, name, price, is_sold_out')
+    .select('id, name, price, is_sold_out, allow_special_instructions')
     .eq('menu_id', id)
     .order('created_at', { ascending: true })
 
@@ -65,6 +65,7 @@ export default async function ViewMenuPage({ params }: PageProps) {
       name: item.name,
       price: item.price,
       is_sold_out: item.is_sold_out || false,
+      allow_special_instructions: item.allow_special_instructions ?? true,
       options: itemOptions.length > 0 ? itemOptions : undefined,
     }
   })

@@ -28,6 +28,7 @@ export interface MenuItem {
   name: string
   price: number
   is_sold_out?: boolean
+  allow_special_instructions?: boolean
   created_at: string
   updated_at: string
   options?: MenuItemOption[]
@@ -57,6 +58,7 @@ export interface MenuItemForCart {
   name: string
   price: number
   is_sold_out?: boolean
+  allow_special_instructions?: boolean
   options?: MenuItemOption[]
 }
 

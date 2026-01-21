@@ -22,6 +22,7 @@ interface MenuItem {
   name: string
   price: number
   is_sold_out?: boolean
+  allow_special_instructions?: boolean
   options?: MenuItemOption[]
 }
 
@@ -47,6 +48,7 @@ export function MenuForm({ menuId, initialMenuName = '', initialItems }: MenuFor
             name: '',
             price: 0,
             is_sold_out: false,
+            allow_special_instructions: true,
             options: [],
           },
         ]
@@ -68,6 +70,7 @@ export function MenuForm({ menuId, initialMenuName = '', initialItems }: MenuFor
         name: '',
         price: 0,
         is_sold_out: false,
+        allow_special_instructions: true,
         options: [],
       },
     ])
@@ -143,6 +146,7 @@ export function MenuForm({ menuId, initialMenuName = '', initialItems }: MenuFor
             name: item.name.trim(),
             price: item.price,
             is_sold_out: item.is_sold_out || false,
+            allow_special_instructions: item.allow_special_instructions ?? true,
             options: item.options?.map(opt => ({
               id: opt.id,
               name: opt.name.trim(),
@@ -177,6 +181,7 @@ export function MenuForm({ menuId, initialMenuName = '', initialItems }: MenuFor
             name: item.name.trim(),
             price: item.price,
             is_sold_out: item.is_sold_out || false,
+            allow_special_instructions: item.allow_special_instructions ?? true,
             options: item.options?.map(opt => ({
               name: opt.name.trim(),
               options: opt.options

@@ -166,66 +166,8 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
     }
   }
 
-  // Loading state
-  if (isLoading) {
-    return (
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Header
-          orderCount={0}
-          dateRange={dateRange}
-          onDateRangeChange={handleDateRangeChange}
-          onRefresh={handleRefresh}
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          isLoading={true}
-        />
-        
-        {/* Desktop Table Skeleton */}
-        <div className="hidden lg:block mt-6">
-          <div className="bg-card rounded-xl border border-border/60 overflow-hidden">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-border/60 bg-accent/30">
-                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Order ID
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Customer
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Items
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Total
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Date
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Action
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {[1, 2, 3, 4, 5, 6].map(i => <OrderTableRowSkeleton key={i} />)}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Mobile/Tablet Card Skeleton */}
-        <div className="lg:hidden mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-          {[1, 2, 3, 4, 5, 6].map(i => <OrderSkeleton key={i} />)}
-        </div>
-      </main>
-    )
-  }
-
   // Empty state - no orders in date range
-  if (orders.length === 0) {
+  if (orders.length === 0 && !isLoading) {
     return (
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Header
@@ -278,71 +220,119 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
         onRefresh={handleRefresh}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
+        isLoading={isLoading}
       />
 
-      {/* Desktop Table View */}
-      <div className="hidden lg:block mt-6">
-        <div className="bg-card rounded-xl border border-border/60 overflow-hidden">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-border/60 bg-accent/30">
-                <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Order ID
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Customer
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Items
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Total
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Date
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Action
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredOrders.map((order) => (
-                <OrderTableRow
-                  key={order.id}
-                  order={order}
-                  onStatusChange={handleStatusUpdate}
-                  onRefund={handleRefund}
-                />
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      {isLoading ? (
+        <>
+          {/* Desktop Table Skeleton */}
+          <div className="hidden lg:block mt-6">
+            <div className="bg-card rounded-xl border border-border/60 overflow-hidden">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-border/60 bg-accent/30">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      Order ID
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      Customer
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      Items
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      Total
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      Date
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      Action
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[1, 2, 3, 4, 5, 6].map(i => <OrderTableRowSkeleton key={i} />)}
+                </tbody>
+              </table>
+            </div>
+          </div>
 
-      {/* Mobile/Tablet Card View */}
-      <div className="lg:hidden mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-        <AnimatePresence>
-          {filteredOrders.map((order, index) => (
-            <motion.div
-              key={order.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2, delay: index * 0.03 }}
-            >
-              <OrderCard
-                order={order}
-                onStatusChange={handleStatusUpdate}
-                onRefund={handleRefund}
-              />
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </div>
+          {/* Mobile/Tablet Card Skeleton */}
+          <div className="lg:hidden mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+            {[1, 2, 3, 4, 5, 6].map(i => <OrderSkeleton key={i} />)}
+          </div>
+        </>
+      ) : (
+        <>
+          {/* Desktop Table View */}
+          <div className="hidden lg:block mt-6">
+            <div className="bg-card rounded-xl border border-border/60 overflow-hidden">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-border/60 bg-accent/30">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      Order ID
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      Customer
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      Items
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      Total
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      Date
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      Action
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredOrders.map((order) => (
+                    <OrderTableRow
+                      key={order.id}
+                      order={order}
+                      onStatusChange={handleStatusUpdate}
+                      onRefund={handleRefund}
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Mobile/Tablet Card View */}
+          <div className="lg:hidden mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <AnimatePresence>
+              {filteredOrders.map((order, index) => (
+                <motion.div
+                  key={order.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2, delay: index * 0.03 }}
+                >
+                  <OrderCard
+                    order={order}
+                    onStatusChange={handleStatusUpdate}
+                    onRefund={handleRefund}
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        </>
+      )}
     </main>
   )
 }

@@ -16,9 +16,10 @@ interface MenuItemEditorProps {
     name: string
     price: number
     is_sold_out?: boolean
+    allow_special_instructions?: boolean
     options?: MenuItemOption[]
   }
-  onUpdate: (item: { id?: string; name: string; price: number; is_sold_out?: boolean; options?: MenuItemOption[] }) => void
+  onUpdate: (item: { id?: string; name: string; price: number; is_sold_out?: boolean; allow_special_instructions?: boolean; options?: MenuItemOption[] }) => void
   onDelete: () => void
 }
 
@@ -107,11 +108,27 @@ export function MenuItemEditor({ item, onUpdate, onDelete }: MenuItemEditorProps
 
   return (
     <div className="border border-border rounded-lg p-6 space-y-4 bg-card">
-      <div className="flex items-center justify-between gap-2">
-        <h3 className="text-lg font-semibold text-foreground shrink-0">Menu Item</h3>
-        <div className="flex items-center gap-2 sm:gap-4">
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            <Label htmlFor={`sold-out-${item.id || 'new'}`} className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">
+      <div className="space-y-3">
+        {/* Header Row: Title + Delete */}
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="text-lg font-semibold text-foreground">Menu Item</h3>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={onDelete}
+            className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8 md:w-auto p-0 md:px-3"
+          >
+            <X className="w-4 h-4 md:mr-2" />
+            <span className="hidden md:inline">Delete Item</span>
+          </Button>
+        </div>
+
+        {/* Toggles Row: Always visible, stacks on mobile */}
+        <div className="flex flex-col xs:flex-row gap-3 xs:gap-4">
+          {/* Sold Out Toggle */}
+          <div className="flex items-center justify-between xs:justify-start gap-2">
+            <Label htmlFor={`sold-out-${item.id || 'new'}`} className="text-sm text-muted-foreground">
               Sold Out
             </Label>
             <Switch
@@ -120,16 +137,18 @@ export function MenuItemEditor({ item, onUpdate, onDelete }: MenuItemEditorProps
               onCheckedChange={(checked) => onUpdate({ ...item, is_sold_out: checked })}
             />
           </div>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={onDelete}
-            className="text-destructive hover:text-destructive hover:bg-destructive/10 px-2 sm:px-3"
-          >
-            <X className="w-4 h-4 sm:mr-2" />
-            <span className="hidden sm:inline">Delete Item</span>
-          </Button>
+
+          {/* Special Instructions Toggle */}
+          <div className="flex items-center justify-between xs:justify-start gap-2">
+            <Label htmlFor={`allow-instructions-${item.id || 'new'}`} className="text-sm text-muted-foreground">
+              Special Instructions
+            </Label>
+            <Switch
+              id={`allow-instructions-${item.id || 'new'}`}
+              checked={item.allow_special_instructions ?? true}
+              onCheckedChange={(checked) => onUpdate({ ...item, allow_special_instructions: checked })}
+            />
+          </div>
         </div>
       </div>
 

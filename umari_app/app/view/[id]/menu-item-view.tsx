@@ -17,6 +17,7 @@ interface MenuItemViewProps {
     name: string
     price: number
     is_sold_out?: boolean
+    allow_special_instructions?: boolean
     options?: Array<{
       id: string
       name: string
@@ -119,17 +120,19 @@ export function MenuItemView({ item }: MenuItemViewProps) {
           </div>
         </div>
 
-        {/* Special Instructions */}
-        <div className="space-y-2">
-          <p className="text-sm text-muted-foreground">Special Instructions (optional)</p>
-          <Textarea
-            placeholder="E.g., extra hot, light ice..."
-            value={specialInstructions}
-            onChange={(e) => setSpecialInstructions(e.target.value)}
-            className="resize-none h-20"
-            maxLength={200}
-          />
-        </div>
+        {/* Special Instructions - Only show if allowed */}
+        {(item.allow_special_instructions ?? true) && (
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground">Special Instructions (optional)</p>
+            <Textarea
+              placeholder="E.g., extra hot, light ice..."
+              value={specialInstructions}
+              onChange={(e) => setSpecialInstructions(e.target.value)}
+              className="resize-none h-20"
+              maxLength={200}
+            />
+          </div>
+        )}
 
         <Button
           onClick={handleAddToCart}

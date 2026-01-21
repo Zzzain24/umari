@@ -47,6 +47,7 @@ export interface CartItem {
   basePrice: number
   quantity: number
   selectedOptions: SelectedOption[]
+  optionsPrice: number
   totalPrice: number
   specialInstructions?: string
 }

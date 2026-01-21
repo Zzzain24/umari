@@ -110,8 +110,19 @@ function CheckoutFormContent({
       if (savedCart) {
         const parsed = JSON.parse(savedCart) as CartItem[]
         if (Array.isArray(parsed) && parsed.length > 0) {
-          setCart(parsed)
-          const cartSubtotal = parsed.reduce((sum, item) => sum + item.totalPrice, 0)
+          // Migrate old cart items that don't have optionsPrice
+          const migratedCart = parsed.map(item => {
+            if (item.optionsPrice === undefined) {
+              const optionsPrice = item.selectedOptions.reduce(
+                (sum, opt) => sum + opt.additionalPrice, 0
+              )
+              return { ...item, optionsPrice }
+            }
+            return item
+          })
+
+          setCart(migratedCart)
+          const cartSubtotal = migratedCart.reduce((sum, item) => sum + item.totalPrice, 0)
           const fee = (cartSubtotal * platformFeePercentage) / 100
           setSubtotal(cartSubtotal)
           setPlatformFee(fee)

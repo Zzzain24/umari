@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { after } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { sendOrderConfirmationEmail } from '@/lib/email'
 
@@ -155,24 +154,19 @@ export async function POST(request: NextRequest) {
     // Use menu name from earlier fetch (no need for redundant database query)
     const menuName = menu.name || order.business_name || 'Your Business'
 
-    // Send confirmation email asynchronously using after() to avoid blocking the response
-    // This ensures the email is sent without adding latency to the customer's checkout experience
+    // Send confirmation email (await to ensure it completes in serverless environment)
     if (customerEmail && (finalPaymentStatus === 'succeeded' || finalPaymentStatus === 'pending')) {
-      after(() => {
-        sendOrderConfirmationEmail({
-          orderNumber: order.order_number,
-          customerName,
-          customerEmail,
-          businessName: order.business_name || menuName,
-          items: cart,
-          subtotal,
-          total,
-          orderDate: order.created_at,
-          orderStatus: 'received',
-        }).catch((error) => {
-          console.error('Failed to send order confirmation email:', error)
-        })
-      })
+      await sendOrderConfirmationEmail({
+        orderNumber: order.order_number,
+        customerName,
+        customerEmail,
+        businessName: order.business_name || menuName,
+        items: cart,
+        subtotal,
+        total,
+        orderDate: order.created_at,
+        orderStatus: 'received',
+      }).catch(() => {})
     }
 
     return NextResponse.json({

@@ -21,10 +21,6 @@ export function OrderSkeleton() {
           <Skeleton className="h-4 w-28" />
         </div>
         <div className="flex justify-between items-center py-1.5 border-b border-border/30">
-          <Skeleton className="h-4 w-10" />
-          <Skeleton className="h-6 w-6 rounded-full" />
-        </div>
-        <div className="flex justify-between items-center py-1.5 border-b border-border/30">
           <Skeleton className="h-4 w-14" />
           <Skeleton className="h-4 w-16" />
         </div>
@@ -49,9 +45,6 @@ export function OrderTableRowSkeleton() {
       </td>
       <td className="px-4 py-3.5">
         <Skeleton className="h-4 w-16" />
-      </td>
-      <td className="px-4 py-3.5">
-        <Skeleton className="h-6 w-6 rounded-full" />
       </td>
       <td className="px-4 py-3.5">
         <Skeleton className="h-4 w-16" />

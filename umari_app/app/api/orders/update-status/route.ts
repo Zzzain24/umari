@@ -72,9 +72,8 @@ export async function POST(request: Request) {
 
       const menuName = menuData?.name || order.business_name || 'Your Business'
 
-      // Send email asynchronously (non-blocking for better performance during rush)
-      // Don't await - fire and forget to return status update response immediately
-      sendOrderStatusUpdateEmail({
+      // Send email (await to ensure it completes in serverless environment)
+      await sendOrderStatusUpdateEmail({
         orderNumber: order.order_number,
         customerName: order.customer_name,
         customerEmail: order.customer_email,
@@ -84,10 +83,7 @@ export async function POST(request: Request) {
         total: order.total,
         orderDate: order.created_at,
         orderStatus: 'ready',
-      }).catch((error) => {
-        // Log email errors but don't fail the status update
-        console.error('Failed to send order status update email:', error)
-      })
+      }).catch(() => {})
     }
 
     return NextResponse.json({ success: true })

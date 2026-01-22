@@ -50,9 +50,15 @@ export function OrderItemsPopover({ items }: OrderItemsPopoverProps) {
             {items.map((item, index) => (
               <div key={item.id || index} className="space-y-1">
                 <div className="flex justify-between items-start gap-2">
-                  <span className="text-sm font-medium text-foreground">
-                    {item.quantity}x {item.itemName}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="w-2 h-2 rounded-full shrink-0"
+                      style={{ backgroundColor: item.label_color || '#9CA3AF' }}
+                    />
+                    <span className="text-sm font-medium text-foreground">
+                      {item.quantity}x {item.itemName}
+                    </span>
+                  </div>
                   <span className="text-sm text-foreground shrink-0">
                     {formatCurrency(item.totalPrice)}
                   </span>

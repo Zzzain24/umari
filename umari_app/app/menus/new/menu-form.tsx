@@ -23,6 +23,7 @@ interface MenuItem {
   price: number
   is_sold_out?: boolean
   allow_special_instructions?: boolean
+  label_color?: string
   options?: MenuItemOption[]
 }
 
@@ -49,6 +50,7 @@ export function MenuForm({ menuId, initialMenuName = '', initialItems }: MenuFor
             price: 0,
             is_sold_out: false,
             allow_special_instructions: true,
+            label_color: '#9CA3AF',
             options: [],
           },
         ]
@@ -71,6 +73,7 @@ export function MenuForm({ menuId, initialMenuName = '', initialItems }: MenuFor
         price: 0,
         is_sold_out: false,
         allow_special_instructions: true,
+        label_color: '#9CA3AF',
         options: [],
       },
     ])
@@ -147,6 +150,7 @@ export function MenuForm({ menuId, initialMenuName = '', initialItems }: MenuFor
             price: item.price,
             is_sold_out: item.is_sold_out || false,
             allow_special_instructions: item.allow_special_instructions ?? true,
+            label_color: item.label_color || '#9CA3AF',
             options: item.options?.map(opt => ({
               id: opt.id,
               name: opt.name.trim(),
@@ -182,6 +186,7 @@ export function MenuForm({ menuId, initialMenuName = '', initialItems }: MenuFor
             price: item.price,
             is_sold_out: item.is_sold_out || false,
             allow_special_instructions: item.allow_special_instructions ?? true,
+            label_color: item.label_color || '#9CA3AF',
             options: item.options?.map(opt => ({
               name: opt.name.trim(),
               options: opt.options

@@ -10,6 +10,7 @@ export interface CreateMenuData {
     price: number
     is_sold_out?: boolean
     allow_special_instructions?: boolean
+    label_color?: string
     options?: Array<{
       name: string
       options: Array<{
@@ -43,12 +44,17 @@ export async function createMenu(data: CreateMenuData) {
   }
 
   // Validate items
+  const hexColorRegex = /^#[0-9A-F]{6}$/i
   for (const item of data.items) {
     if (!item.name || item.name.trim().length === 0) {
       throw new Error("All items must have a name")
     }
     if (typeof item.price !== 'number' || isNaN(item.price) || item.price <= 0) {
       throw new Error("All items must have a valid price greater than 0")
+    }
+    // Validate label_color if provided
+    if (item.label_color && !hexColorRegex.test(item.label_color)) {
+      throw new Error(`Invalid label color format for item "${item.name}". Must be a valid hex color (e.g., #9CA3AF)`)
     }
   }
 
@@ -67,13 +73,27 @@ export async function createMenu(data: CreateMenuData) {
     if (!menu) throw new Error("Failed to create menu")
 
     // Create menu items
-    const menuItems = data.items.map(item => ({
-      menu_id: menu.id,
-      name: item.name.trim(),
-      price: item.price,
-      is_sold_out: item.is_sold_out || false,
-      allow_special_instructions: item.allow_special_instructions ?? true,
-    }))
+    const menuItems = data.items.map(item => {
+      // Validate and set label_color
+      let labelColor = '#9CA3AF' // default
+      if (item.label_color) {
+        if (hexColorRegex.test(item.label_color)) {
+          labelColor = item.label_color.toUpperCase()
+        } else {
+          // Invalid color, use default
+          labelColor = '#9CA3AF'
+        }
+      }
+      
+      return {
+        menu_id: menu.id,
+        name: item.name.trim(),
+        price: item.price,
+        is_sold_out: item.is_sold_out || false,
+        allow_special_instructions: item.allow_special_instructions ?? true,
+        label_color: labelColor,
+      }
+    })
 
     const { data: insertedItems, error: itemsError } = await supabase
       .from('menu_items')

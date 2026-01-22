@@ -9,6 +9,7 @@ import { X, Plus, ChevronDown, ChevronUp } from "lucide-react"
 import type { MenuItemOption } from "@/lib/types"
 import { MenuItemOptionEditor } from "./menu-item-option-editor"
 import { Switch } from "@/components/ui/switch"
+import { ColorPicker } from "@/components/ui/color-picker"
 
 interface MenuItemEditorProps {
   item: {
@@ -17,9 +18,10 @@ interface MenuItemEditorProps {
     price: number
     is_sold_out?: boolean
     allow_special_instructions?: boolean
+    label_color?: string
     options?: MenuItemOption[]
   }
-  onUpdate: (item: { id?: string; name: string; price: number; is_sold_out?: boolean; allow_special_instructions?: boolean; options?: MenuItemOption[] }) => void
+  onUpdate: (item: { id?: string; name: string; price: number; is_sold_out?: boolean; allow_special_instructions?: boolean; label_color?: string; options?: MenuItemOption[] }) => void
   onDelete: () => void
 }
 
@@ -180,6 +182,13 @@ export function MenuItemEditor({ item, onUpdate, onDelete }: MenuItemEditorProps
             className="bg-background border-border text-foreground"
           />
         </div>
+      </div>
+
+      <div>
+        <ColorPicker
+          value={item.label_color || '#9CA3AF'}
+          onChange={(color) => onUpdate({ ...item, label_color: color })}
+        />
       </div>
 
       <div className="space-y-4">

@@ -2,12 +2,10 @@
 
 import { useState } from "react"
 import type { Order } from "@/lib/types"
-import { OrderStatusDropdown } from "./order-status-dropdown"
-import { OrderItemsPopover } from "./order-items-popover"
+import { OrderActionsDropdown } from "./order-actions-dropdown"
+import { OrderItemsInline } from "./order-items-inline"
 import { CustomerPopover } from "./customer-popover"
 import { RefundConfirmationDialog } from "./refund-confirmation-dialog"
-import { Button } from "@/components/ui/button"
-import { RotateCcw } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 
 interface OrderCardProps {
@@ -40,8 +38,6 @@ export function OrderCard({ order, onStatusChange, onRefund }: OrderCardProps) {
   const status = statusConfig[order.order_status]
   const createdAt = new Date(order.created_at)
   const timeAgo = formatDistanceToNow(createdAt, { addSuffix: false })
-  
-  const canRefund = order.payment_status === 'succeeded' && order.order_status !== 'cancelled'
 
   const handleRefundClick = () => {
     setIsRefundDialogOpen(true)
@@ -49,7 +45,7 @@ export function OrderCard({ order, onStatusChange, onRefund }: OrderCardProps) {
 
   const handleRefundConfirm = async () => {
     if (!onRefund) return
-    
+
     setIsRefunding(true)
     try {
       await onRefund(order.id)
@@ -89,9 +85,9 @@ export function OrderCard({ order, onStatusChange, onRefund }: OrderCardProps) {
           />
         </div>
 
-        <div className="flex justify-between items-center py-1.5 border-b border-border/30">
-          <span className="text-sm text-muted-foreground">Items</span>
-          <OrderItemsPopover items={order.items} />
+        <div className="py-1.5 border-b border-border/30">
+          <span className="text-sm text-muted-foreground mb-2 block">Items</span>
+          <OrderItemsInline items={order.items} />
         </div>
 
         <div className="flex justify-between items-center py-1.5 border-b border-border/30">
@@ -107,25 +103,17 @@ export function OrderCard({ order, onStatusChange, onRefund }: OrderCardProps) {
         </div>
       </div>
 
-      {/* Footer - Status Update and Refund */}
-      <div className="px-5 py-3 border-t border-border/40 flex items-center justify-center gap-2 sm:justify-start">
+      {/* Footer - Actions */}
+      <div className="px-5 py-3 border-t border-border/40 flex items-center justify-center sm:justify-start">
         <div className="flex-1 sm:flex-none">
-          <OrderStatusDropdown
+          <OrderActionsDropdown
             currentStatus={order.order_status}
+            paymentStatus={order.payment_status}
             onStatusChange={(newStatus) => onStatusChange(order.id, newStatus)}
+            onRefundClick={onRefund ? handleRefundClick : undefined}
+            disabled={isRefunding}
           />
         </div>
-        {canRefund && onRefund && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleRefundClick}
-            className="flex-1 sm:flex-none border-destructive/50 text-destructive hover:bg-destructive/10 text-xs font-medium"
-          >
-            <RotateCcw className="w-3.5 h-3.5 mr-2" />
-            Refund Order
-          </Button>
-        )}
       </div>
 
       <RefundConfirmationDialog

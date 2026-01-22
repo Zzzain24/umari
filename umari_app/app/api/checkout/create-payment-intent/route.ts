@@ -15,7 +15,7 @@ const supabaseAdmin = createClient(
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { menuId, cart, customerName, customerEmail, customerPhone } = body
+    const { menuId, cart, customerName, customerEmail } = body
 
     // Validate required fields
     if (!menuId || !cart || !Array.isArray(cart) || cart.length === 0) {
@@ -48,17 +48,6 @@ export async function POST(request: NextRequest) {
         { error: 'Please enter a valid email address' },
         { status: 400 }
       )
-    }
-
-    // Validate phone number format (10-15 digits)
-    if (customerPhone) {
-      const digitsOnly = customerPhone.replace(/\D/g, '')
-      if (digitsOnly.length < 10 || digitsOnly.length > 15) {
-        return NextResponse.json(
-          { error: 'Please enter a valid phone number (10-15 digits)' },
-          { status: 400 }
-        )
-      }
     }
 
     // Get menu to find business owner (use admin client for guest checkout)
@@ -244,7 +233,6 @@ export async function POST(request: NextRequest) {
           business_user_id: menu.user_id,
           customer_name: customerName,
           customer_email: customerEmail,
-          customer_phone: customerPhone || '',
         },
       })
     } else {
@@ -263,7 +251,6 @@ export async function POST(request: NextRequest) {
             business_user_id: menu.user_id,
             customer_name: customerName,
             customer_email: customerEmail,
-            customer_phone: customerPhone || '',
           },
         },
         {

@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse, unstable_after as after } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { sendOrderConfirmationEmail } from '@/lib/email'
 
@@ -84,10 +84,10 @@ export async function POST(request: NextRequest) {
       ? mapStripeStatusToDbStatus(paymentStatus)
       : 'pending'
 
-    // Get menu to find business owner
+    // Get menu to find business owner (including name to avoid second fetch later)
     const { data: menu, error: menuError } = await supabaseAdmin
       .from('menus')
-      .select('id, user_id')
+      .select('id, user_id, name')
       .eq('id', menuId)
       .single()
 
@@ -151,28 +151,27 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Fetch menu name for email personalization
-    const { data: menuData } = await supabaseAdmin
-      .from('menus')
-      .select('name')
-      .eq('id', menuId)
-      .single()
+    // Use menu name from earlier fetch (no need for redundant database query)
+    const menuName = menu.name || order.business_name || 'Your Business'
 
-    const menuName = menuData?.name || order.business_name || 'Your Business'
-
-    // Send confirmation email (await to ensure it completes in serverless environment)
+    // Send confirmation email asynchronously using after() to avoid blocking the response
+    // This ensures the email is sent without adding latency to the customer's checkout experience
     if (customerEmail && (finalPaymentStatus === 'succeeded' || finalPaymentStatus === 'pending')) {
-      await sendOrderConfirmationEmail({
-        orderNumber: order.order_number,
-        customerName,
-        customerEmail,
-        businessName: order.business_name || menuName,
-        items: cart,
-        subtotal,
-        total,
-        orderDate: order.created_at,
-        orderStatus: 'received',
-      }).catch(() => {})
+      after(() => {
+        sendOrderConfirmationEmail({
+          orderNumber: order.order_number,
+          customerName,
+          customerEmail,
+          businessName: order.business_name || menuName,
+          items: cart,
+          subtotal,
+          total,
+          orderDate: order.created_at,
+          orderStatus: 'received',
+        }).catch((error) => {
+          console.error('Failed to send order confirmation email:', error)
+        })
+      })
     }
 
     return NextResponse.json({

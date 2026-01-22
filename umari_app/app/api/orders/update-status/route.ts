@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
-import { NextResponse } from "next/server"
+import { NextResponse, unstable_after as after } from "next/server"
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { sendOrderStatusUpdateEmail } from '@/lib/email'
 
@@ -62,28 +62,33 @@ export async function POST(request: Request) {
     }
 
     // Send status update email if status changed to "ready" (not "cancelled" - that's handled by refund endpoints)
+    // Use after() to send email asynchronously without blocking the response
     if (newStatus === 'ready' && order.customer_email && order.customer_name) {
-      // Fetch menu name for email context
-      const { data: menuData } = await supabaseAdmin
-        .from('menus')
-        .select('name')
-        .eq('id', order.menu_id)
-        .single()
+      after(async () => {
+        // Fetch menu name for email context
+        const { data: menuData } = await supabaseAdmin
+          .from('menus')
+          .select('name')
+          .eq('id', order.menu_id)
+          .single()
 
-      const menuName = menuData?.name || order.business_name || 'Your Business'
+        const menuName = menuData?.name || order.business_name || 'Your Business'
 
-      // Send email (await to ensure it completes in serverless environment)
-      await sendOrderStatusUpdateEmail({
-        orderNumber: order.order_number,
-        customerName: order.customer_name,
-        customerEmail: order.customer_email,
-        businessName: order.business_name || menuName,
-        items: order.items as any[],
-        subtotal: order.subtotal,
-        total: order.total,
-        orderDate: order.created_at,
-        orderStatus: 'ready',
-      }).catch(() => {})
+        // Send email with proper error logging
+        sendOrderStatusUpdateEmail({
+          orderNumber: order.order_number,
+          customerName: order.customer_name,
+          customerEmail: order.customer_email,
+          businessName: order.business_name || menuName,
+          items: order.items as any[],
+          subtotal: order.subtotal,
+          total: order.total,
+          orderDate: order.created_at,
+          orderStatus: 'ready',
+        }).catch((error) => {
+          console.error('Failed to send order status update email:', error)
+        })
+      })
     }
 
     return NextResponse.json({ success: true })

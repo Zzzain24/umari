@@ -160,10 +160,9 @@ export async function POST(request: NextRequest) {
 
     const menuName = menuData?.name || order.business_name || 'Your Business'
 
-    // Send confirmation email asynchronously (non-blocking for better performance during rush)
-    // Don't await - fire and forget to return order response immediately
+    // Send confirmation email (await to ensure it completes in serverless environment)
     if (customerEmail && (finalPaymentStatus === 'succeeded' || finalPaymentStatus === 'pending')) {
-      sendOrderConfirmationEmail({
+      await sendOrderConfirmationEmail({
         orderNumber: order.order_number,
         customerName,
         customerEmail,
@@ -173,10 +172,7 @@ export async function POST(request: NextRequest) {
         total,
         orderDate: order.created_at,
         orderStatus: 'received',
-      }).catch((error) => {
-        // Log email errors but don't fail the order
-        console.error('Failed to send order confirmation email:', error)
-      })
+      }).catch(() => {})
     }
 
     return NextResponse.json({

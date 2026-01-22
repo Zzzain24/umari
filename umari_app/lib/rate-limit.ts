@@ -124,5 +124,6 @@ export const RATE_LIMITS = {
   auth: { limit: 10, windowSeconds: 60 }, // 10 requests per minute
 
   // Limit for order creation (prevent spam orders)
-  orders: { limit: 10, windowSeconds: 60 }, // 10 orders per minute
+  // Increased for high-traffic events - can handle up to 100 orders per minute per IP
+  orders: { limit: 100, windowSeconds: 60 }, // 100 orders per minute
 } as const

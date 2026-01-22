@@ -84,12 +84,6 @@ export function OrderTableRow({ order, onStatusChange, onRefund }: OrderTableRow
         <OrderItemsPopover items={order.items} />
       </td>
       <td className="px-4 py-3.5">
-        <div
-          className="w-6 h-6 rounded-full border border-border"
-          style={{ backgroundColor: order.items[0]?.label_color || '#9CA3AF' }}
-        />
-      </td>
-      <td className="px-4 py-3.5">
         <span className="text-sm font-medium text-foreground">
           {formatCurrency(order.total)}
         </span>

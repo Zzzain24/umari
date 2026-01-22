@@ -95,6 +95,14 @@ export function OrderCard({ order, onStatusChange, onRefund }: OrderCardProps) {
         </div>
 
         <div className="flex justify-between items-center py-1.5 border-b border-border/30">
+          <span className="text-sm text-muted-foreground">Label</span>
+          <div
+            className="w-6 h-6 rounded-full border border-border"
+            style={{ backgroundColor: order.items[0]?.label_color || '#9CA3AF' }}
+          />
+        </div>
+
+        <div className="flex justify-between items-center py-1.5 border-b border-border/30">
           <span className="text-sm text-muted-foreground">Total</span>
           <span className="text-sm font-semibold text-foreground">
             {formatCurrency(order.total)}

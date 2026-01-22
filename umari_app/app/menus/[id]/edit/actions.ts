@@ -12,6 +12,7 @@ export interface UpdateMenuData {
     price: number
     is_sold_out?: boolean
     allow_special_instructions?: boolean
+    label_color?: string
     options?: Array<{
       id?: string
       name: string
@@ -63,6 +64,7 @@ export async function updateMenu(
   }
 
   // Validate items
+  const hexColorRegex = /^#[0-9A-F]{6}$/i
   for (const item of data.items) {
     if (!item.name || item.name.trim().length === 0) {
       return {
@@ -74,6 +76,13 @@ export async function updateMenu(
       return {
         success: false,
         error: "All items must have a valid price greater than 0",
+      }
+    }
+    // Validate label_color if provided
+    if (item.label_color && !hexColorRegex.test(item.label_color)) {
+      return {
+        success: false,
+        error: `Invalid label color format for item "${item.name}". Must be a valid hex color (e.g., #9CA3AF)`,
       }
     }
   }
@@ -134,6 +143,17 @@ export async function updateMenu(
     // Process each item
     for (const item of data.items) {
       if (item.id && existingItemIds.has(item.id)) {
+        // Validate and set label_color
+        let labelColor = '#9CA3AF' // default
+        if (item.label_color) {
+          if (hexColorRegex.test(item.label_color)) {
+            labelColor = item.label_color.toUpperCase()
+          } else {
+            // Invalid color, use default
+            labelColor = '#9CA3AF'
+          }
+        }
+        
         // Update existing item
         const { error: updateError } = await supabase
           .from('menu_items')
@@ -142,6 +162,7 @@ export async function updateMenu(
             price: item.price,
             is_sold_out: item.is_sold_out || false,
             allow_special_instructions: item.allow_special_instructions ?? true,
+            label_color: labelColor,
           })
           .eq('id', item.id)
 
@@ -225,6 +246,17 @@ export async function updateMenu(
           if (deleteAllOptsError) throw deleteAllOptsError
         }
       } else {
+        // Validate and set label_color
+        let labelColor = '#9CA3AF' // default
+        if (item.label_color) {
+          if (hexColorRegex.test(item.label_color)) {
+            labelColor = item.label_color.toUpperCase()
+          } else {
+            // Invalid color, use default
+            labelColor = '#9CA3AF'
+          }
+        }
+        
         // Insert new item
         const { data: newItem, error: insertError } = await supabase
           .from('menu_items')
@@ -234,6 +266,7 @@ export async function updateMenu(
             price: item.price,
             is_sold_out: item.is_sold_out || false,
             allow_special_instructions: item.allow_special_instructions ?? true,
+            label_color: labelColor,
           })
           .select()
           .single()

@@ -29,6 +29,7 @@ export interface MenuItem {
   price: number
   is_sold_out?: boolean
   allow_special_instructions?: boolean
+  label_color?: string
   created_at: string
   updated_at: string
   options?: MenuItemOption[]
@@ -51,6 +52,7 @@ export interface CartItem {
   optionsPrice: number
   totalPrice: number
   specialInstructions?: string
+  label_color?: string
 }
 
 export interface MenuItemForCart {
@@ -59,6 +61,7 @@ export interface MenuItemForCart {
   price: number
   is_sold_out?: boolean
   allow_special_instructions?: boolean
+  label_color?: string
   options?: MenuItemOption[]
 }
 

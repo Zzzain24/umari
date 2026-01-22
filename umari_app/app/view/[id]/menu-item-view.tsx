@@ -18,6 +18,7 @@ interface MenuItemViewProps {
     price: number
     is_sold_out?: boolean
     allow_special_instructions?: boolean
+    label_color?: string
     options?: Array<{
       id: string
       name: string
@@ -64,6 +65,7 @@ export function MenuItemView({ item }: MenuItemViewProps) {
       optionsPrice,
       totalPrice,
       specialInstructions: specialInstructions.trim() || undefined,
+      label_color: item.label_color || '#9CA3AF',
     })
 
     // Reset quantity and special instructions

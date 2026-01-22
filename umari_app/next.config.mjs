@@ -13,6 +13,9 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  experimental: {
+    after: true,
+  },
 }
 
 export default nextConfig

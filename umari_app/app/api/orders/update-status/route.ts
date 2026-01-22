@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
-import { NextResponse, unstable_after as after } from "next/server"
+import { NextResponse } from "next/server"
+import { after } from "next/server"
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { sendOrderStatusUpdateEmail } from '@/lib/email'
 

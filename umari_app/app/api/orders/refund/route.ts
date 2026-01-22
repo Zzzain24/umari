@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse, unstable_after as after } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
@@ -127,37 +127,41 @@ export async function POST(request: NextRequest) {
         throw updateError
       }
 
-      // Fetch full order details for email (including customer info)
-      const { data: fullOrder } = await supabaseAdmin
-        .from('orders')
-        .select('*, menu_id, business_name')
-        .eq('id', orderId)
-        .single()
-
-      // Send refund email asynchronously if customer email exists
-      if (fullOrder && fullOrder.customer_email && fullOrder.customer_name) {
-        // Fetch menu name for email context
-        const { data: menuData } = await supabaseAdmin
-          .from('menus')
-          .select('name')
-          .eq('id', fullOrder.menu_id)
+      // Send refund email asynchronously using after() to avoid blocking the response
+      after(async () => {
+        // Fetch full order details for email (including customer info)
+        const { data: fullOrder } = await supabaseAdmin
+          .from('orders')
+          .select('*, menu_id, business_name')
+          .eq('id', orderId)
           .single()
 
-        const menuName = menuData?.name || fullOrder.business_name || 'Your Business'
+        if (fullOrder && fullOrder.customer_email && fullOrder.customer_name) {
+          // Fetch menu name for email context
+          const { data: menuData } = await supabaseAdmin
+            .from('menus')
+            .select('name')
+            .eq('id', fullOrder.menu_id)
+            .single()
 
-        // Send email (await to ensure it completes in serverless environment)
-        await sendOrderRefundEmail({
-          orderNumber: fullOrder.order_number,
-          customerName: fullOrder.customer_name,
-          customerEmail: fullOrder.customer_email,
-          businessName: fullOrder.business_name || menuName,
-          items: fullOrder.items as any[],
-          subtotal: fullOrder.subtotal,
-          total: fullOrder.total,
-          orderDate: fullOrder.created_at,
-          orderStatus: 'cancelled',
-        }).catch(() => {})
-      }
+          const menuName = menuData?.name || fullOrder.business_name || 'Your Business'
+
+          // Send email with proper error logging
+          sendOrderRefundEmail({
+            orderNumber: fullOrder.order_number,
+            customerName: fullOrder.customer_name,
+            customerEmail: fullOrder.customer_email,
+            businessName: fullOrder.business_name || menuName,
+            items: fullOrder.items as any[],
+            subtotal: fullOrder.subtotal,
+            total: fullOrder.total,
+            orderDate: fullOrder.created_at,
+            orderStatus: 'cancelled',
+          }).catch((error) => {
+            console.error('Failed to send refund email:', error)
+          })
+        }
+      })
 
       return NextResponse.json({
         success: true,

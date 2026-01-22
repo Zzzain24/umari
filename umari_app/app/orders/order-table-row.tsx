@@ -2,12 +2,10 @@
 
 import { useState } from "react"
 import type { Order } from "@/lib/types"
-import { OrderStatusDropdown } from "./order-status-dropdown"
-import { OrderItemsPopover } from "./order-items-popover"
+import { OrderActionsDropdown } from "./order-actions-dropdown"
+import { OrderItemsInline } from "./order-items-inline"
 import { CustomerPopover } from "./customer-popover"
 import { RefundConfirmationDialog } from "./refund-confirmation-dialog"
-import { Button } from "@/components/ui/button"
-import { RotateCcw } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 
 interface OrderTableRowProps {
@@ -40,8 +38,6 @@ export function OrderTableRow({ order, onStatusChange, onRefund }: OrderTableRow
   const status = statusConfig[order.order_status]
   const createdAt = new Date(order.created_at)
   const timeAgo = formatDistanceToNow(createdAt, { addSuffix: false })
-  
-  const canRefund = order.payment_status === 'succeeded' && order.order_status !== 'cancelled'
 
   const handleRefundClick = () => {
     setIsRefundDialogOpen(true)
@@ -49,7 +45,7 @@ export function OrderTableRow({ order, onStatusChange, onRefund }: OrderTableRow
 
   const handleRefundConfirm = async () => {
     if (!onRefund) return
-    
+
     setIsRefunding(true)
     try {
       await onRefund(order.id)
@@ -81,7 +77,7 @@ export function OrderTableRow({ order, onStatusChange, onRefund }: OrderTableRow
         />
       </td>
       <td className="px-4 py-3.5">
-        <OrderItemsPopover items={order.items} />
+        <OrderItemsInline items={order.items} maxVisibleItems={3} />
       </td>
       <td className="px-4 py-3.5">
         <span className="text-sm font-medium text-foreground">
@@ -99,24 +95,13 @@ export function OrderTableRow({ order, onStatusChange, onRefund }: OrderTableRow
         </span>
       </td>
       <td className="px-4 py-3.5">
-        <div className="flex items-center gap-2">
-          <OrderStatusDropdown
-            currentStatus={order.order_status}
-            onStatusChange={(newStatus) => onStatusChange(order.id, newStatus)}
-          />
-          {canRefund && onRefund && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleRefundClick}
-              className="h-8 px-3 text-xs font-medium border-destructive/50 text-destructive hover:bg-destructive/10"
-              disabled={isRefunding}
-            >
-              <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
-              Refund
-            </Button>
-          )}
-        </div>
+        <OrderActionsDropdown
+          currentStatus={order.order_status}
+          paymentStatus={order.payment_status}
+          onStatusChange={(newStatus) => onStatusChange(order.id, newStatus)}
+          onRefundClick={onRefund ? handleRefundClick : undefined}
+          disabled={isRefunding}
+        />
       </td>
       <RefundConfirmationDialog
         open={isRefundDialogOpen}

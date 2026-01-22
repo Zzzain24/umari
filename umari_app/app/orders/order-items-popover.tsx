@@ -7,6 +7,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { useIsMobile } from "@/hooks/use-mobile"
+import { OrderItemsInline } from "./order-items-inline"
 
 interface OrderItemsPopoverProps {
   items: CartItem[]
@@ -23,18 +24,15 @@ export function OrderItemsPopover({ items }: OrderItemsPopoverProps) {
     }).format(amount)
   }
 
-  // Create summary text for trigger
-  const firstItem = items[0]
-  const summaryText = firstItem
-    ? `${firstItem.quantity}x ${firstItem.itemName}${items.length > 1 ? ` +${items.length - 1}` : ''}`
-    : 'No items'
-
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <button className="text-sm text-foreground text-left truncate max-w-[200px] underline underline-offset-2">
-          {summaryText}
-        </button>
+        <div className="cursor-pointer hover:bg-accent/20 transition-colors rounded-sm p-1 -m-1">
+          <OrderItemsInline
+            items={items}
+            maxVisibleItems={isMobile ? undefined : 3}
+          />
+        </div>
       </PopoverTrigger>
       <PopoverContent 
         align={isMobile ? "center" : "start"} 

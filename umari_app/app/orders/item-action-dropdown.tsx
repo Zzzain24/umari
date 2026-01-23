@@ -17,6 +17,7 @@ interface ItemActionDropdownProps {
   onStatusChange: (status: Order['order_status']) => void
   onRefundClick?: () => void
   disabled?: boolean
+  isRefunded?: boolean
 }
 
 const statusOptions: {
@@ -33,9 +34,10 @@ export function ItemActionDropdown({
   paymentStatus,
   onStatusChange,
   onRefundClick,
-  disabled
+  disabled,
+  isRefunded = false
 }: ItemActionDropdownProps) {
-  const canRefund = paymentStatus === 'succeeded' && currentStatus !== 'cancelled' && onRefundClick
+  const canRefund = paymentStatus === 'succeeded' && currentStatus !== 'cancelled' && !isRefunded && onRefundClick
 
   return (
     <DropdownMenu>

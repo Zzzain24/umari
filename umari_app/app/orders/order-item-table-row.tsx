@@ -154,6 +154,7 @@ export function OrderItemTableRow({
           onStatusChange={(newStatus) => onStatusChange(order.id, item.id, newStatus)}
           onRefundClick={onRefund ? handleRefundClick : undefined}
           disabled={isRefunding}
+          isRefunded={!!item.refunded_amount}
         />
       </td>
       <RefundConfirmationDialog

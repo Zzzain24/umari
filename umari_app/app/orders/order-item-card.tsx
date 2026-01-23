@@ -152,6 +152,7 @@ export function OrderItemCard({
             onStatusChange={(newStatus) => onStatusChange(order.id, item.id, newStatus)}
             onRefundClick={onRefund ? handleRefundClick : undefined}
             disabled={isRefunding}
+            isRefunded={!!item.refunded_amount}
           />
         </div>
       </div>

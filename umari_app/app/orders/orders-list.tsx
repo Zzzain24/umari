@@ -45,11 +45,15 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
     const labelMap = new Map<string, { name: string; color: string }>()
     orders.forEach(order =>
       order.items.forEach(item => {
-        const labelName = item.label_name || 'Uncategorized'
-        const labelColor = item.label_color || '#9CA3AF'
-        if (!labelMap.has(labelName)) {
-          labelMap.set(labelName, { name: labelName, color: labelColor })
+        // Only add label if it actually exists (not null/undefined/empty)
+        if (item.label_name && item.label_name.trim() !== '') {
+          const labelName = item.label_name
+          const labelColor = item.label_color || '#9CA3AF'
+          if (!labelMap.has(labelName)) {
+            labelMap.set(labelName, { name: labelName, color: labelColor })
+          }
         }
+        // Note: We're not adding 'Uncategorized' here - only show actual labels
       })
     )
     return Array.from(labelMap.values())
@@ -114,7 +118,60 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
         .order('created_at', { ascending: false })
 
       if (error) throw error
-      setOrders(data || [])
+      
+      const fetchedOrders = data || []
+      
+      // Enrich orders with label_name from menu_items if missing
+      const menuItemIdsToLookup = new Set<string>()
+      fetchedOrders.forEach((order: Order) => {
+        order.items?.forEach((item) => {
+          if (!item.label_name && item.menuItemId) {
+            menuItemIdsToLookup.add(item.menuItemId)
+          }
+        })
+      })
+
+      // Fetch menu items for missing label_names
+      const labelNameMap = new Map<string, { label_name: string | null; label_color: string | null }>()
+      if (menuItemIdsToLookup.size > 0) {
+        const { data: menuItems } = await supabase
+          .from('menu_items')
+          .select('id, label_name, label_color')
+          .in('id', Array.from(menuItemIdsToLookup))
+
+        menuItems?.forEach(item => {
+          labelNameMap.set(item.id, {
+            label_name: item.label_name,
+            label_color: item.label_color
+          })
+        })
+      }
+
+      // Enrich orders with label_name where missing
+      const enrichedOrders = fetchedOrders.map((order: Order) => {
+        if (!order.items) return order
+
+        const enrichedItems = order.items.map((item) => {
+          if (!item.label_name && item.menuItemId) {
+            const menuItemData = labelNameMap.get(item.menuItemId)
+            if (menuItemData) {
+              return {
+                ...item,
+                label_name: menuItemData.label_name || undefined,
+                label_color: item.label_color || menuItemData.label_color || '#9CA3AF'
+              }
+            }
+          }
+          return item
+        })
+
+        return {
+          ...order,
+          items: enrichedItems
+        }
+      })
+
+      setOrders(enrichedOrders)
     } catch (error: any) {
       toast({
         title: "Error",

@@ -63,21 +63,25 @@ export async function POST(request: Request) {
 
     // Send status update email if status changed to "ready" (not "cancelled" - that's handled by refund endpoints)
     if (newStatus === 'ready' && order.customer_email && order.customer_name) {
-      // Fetch menu name for email context
-      const { data: menuData } = await supabaseAdmin
-        .from('menus')
-        .select('name')
-        .eq('id', order.menu_id)
-        .single()
+      // Fetch menu name for email context (only if menu_id exists)
+      let menuName = null
+      if (order.menu_id) {
+        const { data: menuData } = await supabaseAdmin
+          .from('menus')
+          .select('name')
+          .eq('id', order.menu_id)
+          .single()
+        menuName = menuData?.name || null
+      }
 
-      const menuName = menuData?.name || order.business_name || 'Your Business'
+      const businessName = menuName || order.business_name || 'Your Business'
 
       // Send email (await to ensure it completes in serverless environment)
       await sendOrderStatusUpdateEmail({
         orderNumber: order.order_number,
         customerName: order.customer_name,
         customerEmail: order.customer_email,
-        businessName: order.business_name || menuName,
+        businessName,
         items: order.items as any[],
         subtotal: order.subtotal,
         total: order.total,

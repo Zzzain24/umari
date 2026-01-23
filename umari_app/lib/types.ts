@@ -128,7 +128,7 @@ export interface PaymentSettings {
 export interface Order {
   id: string
   order_number: string
-  menu_id: string
+  menu_id: string | null
   customer_user_id: string | null
   business_user_id: string
   items: CartItem[]

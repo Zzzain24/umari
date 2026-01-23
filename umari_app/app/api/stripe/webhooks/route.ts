@@ -114,21 +114,25 @@ export async function POST(request: NextRequest) {
 
           // Send refund email asynchronously if customer email exists
           if (fullOrder && fullOrder.customer_email && fullOrder.customer_name) {
-            // Fetch menu name for email context
-            const { data: menuData } = await supabaseAdmin
-              .from('menus')
-              .select('name')
-              .eq('id', fullOrder.menu_id)
-              .single()
+            // Fetch menu name for email context (only if menu_id exists)
+            let menuName = null
+            if (fullOrder.menu_id) {
+              const { data: menuData } = await supabaseAdmin
+                .from('menus')
+                .select('name')
+                .eq('id', fullOrder.menu_id)
+                .single()
+              menuName = menuData?.name || null
+            }
 
-            const menuName = menuData?.name || fullOrder.business_name || 'Your Business'
+            const businessName = menuName || fullOrder.business_name || 'Your Business'
 
             // Send email asynchronously (don't block webhook response)
             sendOrderRefundEmail({
               orderNumber: fullOrder.order_number,
               customerName: fullOrder.customer_name,
               customerEmail: fullOrder.customer_email,
-              businessName: fullOrder.business_name || menuName,
+              businessName,
               items: fullOrder.items as any[],
               subtotal: fullOrder.subtotal,
               total: fullOrder.total,

@@ -45,11 +45,15 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
     const labelMap = new Map<string, { name: string; color: string }>()
     orders.forEach(order =>
       order.items.forEach(item => {
-        const labelName = item.label_name || 'Uncategorized'
-        const labelColor = item.label_color || '#9CA3AF'
-        if (!labelMap.has(labelName)) {
-          labelMap.set(labelName, { name: labelName, color: labelColor })
+        // Only add label if it actually exists (not null/undefined/empty)
+        if (item.label_name && item.label_name.trim() !== '') {
+          const labelName = item.label_name
+          const labelColor = item.label_color || '#9CA3AF'
+          if (!labelMap.has(labelName)) {
+            labelMap.set(labelName, { name: labelName, color: labelColor })
+          }
         }
+        // Note: We're not adding 'Uncategorized' here - only show actual labels
       })
     )
     return Array.from(labelMap.values())
@@ -114,7 +118,60 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
         .order('created_at', { ascending: false })
 
       if (error) throw error
-      setOrders(data || [])
+      
+      const fetchedOrders = data || []
+      
+      // Enrich orders with label_name from menu_items if missing
+      const menuItemIdsToLookup = new Set<string>()
+      fetchedOrders.forEach((order: Order) => {
+        order.items?.forEach((item) => {
+          if (!item.label_name && item.menuItemId) {
+            menuItemIdsToLookup.add(item.menuItemId)
+          }
+        })
+      })
+
+      // Fetch menu items for missing label_names
+      const labelNameMap = new Map<string, { label_name: string | null; label_color: string | null }>()
+      if (menuItemIdsToLookup.size > 0) {
+        const { data: menuItems } = await supabase
+          .from('menu_items')
+          .select('id, label_name, label_color')
+          .in('id', Array.from(menuItemIdsToLookup))
+
+        menuItems?.forEach(item => {
+          labelNameMap.set(item.id, {
+            label_name: item.label_name,
+            label_color: item.label_color
+          })
+        })
+      }
+
+      // Enrich orders with label_name where missing
+      const enrichedOrders = fetchedOrders.map((order: Order) => {
+        if (!order.items) return order
+
+        const enrichedItems = order.items.map((item) => {
+          if (!item.label_name && item.menuItemId) {
+            const menuItemData = labelNameMap.get(item.menuItemId)
+            if (menuItemData) {
+              return {
+                ...item,
+                label_name: menuItemData.label_name || undefined,
+                label_color: item.label_color || menuItemData.label_color || '#9CA3AF'
+              }
+            }
+          }
+          return item
+        })
+
+        return {
+          ...order,
+          items: enrichedItems
+        }
+      })
+
+      setOrders(enrichedOrders)
     } catch (error: any) {
       toast({
         title: "Error",
@@ -168,6 +225,65 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
     }
   }
 
+  const handleItemStatusUpdate = async (orderId: string, itemId: string, newStatus: Order['order_status']) => {
+    const previousOrders = orders
+    // Optimistically update the item status in the order
+    setOrders(prev => prev.map(order => {
+      if (order.id === orderId) {
+        const updatedItems = order.items.map(item =>
+          item.id === itemId
+            ? { ...item, item_status: newStatus }
+            : item
+        )
+        return {
+          ...order,
+          items: updatedItems,
+          updated_at: new Date().toISOString()
+        }
+      }
+      return order
+    }))
+
+    try {
+      const response = await fetch('/api/orders/update-item-status', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ orderId, itemId, newStatus }),
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        // Update with the server response to get the derived order status
+        setOrders(prev => prev.map(order =>
+          order.id === orderId
+            ? { ...order, ...result.order, updated_at: new Date().toISOString() }
+            : order
+        ))
+        toast({
+          title: "Item status updated",
+          description: `Item marked as ${newStatus}`,
+        })
+      } else {
+        setOrders(previousOrders)
+        toast({
+          title: "Error",
+          description: result.error || "Failed to update item status",
+          variant: "destructive"
+        })
+      }
+    } catch (error: any) {
+      setOrders(previousOrders)
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update item status",
+        variant: "destructive"
+      })
+    }
+  }
+
   const handleRefresh = () => {
     handleDateRangeChange(dateRange)
   }
@@ -214,6 +330,70 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
       toast({
         title: "Error",
         description: error.message || "Failed to refund order",
+        variant: "destructive"
+      })
+    }
+  }
+
+  const handleItemRefund = async (orderId: string, itemId: string) => {
+    const previousOrders = orders
+    // Optimistically update the item status
+    setOrders(prev => prev.map(order => {
+      if (order.id === orderId) {
+        const updatedItems = order.items.map(item =>
+          item.id === itemId
+            ? {
+                ...item,
+                item_status: 'cancelled' as const,
+                refunded_amount: item.totalPrice,
+                refunded_at: new Date().toISOString()
+              }
+            : item
+        )
+        return {
+          ...order,
+          items: updatedItems,
+          updated_at: new Date().toISOString()
+        }
+      }
+      return order
+    }))
+
+    try {
+      const response = await fetch('/api/orders/refund-item', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ orderId, itemId }),
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        // Update with the server response
+        setOrders(prev => prev.map(order =>
+          order.id === orderId
+            ? { ...order, ...result.order, updated_at: new Date().toISOString() }
+            : order
+        ))
+        toast({
+          title: "Item refunded",
+          description: "The item has been refunded.",
+        })
+      } else {
+        setOrders(previousOrders)
+        toast({
+          title: "Error",
+          description: result.error || "Failed to refund item",
+          variant: "destructive"
+        })
+      }
+    } catch (error: any) {
+      setOrders(previousOrders)
+      toast({
+        title: "Error",
+        description: error.message || "Failed to refund item",
         variant: "destructive"
       })
     }
@@ -397,8 +577,8 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
                           order={order}
                           item={item}
                           isFirstItemInOrder={isFirstItemInOrder}
-                          onStatusChange={handleStatusUpdate}
-                          onRefund={handleRefund}
+                          onStatusChange={handleItemStatusUpdate}
+                          onRefund={handleItemRefund}
                         />
                       ))}
                     </tbody>
@@ -421,8 +601,8 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
                         order={order}
                         item={item}
                         isFirstItemInOrder={isFirstItemInOrder}
-                        onStatusChange={handleStatusUpdate}
-                        onRefund={handleRefund}
+                        onStatusChange={handleItemStatusUpdate}
+                        onRefund={handleItemRefund}
                       />
                     </motion.div>
                   ))}
@@ -474,8 +654,8 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
                           order={order}
                           item={item}
                           isFirstItemInOrder={isFirstItemInOrder}
-                          onStatusChange={handleStatusUpdate}
-                          onRefund={handleRefund}
+                          onStatusChange={handleItemStatusUpdate}
+                          onRefund={handleItemRefund}
                         />
                       ))}
                     </tbody>
@@ -498,8 +678,8 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
                         order={order}
                         item={item}
                         isFirstItemInOrder={isFirstItemInOrder}
-                        onStatusChange={handleStatusUpdate}
-                        onRefund={handleRefund}
+                        onStatusChange={handleItemStatusUpdate}
+                        onRefund={handleItemRefund}
                       />
                     </motion.div>
                   ))}

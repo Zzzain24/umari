@@ -12,8 +12,8 @@ interface OrderItemCardProps {
   order: Order
   item: CartItem
   isFirstItemInOrder: boolean
-  onStatusChange: (orderId: string, newStatus: Order['order_status']) => void
-  onRefund?: (orderId: string) => void
+  onStatusChange: (orderId: string, itemId: string, newStatus: Order['order_status']) => void
+  onRefund?: (orderId: string, itemId: string) => void
 }
 
 const statusConfig: Record<'received' | 'ready' | 'cancelled', {
@@ -57,7 +57,7 @@ export function OrderItemCard({
 
     setIsRefunding(true)
     try {
-      await onRefund(order.id)
+      await onRefund(order.id, item.id)
       setIsRefundDialogOpen(false)
     } finally {
       setIsRefunding(false)
@@ -75,7 +75,7 @@ export function OrderItemCard({
     <div className="bg-card rounded-xl border border-border/60 hover:border-border transition-colors">
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-border/40">
-        <span className={`text-base font-semibold ${isFirstItemInOrder ? 'text-foreground' : 'text-muted-foreground/70'}`}>
+        <span className="text-base font-semibold text-foreground">
           #{order.order_number}
         </span>
         <span className={`px-3 py-1 rounded-full text-xs font-medium ${status.className}`}>
@@ -85,7 +85,7 @@ export function OrderItemCard({
 
       {/* Content - Key Value Pairs */}
       <div className="px-5 py-3 space-y-3">
-        <div className={`flex justify-between items-center py-1.5 border-b border-border/30 ${!isFirstItemInOrder ? 'opacity-70' : ''}`}>
+        <div className="flex justify-between items-center py-1.5 border-b border-border/30">
           <span className="text-sm text-muted-foreground">Customer</span>
           <CustomerPopover
             name={order.customer_name}
@@ -147,11 +147,12 @@ export function OrderItemCard({
       <div className="px-5 py-3 border-t border-border/40 flex items-center justify-center sm:justify-start">
         <div className="flex-1 sm:flex-none">
           <ItemActionDropdown
-            currentStatus={order.order_status}
+            currentStatus={itemStatus}
             paymentStatus={order.payment_status}
-            onStatusChange={(newStatus) => onStatusChange(order.id, newStatus)}
+            onStatusChange={(newStatus) => onStatusChange(order.id, item.id, newStatus)}
             onRefundClick={onRefund ? handleRefundClick : undefined}
             disabled={isRefunding}
+            isRefunded={!!item.refunded_amount}
           />
         </div>
       </div>
@@ -160,8 +161,8 @@ export function OrderItemCard({
         open={isRefundDialogOpen}
         onOpenChange={setIsRefundDialogOpen}
         onConfirm={handleRefundConfirm}
-        orderTotal={order.total}
-        platformFee={order.platform_fee}
+        orderTotal={item.totalPrice}
+        platformFee={0}
         isLoading={isRefunding}
       />
     </div>

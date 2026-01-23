@@ -12,8 +12,8 @@ interface OrderItemTableRowProps {
   order: Order
   item: CartItem
   isFirstItemInOrder: boolean
-  onStatusChange: (orderId: string, newStatus: Order['order_status']) => void
-  onRefund?: (orderId: string) => void
+  onStatusChange: (orderId: string, itemId: string, newStatus: Order['order_status']) => void
+  onRefund?: (orderId: string, itemId: string) => void
 }
 
 const statusConfig: Record<'received' | 'ready' | 'cancelled', {
@@ -57,7 +57,7 @@ export function OrderItemTableRow({
 
     setIsRefunding(true)
     try {
-      await onRefund(order.id)
+      await onRefund(order.id, item.id)
       setIsRefundDialogOpen(false)
     } finally {
       setIsRefunding(false)
@@ -71,29 +71,22 @@ export function OrderItemTableRow({
     }).format(amount)
   }
 
-  // Determine text color class based on whether this is first item
-  const textColorClass = isFirstItemInOrder
-    ? 'text-foreground'
-    : 'text-muted-foreground/60'
-
   return (
     <tr className="border-b border-border/40 hover:bg-accent/30 transition-colors">
       {/* Order ID */}
       <td className="px-4 py-3.5">
-        <span className={`text-sm font-medium ${textColorClass}`}>
+        <span className="text-sm font-medium text-foreground">
           #{order.order_number}
         </span>
       </td>
 
       {/* Customer */}
       <td className="px-4 py-3.5">
-        <div className={!isFirstItemInOrder ? 'opacity-60' : ''}>
-          <CustomerPopover
-            name={order.customer_name}
-            email={order.customer_email}
-            phone={order.customer_phone}
-          />
-        </div>
+        <CustomerPopover
+          name={order.customer_name}
+          email={order.customer_email}
+          phone={order.customer_phone}
+        />
       </td>
 
       {/* Item Details */}
@@ -156,9 +149,9 @@ export function OrderItemTableRow({
       {/* Item Actions */}
       <td className="px-4 py-3.5">
         <ItemActionDropdown
-          currentStatus={order.order_status}
+          currentStatus={itemStatus}
           paymentStatus={order.payment_status}
-          onStatusChange={(newStatus) => onStatusChange(order.id, newStatus)}
+          onStatusChange={(newStatus) => onStatusChange(order.id, item.id, newStatus)}
           onRefundClick={onRefund ? handleRefundClick : undefined}
           disabled={isRefunding}
         />
@@ -167,8 +160,8 @@ export function OrderItemTableRow({
         open={isRefundDialogOpen}
         onOpenChange={setIsRefundDialogOpen}
         onConfirm={handleRefundConfirm}
-        orderTotal={order.total}
-        platformFee={order.platform_fee}
+        orderTotal={item.totalPrice}
+        platformFee={0}
         isLoading={isRefunding}
       />
     </tr>

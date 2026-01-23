@@ -225,6 +225,65 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
     }
   }
 
+  const handleItemStatusUpdate = async (orderId: string, itemId: string, newStatus: Order['order_status']) => {
+    const previousOrders = orders
+    // Optimistically update the item status in the order
+    setOrders(prev => prev.map(order => {
+      if (order.id === orderId) {
+        const updatedItems = order.items.map(item =>
+          item.id === itemId
+            ? { ...item, item_status: newStatus }
+            : item
+        )
+        return {
+          ...order,
+          items: updatedItems,
+          updated_at: new Date().toISOString()
+        }
+      }
+      return order
+    }))
+
+    try {
+      const response = await fetch('/api/orders/update-item-status', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ orderId, itemId, newStatus }),
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        // Update with the server response to get the derived order status
+        setOrders(prev => prev.map(order =>
+          order.id === orderId
+            ? { ...order, ...result.order, updated_at: new Date().toISOString() }
+            : order
+        ))
+        toast({
+          title: "Item status updated",
+          description: `Item marked as ${newStatus}`,
+        })
+      } else {
+        setOrders(previousOrders)
+        toast({
+          title: "Error",
+          description: result.error || "Failed to update item status",
+          variant: "destructive"
+        })
+      }
+    } catch (error: any) {
+      setOrders(previousOrders)
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update item status",
+        variant: "destructive"
+      })
+    }
+  }
+
   const handleRefresh = () => {
     handleDateRangeChange(dateRange)
   }
@@ -271,6 +330,70 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
       toast({
         title: "Error",
         description: error.message || "Failed to refund order",
+        variant: "destructive"
+      })
+    }
+  }
+
+  const handleItemRefund = async (orderId: string, itemId: string) => {
+    const previousOrders = orders
+    // Optimistically update the item status
+    setOrders(prev => prev.map(order => {
+      if (order.id === orderId) {
+        const updatedItems = order.items.map(item =>
+          item.id === itemId
+            ? {
+                ...item,
+                item_status: 'cancelled' as const,
+                refunded_amount: item.totalPrice,
+                refunded_at: new Date().toISOString()
+              }
+            : item
+        )
+        return {
+          ...order,
+          items: updatedItems,
+          updated_at: new Date().toISOString()
+        }
+      }
+      return order
+    }))
+
+    try {
+      const response = await fetch('/api/orders/refund-item', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ orderId, itemId }),
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        // Update with the server response
+        setOrders(prev => prev.map(order =>
+          order.id === orderId
+            ? { ...order, ...result.order, updated_at: new Date().toISOString() }
+            : order
+        ))
+        toast({
+          title: "Item refunded",
+          description: "The item has been refunded.",
+        })
+      } else {
+        setOrders(previousOrders)
+        toast({
+          title: "Error",
+          description: result.error || "Failed to refund item",
+          variant: "destructive"
+        })
+      }
+    } catch (error: any) {
+      setOrders(previousOrders)
+      toast({
+        title: "Error",
+        description: error.message || "Failed to refund item",
         variant: "destructive"
       })
     }
@@ -454,8 +577,8 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
                           order={order}
                           item={item}
                           isFirstItemInOrder={isFirstItemInOrder}
-                          onStatusChange={handleStatusUpdate}
-                          onRefund={handleRefund}
+                          onStatusChange={handleItemStatusUpdate}
+                          onRefund={handleItemRefund}
                         />
                       ))}
                     </tbody>
@@ -478,8 +601,8 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
                         order={order}
                         item={item}
                         isFirstItemInOrder={isFirstItemInOrder}
-                        onStatusChange={handleStatusUpdate}
-                        onRefund={handleRefund}
+                        onStatusChange={handleItemStatusUpdate}
+                        onRefund={handleItemRefund}
                       />
                     </motion.div>
                   ))}
@@ -531,8 +654,8 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
                           order={order}
                           item={item}
                           isFirstItemInOrder={isFirstItemInOrder}
-                          onStatusChange={handleStatusUpdate}
-                          onRefund={handleRefund}
+                          onStatusChange={handleItemStatusUpdate}
+                          onRefund={handleItemRefund}
                         />
                       ))}
                     </tbody>
@@ -555,8 +678,8 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
                         order={order}
                         item={item}
                         isFirstItemInOrder={isFirstItemInOrder}
-                        onStatusChange={handleStatusUpdate}
-                        onRefund={handleRefund}
+                        onStatusChange={handleItemStatusUpdate}
+                        onRefund={handleItemRefund}
                       />
                     </motion.div>
                   ))}

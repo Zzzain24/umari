@@ -72,7 +72,7 @@ export function ItemActionDropdown({
               className="flex items-center gap-2 text-sm cursor-pointer text-destructive focus:text-destructive"
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              Refund Order
+              Refund Item
             </DropdownMenuItem>
           </>
         )}

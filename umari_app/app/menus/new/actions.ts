@@ -10,6 +10,7 @@ export interface CreateMenuData {
     price: number
     is_sold_out?: boolean
     allow_special_instructions?: boolean
+    label_name?: string
     label_color?: string
     options?: Array<{
       name: string
@@ -75,22 +76,18 @@ export async function createMenu(data: CreateMenuData) {
     // Create menu items
     const menuItems = data.items.map(item => {
       // Validate and set label_color
-      let labelColor = '#9CA3AF' // default
-      if (item.label_color) {
-        if (hexColorRegex.test(item.label_color)) {
-          labelColor = item.label_color.toUpperCase()
-        } else {
-          // Invalid color, use default
-          labelColor = '#9CA3AF'
-        }
+      let labelColor = item.label_color || '#9CA3AF'
+      if (labelColor && !hexColorRegex.test(labelColor)) {
+        labelColor = '#9CA3AF'
       }
-      
+
       return {
         menu_id: menu.id,
         name: item.name.trim(),
         price: item.price,
         is_sold_out: item.is_sold_out || false,
         allow_special_instructions: item.allow_special_instructions ?? true,
+        label_name: item.label_name?.trim() || null,
         label_color: labelColor,
       }
     })

@@ -29,7 +29,8 @@ export interface MenuItem {
   price: number
   is_sold_out?: boolean
   allow_special_instructions?: boolean
-  label_color?: string
+  label_name?: string // Category label name (e.g., "Matcha", "Coffee")
+  label_color?: string // Hex color code for the label
   created_at: string
   updated_at: string
   options?: MenuItemOption[]
@@ -53,6 +54,11 @@ export interface CartItem {
   totalPrice: number
   specialInstructions?: string
   label_color?: string
+  label_name?: string // Label name for display (e.g., "Matcha", "Coffee")
+  // Item-level order management fields
+  item_status?: 'received' | 'ready' | 'cancelled' // defaults to order status if not set
+  refunded_amount?: number // for tracking partial refunds
+  refunded_at?: string // ISO timestamp
 }
 
 export interface MenuItemForCart {
@@ -62,6 +68,7 @@ export interface MenuItemForCart {
   is_sold_out?: boolean
   allow_special_instructions?: boolean
   label_color?: string
+  label_name?: string
   options?: MenuItemOption[]
 }
 

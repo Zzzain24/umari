@@ -23,6 +23,7 @@ interface MenuItem {
   price: number
   is_sold_out?: boolean
   allow_special_instructions?: boolean
+  label_name?: string
   label_color?: string
   options?: MenuItemOption[]
 }
@@ -50,6 +51,7 @@ export function MenuForm({ menuId, initialMenuName = '', initialItems }: MenuFor
             price: 0,
             is_sold_out: false,
             allow_special_instructions: true,
+            label_name: '',
             label_color: '#9CA3AF',
             options: [],
           },
@@ -73,6 +75,7 @@ export function MenuForm({ menuId, initialMenuName = '', initialItems }: MenuFor
         price: 0,
         is_sold_out: false,
         allow_special_instructions: true,
+        label_name: '',
         label_color: '#9CA3AF',
         options: [],
       },
@@ -150,6 +153,7 @@ export function MenuForm({ menuId, initialMenuName = '', initialItems }: MenuFor
             price: item.price,
             is_sold_out: item.is_sold_out || false,
             allow_special_instructions: item.allow_special_instructions ?? true,
+            label_name: item.label_name,
             label_color: item.label_color || '#9CA3AF',
             options: item.options?.map(opt => ({
               id: opt.id,
@@ -186,6 +190,7 @@ export function MenuForm({ menuId, initialMenuName = '', initialItems }: MenuFor
             price: item.price,
             is_sold_out: item.is_sold_out || false,
             allow_special_instructions: item.allow_special_instructions ?? true,
+            label_name: item.label_name,
             label_color: item.label_color || '#9CA3AF',
             options: item.options?.map(opt => ({
               name: opt.name.trim(),
@@ -242,10 +247,8 @@ export function MenuForm({ menuId, initialMenuName = '', initialItems }: MenuFor
 
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* Menu Name */}
-            <div className="space-y-2">
-              <Label htmlFor="menu-name" className="text-foreground">
-                Menu Name
-              </Label>
+            <div className="space-y-3">
+              <h2 className="text-xl font-semibold text-foreground">Menu Name</h2>
               <Input
                 id="menu-name"
                 value={menuName}

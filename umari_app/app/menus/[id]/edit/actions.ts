@@ -12,6 +12,7 @@ export interface UpdateMenuData {
     price: number
     is_sold_out?: boolean
     allow_special_instructions?: boolean
+    label_name?: string
     label_color?: string
     options?: Array<{
       id?: string
@@ -162,6 +163,7 @@ export async function updateMenu(
             price: item.price,
             is_sold_out: item.is_sold_out || false,
             allow_special_instructions: item.allow_special_instructions ?? true,
+            label_name: item.label_name?.trim() || null,
             label_color: labelColor,
           })
           .eq('id', item.id)
@@ -266,6 +268,7 @@ export async function updateMenu(
             price: item.price,
             is_sold_out: item.is_sold_out || false,
             allow_special_instructions: item.allow_special_instructions ?? true,
+            label_name: item.label_name?.trim() || null,
             label_color: labelColor,
           })
           .select()

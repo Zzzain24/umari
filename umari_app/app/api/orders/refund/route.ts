@@ -3,6 +3,7 @@ import Stripe from 'stripe'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { sendOrderRefundEmail } from '@/lib/email'
+import { CartItem } from '@/lib/types'
 
 const supabaseAdmin = createAdminClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -67,6 +68,15 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Fetch full order details to get items array
+    const { data: fullOrderData } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('id', orderId)
+      .single()
+
+    const refundTimestamp = new Date().toISOString()
+
     if (!order.stripe_payment_intent_id) {
       return NextResponse.json(
         { success: false, error: 'Payment intent ID not found for this order' },
@@ -113,13 +123,22 @@ export async function POST(request: NextRequest) {
         )
       }
 
-      // Update order in database (both payment_status to 'refunded' AND order_status to 'cancelled')
+      // Mark all items as cancelled with refund tracking
+      const updatedItems = (fullOrderData?.items as CartItem[] || []).map(item => ({
+        ...item,
+        item_status: 'cancelled' as const,
+        refunded_amount: item.totalPrice,
+        refunded_at: refundTimestamp,
+      }))
+
+      // Update order in database (payment_status, order_status, and items)
       const { error: updateError } = await supabase
         .from('orders')
         .update({
           payment_status: 'refunded',
           order_status: 'cancelled',
-          updated_at: new Date().toISOString(),
+          items: updatedItems,
+          updated_at: refundTimestamp,
         })
         .eq('id', orderId)
 

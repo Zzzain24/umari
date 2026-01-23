@@ -18,10 +18,11 @@ interface MenuItemEditorProps {
     price: number
     is_sold_out?: boolean
     allow_special_instructions?: boolean
+    label_name?: string
     label_color?: string
     options?: MenuItemOption[]
   }
-  onUpdate: (item: { id?: string; name: string; price: number; is_sold_out?: boolean; allow_special_instructions?: boolean; label_color?: string; options?: MenuItemOption[] }) => void
+  onUpdate: (item: { id?: string; name: string; price: number; is_sold_out?: boolean; allow_special_instructions?: boolean; label_name?: string; label_color?: string; options?: MenuItemOption[] }) => void
   onDelete: () => void
 }
 
@@ -184,11 +185,26 @@ export function MenuItemEditor({ item, onUpdate, onDelete }: MenuItemEditorProps
         </div>
       </div>
 
-      <div>
-        <ColorPicker
-          value={item.label_color || '#9CA3AF'}
-          onChange={(color) => onUpdate({ ...item, label_color: color })}
-        />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label className="text-foreground">Label Color</Label>
+          <ColorPicker
+            value={item.label_color || '#9CA3AF'}
+            onChange={(color) => onUpdate({ ...item, label_color: color })}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor={`label-name-${item.id || Math.random()}`} className="text-foreground">
+            Label Name
+          </Label>
+          <Input
+            id={`label-name-${item.id || Math.random()}`}
+            value={item.label_name || ''}
+            onChange={(e) => onUpdate({ ...item, label_name: e.target.value })}
+            placeholder="e.g., Matcha, Coffee, Hot Food"
+            className="bg-background border-border text-foreground"
+          />
+        </div>
       </div>
 
       <div className="space-y-4">

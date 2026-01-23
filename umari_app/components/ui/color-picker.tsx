@@ -91,39 +91,36 @@ export function ColorPicker({ value = DEFAULT_COLOR, onChange, className }: Colo
 
   return (
     <div className={cn("space-y-3", className)}>
-      <div className="space-y-2">
-        <Label className="text-foreground">Label Color</Label>
-        <div className="flex items-center gap-3">
-          {/* Preview Circle */}
-          <div
-            className="w-10 h-10 rounded-full border-2 border-border shrink-0"
-            style={{ backgroundColor: isValid ? hexInput : value }}
-          />
-          {/* Hex Input */}
-          <div className="flex-1">
-            <Input
-              type="text"
-              value={hexInput}
-              onChange={handleHexChange}
-              onBlur={handleHexBlur}
-              placeholder="#9CA3AF"
-              className={cn(
-                "bg-background border-border text-foreground font-mono",
-                !isValid && "border-destructive"
-              )}
-              maxLength={7}
-            />
-            {!isValid && hexInput.length === 7 && (
-              <p className="text-xs text-destructive mt-1">Invalid hex color</p>
+      <div className="flex items-center gap-3">
+        {/* Preview Circle */}
+        <div
+          className="w-10 h-10 rounded-full border-2 border-border shrink-0"
+          style={{ backgroundColor: isValid ? hexInput : value }}
+        />
+        {/* Hex Input */}
+        <div className="flex-1">
+          <Input
+            type="text"
+            value={hexInput}
+            onChange={handleHexChange}
+            onBlur={handleHexBlur}
+            placeholder="#9CA3AF"
+            className={cn(
+              "bg-background border-border text-foreground font-mono",
+              !isValid && "border-destructive"
             )}
-          </div>
+            maxLength={7}
+          />
+          {!isValid && hexInput.length === 7 && (
+            <p className="text-xs text-destructive mt-1">Invalid hex color</p>
+          )}
         </div>
       </div>
 
       {/* Preset Colors */}
       <div className="space-y-2">
         <Label className="text-sm text-muted-foreground">Preset Colors</Label>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex items-center gap-2">
           {PRESET_COLORS.map((color) => (
             <button
               key={color.value}

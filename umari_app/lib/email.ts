@@ -267,6 +267,10 @@ export async function sendOrderRefundEmail(data: OrderEmailData) {
     const result = await resend.emails.send({
       from: FROM_EMAIL,
       to: data.customerEmail,
+      subject: `Order Cancelled & Refunded - ${data.orderNumber}`,
+      html: getEmailWrapper(content),
+    })
+
     return { success: true, id: result.data?.id }
   } catch (error: any) {
     return { success: false, error: error.message }

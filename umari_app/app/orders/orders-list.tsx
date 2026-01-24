@@ -17,8 +17,6 @@ import type { DateRange } from "react-day-picker"
 import { createClient } from "@/lib/supabase/client"
 import {
   flattenOrdersToItems,
-  isActiveOrder,
-  isReadyOrder,
   deriveOrderStatus,
   getItemStatus
 } from "@/lib/order-utils"
@@ -59,8 +57,8 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
     return Array.from(labelMap.values())
   }, [orders])
 
-  // Filter orders by search query and separate into active/ready sections
-  const { activeItems, readyItems, totalItemCount } = useMemo(() => {
+  // Filter orders by search query and show all items in a single list
+  const { allItems, totalItemCount } = useMemo(() => {
     // First, filter orders by search query
     const query = searchQuery.toLowerCase().trim()
     const searchFilteredOrders = query
@@ -70,18 +68,8 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
         )
       : orders
 
-    // Separate into active and ready orders
-    // Include refunded orders in the ready section so they're still visible
-    const active = searchFilteredOrders.filter(order => 
-      isActiveOrder(order) && order.payment_status !== 'refunded'
-    )
-    const ready = searchFilteredOrders.filter(order => 
-      isReadyOrder(order) || order.payment_status === 'refunded'
-    )
-
-    // Flatten to items
-    const activeItemsFlat = flattenOrdersToItems(active)
-    const readyItemsFlat = flattenOrdersToItems(ready)
+    // Flatten all orders to items (including cancelled/refunded)
+    const allItemsFlat = flattenOrdersToItems(searchFilteredOrders)
 
     // Apply item-level filters
     const filterItems = (items: ReturnType<typeof flattenOrdersToItems>) => {
@@ -93,13 +81,11 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
       })
     }
 
-    const filteredActive = filterItems(activeItemsFlat)
-    const filteredReady = filterItems(readyItemsFlat)
+    const filteredItems = filterItems(allItemsFlat)
 
     return {
-      activeItems: filteredActive,
-      readyItems: filteredReady,
-      totalItemCount: filteredActive.length + filteredReady.length
+      allItems: filteredItems,
+      totalItemCount: filteredItems.length
     }
   }, [orders, searchQuery, statusFilter, labelFilter])
 
@@ -539,13 +525,9 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
         </>
       ) : (
         <>
-          {/* Active Orders Section */}
-          {activeItems.length > 0 && (
+          {/* All Orders - Single Unified List */}
+          {allItems.length > 0 && (
             <div className="mt-6">
-              <h2 className="text-lg font-semibold text-foreground mb-3">
-                Active Orders ({activeItems.length} item{activeItems.length !== 1 ? 's' : ''})
-              </h2>
-
               {/* Desktop Table View */}
               <div className="hidden lg:block">
                 <div className="bg-card rounded-xl border border-border/60 overflow-hidden">
@@ -576,7 +558,7 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
                       </tr>
                     </thead>
                     <tbody>
-                      {activeItems.map(({ order, item, isFirstItemInOrder }) => (
+                      {allItems.map(({ order, item, isFirstItemInOrder }) => (
                         <OrderItemTableRow
                           key={`${order.id}-${item.id}`}
                           order={order}
@@ -595,86 +577,7 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
               {/* Mobile/Tablet Card View */}
               <div className="lg:hidden grid grid-cols-1 md:grid-cols-2 gap-4">
                 <AnimatePresence>
-                  {activeItems.map(({ order, item, isFirstItemInOrder }, index) => (
-                    <motion.div
-                      key={`${order.id}-${item.id}`}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.2, delay: index * 0.03 }}
-                    >
-                      <OrderItemCard
-                        order={order}
-                        item={item}
-                        isFirstItemInOrder={isFirstItemInOrder}
-                        onStatusChange={handleItemStatusUpdate}
-                        onRefund={handleItemRefund}
-                        onRefundOrder={handleRefund}
-                      />
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-              </div>
-            </div>
-          )}
-
-          {/* Ready for Pickup Section */}
-          {readyItems.length > 0 && (
-            <div className="mt-8">
-              <h2 className="text-lg font-semibold text-foreground mb-3">
-                Ready for Pickup ({readyItems.length} item{readyItems.length !== 1 ? 's' : ''})
-              </h2>
-
-              {/* Desktop Table View */}
-              <div className="hidden lg:block">
-                <div className="bg-card rounded-xl border border-border/60 overflow-hidden">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b border-border/60 bg-accent/30">
-                        <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                          Order ID
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                          Customer
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-[320px]">
-                          Item
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                          Price
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                          Date
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                          Status
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {readyItems.map(({ order, item, isFirstItemInOrder }) => (
-                        <OrderItemTableRow
-                          key={`${order.id}-${item.id}`}
-                          order={order}
-                          item={item}
-                          isFirstItemInOrder={isFirstItemInOrder}
-                          onStatusChange={handleItemStatusUpdate}
-                          onRefund={handleItemRefund}
-                          onRefundOrder={handleRefund}
-                        />
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              {/* Mobile/Tablet Card View */}
-              <div className="lg:hidden grid grid-cols-1 md:grid-cols-2 gap-4">
-                <AnimatePresence>
-                  {readyItems.map(({ order, item, isFirstItemInOrder }, index) => (
+                  {allItems.map(({ order, item, isFirstItemInOrder }, index) => (
                     <motion.div
                       key={`${order.id}-${item.id}`}
                       initial={{ opacity: 0, y: 10 }}

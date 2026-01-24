@@ -60,6 +60,9 @@ export async function POST(request: Request) {
       )
     }
 
+    const previousItem = items[itemIndex]
+    const previousItemStatus = previousItem.item_status || order.order_status
+
     // Update the item status
     const updatedItems = [...items]
     updatedItems[itemIndex] = {
@@ -87,10 +90,10 @@ export async function POST(request: Request) {
       throw updateError
     }
 
-    // Send email notification if order transitions to "ready"
+    // Send email notification if individual item becomes "ready"
     if (
-      previousOrderStatus !== 'ready' &&
-      newOrderStatus === 'ready' &&
+      previousItemStatus !== 'ready' &&
+      newStatus === 'ready' &&
       order.customer_email &&
       order.customer_name
     ) {
@@ -107,15 +110,15 @@ export async function POST(request: Request) {
 
       const businessName = menuName || order.business_name || 'Your Business'
 
-      // Send email (await to ensure it completes in serverless environment)
+      // Send email for the specific item that became ready
       await sendOrderStatusUpdateEmail({
         orderNumber: order.order_number,
         customerName: order.customer_name,
         customerEmail: order.customer_email,
         businessName,
-        items: updatedItems as any[],
-        subtotal: order.subtotal,
-        total: order.total,
+        items: [updatedItems[itemIndex]] as any[], // Only send the item that became ready
+        subtotal: updatedItems[itemIndex].totalPrice,
+        total: updatedItems[itemIndex].totalPrice,
         orderDate: order.created_at,
         orderStatus: 'ready',
       }).catch(() => {})

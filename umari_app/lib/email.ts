@@ -276,3 +276,74 @@ export async function sendOrderRefundEmail(data: OrderEmailData) {
     return { success: false, error: error.message }
   }
 }
+
+/**
+ * Send item refund email to customer (for individual item refunds)
+ */
+export async function sendItemRefundEmail(data: OrderEmailData & { refundedItemName: string; refundAmount: number }) {
+  if (!process.env.RESEND_API_KEY) {
+    return { success: false, error: 'Email service not configured' }
+  }
+
+  try {
+    const trackOrderUrl = `${APP_URL}/track-order?orderNumber=${encodeURIComponent(data.orderNumber)}&email=${encodeURIComponent(data.customerEmail)}`
+
+    const content = `
+    <div style="background: ${COLORS.white}; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+      <div style="background: ${COLORS.secondary}; padding: 32px; text-align: center;">
+        <h1 style="color: ${COLORS.white}; margin: 0; font-size: 24px; font-weight: 600;">Item Refunded</h1>
+      </div>
+
+      <div style="padding: 32px;">
+        <p style="font-size: 16px; margin: 0 0 24px 0; color: ${COLORS.foreground};">Hi ${data.customerName},</p>
+
+        <p style="font-size: 16px; margin: 0 0 24px 0; color: ${COLORS.foreground};">An item from your order at <strong>${data.businessName}</strong> has been refunded.</p>
+
+        <div style="background: ${COLORS.background}; padding: 20px; border-radius: 8px; margin: 24px 0;">
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+              <td style="padding: 4px 0; color: ${COLORS.muted}; font-size: 14px;">Order Number</td>
+              <td style="padding: 4px 0; text-align: right; font-family: monospace; font-size: 14px; font-weight: 600; color: ${COLORS.foreground};">${data.orderNumber}</td>
+            </tr>
+            <tr>
+              <td style="padding: 4px 0; color: ${COLORS.muted}; font-size: 14px;">Refunded Item</td>
+              <td style="padding: 4px 0; text-align: right; font-size: 14px; font-weight: 500; color: ${COLORS.foreground};">${data.refundedItemName}</td>
+            </tr>
+            <tr>
+              <td style="padding: 4px 0; color: ${COLORS.muted}; font-size: 14px;">Refund Amount</td>
+              <td style="padding: 4px 0; text-align: right; font-size: 16px; font-weight: 600; color: ${COLORS.foreground};">$${data.refundAmount.toFixed(2)}</td>
+            </tr>
+          </table>
+        </div>
+
+        <div style="background: #f0f9ff; border-left: 4px solid ${COLORS.secondary}; padding: 16px; margin: 24px 0; border-radius: 0 8px 8px 0;">
+          <p style="margin: 0; font-size: 14px; color: ${COLORS.foreground};">
+            <strong>Refund Timeline:</strong> The refund will appear in your original payment method within 5-10 business days, depending on your bank.
+          </p>
+        </div>
+
+        <div style="text-align: center; margin: 32px 0 24px 0;">
+          <a href="${trackOrderUrl}" style="background: ${COLORS.secondary}; color: ${COLORS.white}; padding: 14px 32px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: 500; font-size: 15px;">
+            View Order Details
+          </a>
+        </div>
+
+        <p style="font-size: 14px; color: ${COLORS.muted}; margin: 24px 0 0 0; padding-top: 24px; border-top: 1px solid ${COLORS.border};">
+          If you have any questions about this refund, please contact ${data.businessName} directly.
+        </p>
+      </div>
+    </div>
+    `
+
+    const result = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: data.customerEmail,
+      subject: `Item Refunded - ${data.orderNumber}`,
+      html: getEmailWrapper(content),
+    })
+
+    return { success: true, id: result.data?.id }
+  } catch (error: any) {
+    return { success: false, error: error.message }
+  }
+}

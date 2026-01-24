@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
-import { sendOrderRefundEmail } from '@/lib/email'
+import { sendOrderRefundEmail, sendItemRefundEmail } from '@/lib/email'
 import { deriveOrderStatus } from '@/lib/order-utils'
 import { CartItem } from '@/lib/types'
 
@@ -182,8 +182,8 @@ export async function POST(request: NextRequest) {
         .eq('id', orderId)
         .single()
 
-      // Send refund email if all items are refunded (only once when order becomes fully refunded)
-      if (allItemsRefunded && order.customer_email && order.customer_name) {
+      // Send refund email whenever an individual item is refunded
+      if (order.customer_email && order.customer_name) {
         // Fetch menu name for email context (only if menu_id exists)
         let menuName = null
         if (order.menu_id) {
@@ -197,18 +197,40 @@ export async function POST(request: NextRequest) {
 
         const businessName = menuName || order.business_name || 'Your Business'
 
-        // Send email (await to ensure it completes in serverless environment)
-        await sendOrderRefundEmail({
-          orderNumber: order.order_number,
-          customerName: order.customer_name,
-          customerEmail: order.customer_email,
-          businessName,
-          items: updatedItems as any[],
-          subtotal: order.subtotal,
-          total: order.total,
-          orderDate: order.created_at,
-          orderStatus: 'cancelled',
-        }).catch(() => {})
+        // Check if all items are refunded - if so, send full order refund email
+        // Otherwise, send individual item refund email
+        if (allItemsRefunded) {
+          // Send full order refund email when all items are refunded
+          await sendOrderRefundEmail({
+            orderNumber: order.order_number,
+            customerName: order.customer_name,
+            customerEmail: order.customer_email,
+            businessName,
+            items: updatedItems as any[],
+            subtotal: order.subtotal,
+            total: order.total,
+            orderDate: order.created_at,
+            orderStatus: 'cancelled',
+          }).catch(() => {})
+        } else {
+          // Send individual item refund email
+          const refundedItem = updatedItems[itemIndex]
+          const refundedItemName = `${refundedItem.quantity}x ${refundedItem.itemName}`
+          
+          await sendItemRefundEmail({
+            orderNumber: order.order_number,
+            customerName: order.customer_name,
+            customerEmail: order.customer_email,
+            businessName,
+            items: updatedItems as any[],
+            subtotal: order.subtotal,
+            total: order.total,
+            orderDate: order.created_at,
+            orderStatus: 'cancelled',
+            refundedItemName,
+            refundAmount: refundedItem.refunded_amount || refundedItem.totalPrice,
+          }).catch(() => {})
+        }
       }
 
       return NextResponse.json({

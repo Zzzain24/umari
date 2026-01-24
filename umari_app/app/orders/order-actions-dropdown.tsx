@@ -25,7 +25,7 @@ const statusOptions: {
 }[] = [
   { value: 'received', label: 'Received' },
   { value: 'ready', label: 'Ready' },
-  { value: 'cancelled', label: 'Cancelled' },
+  { value: 'cancelled', label: 'Cancel' },
 ]
 
 export function OrderActionsDropdown({
@@ -35,7 +35,7 @@ export function OrderActionsDropdown({
   onRefundClick,
   disabled
 }: OrderActionsDropdownProps) {
-  const canRefund = paymentStatus === 'succeeded' && currentStatus !== 'cancelled' && onRefundClick
+  const orderRefunded = paymentStatus === 'refunded'
 
   return (
     <DropdownMenu>
@@ -56,7 +56,7 @@ export function OrderActionsDropdown({
             key={option.value}
             onClick={() => onStatusChange(option.value)}
             className="flex items-center justify-between text-sm cursor-pointer"
-            disabled={option.value === currentStatus}
+            disabled={orderRefunded}
           >
             {option.label}
             {option.value === currentStatus && (
@@ -64,18 +64,15 @@ export function OrderActionsDropdown({
             )}
           </DropdownMenuItem>
         ))}
-        {canRefund && (
-          <>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={onRefundClick}
-              className="flex items-center gap-2 text-sm cursor-pointer text-destructive focus:text-destructive"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              Refund Order
-            </DropdownMenuItem>
-          </>
-        )}
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          onClick={onRefundClick}
+          disabled={orderRefunded || !onRefundClick}
+          className="flex items-center gap-2 text-sm cursor-pointer text-destructive focus:text-destructive disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <RotateCcw className="w-3.5 h-3.5" />
+          Refund Order
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )

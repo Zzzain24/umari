@@ -71,8 +71,13 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
       : orders
 
     // Separate into active and ready orders
-    const active = searchFilteredOrders.filter(isActiveOrder)
-    const ready = searchFilteredOrders.filter(isReadyOrder)
+    // Include refunded orders in the ready section so they're still visible
+    const active = searchFilteredOrders.filter(order => 
+      isActiveOrder(order) && order.payment_status !== 'refunded'
+    )
+    const ready = searchFilteredOrders.filter(order => 
+      isReadyOrder(order) || order.payment_status === 'refunded'
+    )
 
     // Flatten to items
     const activeItemsFlat = flattenOrdersToItems(active)
@@ -579,6 +584,7 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
                           isFirstItemInOrder={isFirstItemInOrder}
                           onStatusChange={handleItemStatusUpdate}
                           onRefund={handleItemRefund}
+                          onRefundOrder={handleRefund}
                         />
                       ))}
                     </tbody>
@@ -603,6 +609,7 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
                         isFirstItemInOrder={isFirstItemInOrder}
                         onStatusChange={handleItemStatusUpdate}
                         onRefund={handleItemRefund}
+                        onRefundOrder={handleRefund}
                       />
                     </motion.div>
                   ))}
@@ -656,6 +663,7 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
                           isFirstItemInOrder={isFirstItemInOrder}
                           onStatusChange={handleItemStatusUpdate}
                           onRefund={handleItemRefund}
+                          onRefundOrder={handleRefund}
                         />
                       ))}
                     </tbody>
@@ -680,6 +688,7 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
                         isFirstItemInOrder={isFirstItemInOrder}
                         onStatusChange={handleItemStatusUpdate}
                         onRefund={handleItemRefund}
+                        onRefundOrder={handleRefund}
                       />
                     </motion.div>
                   ))}

@@ -14,6 +14,7 @@ interface OrderItemTableRowProps {
   isFirstItemInOrder: boolean
   onStatusChange: (orderId: string, itemId: string, newStatus: Order['order_status']) => void
   onRefund?: (orderId: string, itemId: string) => void
+  onRefundOrder?: (orderId: string) => void
 }
 
 const statusConfig: Record<'received' | 'ready' | 'cancelled', {
@@ -39,20 +40,23 @@ export function OrderItemTableRow({
   item,
   isFirstItemInOrder,
   onStatusChange,
-  onRefund
+  onRefund,
+  onRefundOrder
 }: OrderItemTableRowProps) {
   const [isRefundDialogOpen, setIsRefundDialogOpen] = useState(false)
+  const [isRefundOrderDialogOpen, setIsRefundOrderDialogOpen] = useState(false)
   const [isRefunding, setIsRefunding] = useState(false)
+  const [isRefundingOrder, setIsRefundingOrder] = useState(false)
   const itemStatus = getItemStatus(item, order.order_status)
   const status = statusConfig[itemStatus]
   const createdAt = new Date(order.created_at)
   const timeAgo = formatDistanceToNow(createdAt, { addSuffix: false })
 
-  const handleRefundClick = () => {
+  const handleRefundItemClick = () => {
     setIsRefundDialogOpen(true)
   }
 
-  const handleRefundConfirm = async () => {
+  const handleRefundItemConfirm = async () => {
     if (!onRefund) return
 
     setIsRefunding(true)
@@ -61,6 +65,22 @@ export function OrderItemTableRow({
       setIsRefundDialogOpen(false)
     } finally {
       setIsRefunding(false)
+    }
+  }
+
+  const handleRefundOrderClick = () => {
+    setIsRefundOrderDialogOpen(true)
+  }
+
+  const handleRefundOrderConfirm = async () => {
+    if (!onRefundOrder) return
+
+    setIsRefundingOrder(true)
+    try {
+      await onRefundOrder(order.id)
+      setIsRefundOrderDialogOpen(false)
+    } finally {
+      setIsRefundingOrder(false)
     }
   }
 
@@ -152,18 +172,28 @@ export function OrderItemTableRow({
           currentStatus={itemStatus}
           paymentStatus={order.payment_status}
           onStatusChange={(newStatus) => onStatusChange(order.id, item.id, newStatus)}
-          onRefundClick={onRefund ? handleRefundClick : undefined}
-          disabled={isRefunding}
+          onRefundItemClick={onRefund ? handleRefundItemClick : undefined}
+          onRefundOrderClick={onRefundOrder ? handleRefundOrderClick : undefined}
+          disabled={isRefunding || isRefundingOrder}
           isRefunded={!!item.refunded_amount}
+          orderRefunded={order.payment_status === 'refunded'}
         />
       </td>
       <RefundConfirmationDialog
         open={isRefundDialogOpen}
         onOpenChange={setIsRefundDialogOpen}
-        onConfirm={handleRefundConfirm}
+        onConfirm={handleRefundItemConfirm}
         orderTotal={item.totalPrice}
         platformFee={0}
         isLoading={isRefunding}
+      />
+      <RefundConfirmationDialog
+        open={isRefundOrderDialogOpen}
+        onOpenChange={setIsRefundOrderDialogOpen}
+        onConfirm={handleRefundOrderConfirm}
+        orderTotal={order.total}
+        platformFee={order.platform_fee}
+        isLoading={isRefundingOrder}
       />
     </tr>
   )

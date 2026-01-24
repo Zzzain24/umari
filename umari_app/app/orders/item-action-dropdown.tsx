@@ -15,9 +15,11 @@ interface ItemActionDropdownProps {
   currentStatus: Order['order_status']
   paymentStatus: Order['payment_status']
   onStatusChange: (status: Order['order_status']) => void
-  onRefundClick?: () => void
+  onRefundItemClick?: () => void
+  onRefundOrderClick?: () => void
   disabled?: boolean
   isRefunded?: boolean
+  orderRefunded?: boolean
 }
 
 const statusOptions: {
@@ -26,19 +28,19 @@ const statusOptions: {
 }[] = [
   { value: 'received', label: 'Received' },
   { value: 'ready', label: 'Ready' },
-  { value: 'cancelled', label: 'Cancelled' },
+  { value: 'cancelled', label: 'Cancel' },
 ]
 
 export function ItemActionDropdown({
   currentStatus,
   paymentStatus,
   onStatusChange,
-  onRefundClick,
+  onRefundItemClick,
+  onRefundOrderClick,
   disabled,
-  isRefunded = false
+  isRefunded = false,
+  orderRefunded = false
 }: ItemActionDropdownProps) {
-  const canRefund = paymentStatus === 'succeeded' && currentStatus !== 'cancelled' && !isRefunded && onRefundClick
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -58,7 +60,7 @@ export function ItemActionDropdown({
             key={option.value}
             onClick={() => onStatusChange(option.value)}
             className="flex items-center justify-between text-sm cursor-pointer"
-            disabled={option.value === currentStatus}
+            disabled={isRefunded}
           >
             {option.label}
             {option.value === currentStatus && (
@@ -66,18 +68,23 @@ export function ItemActionDropdown({
             )}
           </DropdownMenuItem>
         ))}
-        {canRefund && (
-          <>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={onRefundClick}
-              className="flex items-center gap-2 text-sm cursor-pointer text-destructive focus:text-destructive"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              Refund Item
-            </DropdownMenuItem>
-          </>
-        )}
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          onClick={onRefundItemClick}
+          disabled={isRefunded || !onRefundItemClick}
+          className="flex items-center gap-2 text-sm cursor-pointer text-destructive focus:text-destructive disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <RotateCcw className="w-3.5 h-3.5" />
+          Refund Item
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={onRefundOrderClick}
+          disabled={orderRefunded || !onRefundOrderClick}
+          className="flex items-center gap-2 text-sm cursor-pointer text-destructive focus:text-destructive disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <RotateCcw className="w-3.5 h-3.5" />
+          Refund Order
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )

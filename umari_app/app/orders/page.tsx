@@ -35,11 +35,11 @@ export default async function OrdersPage() {
 
   orders.forEach((order: Order) => {
     if (!order.menu_id) return
-    
+
     if (!menuIdToMenuItemIds.has(order.menu_id)) {
       menuIdToMenuItemIds.set(order.menu_id, new Set())
     }
-    
+
     order.items?.forEach((item: CartItem) => {
       if (!item.label_name && item.menuItemId) {
         menuItemIdsToLookup.add(item.menuItemId)
@@ -50,7 +50,7 @@ export default async function OrdersPage() {
 
   // Fetch menu items for missing label_names
   const labelNameMap = new Map<string, { label_name: string | null; label_color: string | null }>()
-  
+
   if (menuItemIdsToLookup.size > 0) {
     const { data: menuItems } = await supabase
       .from('menu_items')

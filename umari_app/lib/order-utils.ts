@@ -90,3 +90,48 @@ export function isReadyOrder(order: Order): boolean {
 
   return hasReady && allReadyOrCancelled
 }
+
+/**
+ * Interface for grouped items by label
+ */
+export interface GroupedItems {
+  labelName: string          // "Coffee" or "Uncategorized"
+  labelColor: string         // Hex color
+  items: Array<{
+    order: Order
+    item: CartItem
+    isFirstItemInOrder: boolean
+  }>
+}
+
+/**
+ * Groups items by their label_name
+ * Returns array of groups sorted alphabetically, with "Uncategorized" last
+ */
+export function groupItemsByLabel(
+  flattenedItems: ReturnType<typeof flattenOrdersToItems>
+): GroupedItems[] {
+  // Group items by label_name
+  const groups = new Map<string, GroupedItems>()
+
+  flattenedItems.forEach(({ order, item, isFirstItemInOrder }) => {
+    const labelName = item.label_name || 'Uncategorized'
+    const labelColor = item.label_color || '#9CA3AF'
+
+    if (!groups.has(labelName)) {
+      groups.set(labelName, { labelName, labelColor, items: [] })
+    }
+
+    groups.get(labelName)!.items.push({ order, item, isFirstItemInOrder })
+  })
+
+  // Convert to array and sort alphabetically, with "Uncategorized" last
+  const groupsArray = Array.from(groups.values())
+  groupsArray.sort((a, b) => {
+    if (a.labelName === 'Uncategorized') return 1
+    if (b.labelName === 'Uncategorized') return -1
+    return a.labelName.localeCompare(b.labelName)
+  })
+
+  return groupsArray
+}

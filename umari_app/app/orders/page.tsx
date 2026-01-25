@@ -36,14 +36,16 @@ export default async function OrdersPage() {
   orders.forEach((order: Order) => {
     if (!order.menu_id) return
 
-    if (!menuIdToMenuItemIds.has(order.menu_id)) {
-      menuIdToMenuItemIds.set(order.menu_id, new Set())
+    const menuId = order.menu_id // TypeScript type narrowing
+
+    if (!menuIdToMenuItemIds.has(menuId)) {
+      menuIdToMenuItemIds.set(menuId, new Set())
     }
 
     order.items?.forEach((item: CartItem) => {
       if (!item.label_name && item.menuItemId) {
         menuItemIdsToLookup.add(item.menuItemId)
-        menuIdToMenuItemIds.get(order.menu_id)!.add(item.menuItemId)
+        menuIdToMenuItemIds.get(menuId)!.add(item.menuItemId)
       }
     })
   })

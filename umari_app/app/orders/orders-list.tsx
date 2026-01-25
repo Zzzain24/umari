@@ -18,8 +18,10 @@ import { createClient } from "@/lib/supabase/client"
 import {
   flattenOrdersToItems,
   deriveOrderStatus,
-  getItemStatus
+  getItemStatus,
+  groupItemsByLabel
 } from "@/lib/order-utils"
+import { LabelGroupHeader } from "./label-group-header"
 
 interface OrdersListProps {
   initialOrders: Order[]
@@ -57,8 +59,8 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
     return Array.from(labelMap.values())
   }, [orders])
 
-  // Filter orders by search query and show all items in a single list
-  const { allItems, totalItemCount } = useMemo(() => {
+  // Filter orders by search query and group items by label
+  const { groupedItems, totalItemCount } = useMemo(() => {
     // First, filter orders by search query
     const query = searchQuery.toLowerCase().trim()
     const searchFilteredOrders = query
@@ -83,8 +85,11 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
 
     const filteredItems = filterItems(allItemsFlat)
 
+    // Group the filtered items by label
+    const grouped = groupItemsByLabel(filteredItems)
+
     return {
-      allItems: filteredItems,
+      groupedItems: grouped,
       totalItemCount: filteredItems.length
     }
   }, [orders, searchQuery, statusFilter, labelFilter])
@@ -525,77 +530,108 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
         </>
       ) : (
         <>
-          {/* All Orders - Single Unified List */}
-          {allItems.length > 0 && (
+          {/* All Orders - Grouped by Label */}
+          {groupedItems.length > 0 && (
             <div className="mt-6">
-              {/* Desktop Table View */}
+              {/* Desktop Table View - Grouped by Label */}
               <div className="hidden lg:block">
-                <div className="bg-card rounded-xl border border-border/60 overflow-hidden">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b border-border/60 bg-accent/30">
-                        <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                          Order ID
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                          Customer
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-[320px]">
-                          Item
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                          Price
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                          Date
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                          Status
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {allItems.map(({ order, item, isFirstItemInOrder }) => (
-                        <OrderItemTableRow
-                          key={`${order.id}-${item.id}`}
-                          order={order}
-                          item={item}
-                          isFirstItemInOrder={isFirstItemInOrder}
-                          onStatusChange={handleItemStatusUpdate}
-                          onRefund={handleItemRefund}
-                          onRefundOrder={handleRefund}
-                        />
-                      ))}
-                    </tbody>
-                  </table>
+                <div className="space-y-6">
+                  {groupedItems.map((group) => (
+                    <div key={group.labelName} className="bg-card rounded-xl border border-border/60 overflow-hidden">
+                      <LabelGroupHeader
+                        labelName={group.labelName}
+                        labelColor={group.labelColor}
+                        itemCount={group.items.length}
+                      />
+
+                      <table className="w-full">
+                        <thead>
+                          <tr className="border-b border-border/60 bg-accent/30">
+                            <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                              Order ID
+                            </th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                              Customer
+                            </th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-[320px]">
+                              Item
+                            </th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                              Price
+                            </th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                              Date
+                            </th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                              Status
+                            </th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                              Actions
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {group.items.map(({ order, item, isFirstItemInOrder }) => (
+                            <OrderItemTableRow
+                              key={`${order.id}-${item.id}`}
+                              order={order}
+                              item={item}
+                              isFirstItemInOrder={isFirstItemInOrder}
+                              onStatusChange={handleItemStatusUpdate}
+                              onRefund={handleItemRefund}
+                              onRefundOrder={handleRefund}
+                            />
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ))}
                 </div>
               </div>
 
-              {/* Mobile/Tablet Card View */}
-              <div className="lg:hidden grid grid-cols-1 md:grid-cols-2 gap-4">
-                <AnimatePresence>
-                  {allItems.map(({ order, item, isFirstItemInOrder }, index) => (
-                    <motion.div
-                      key={`${order.id}-${item.id}`}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.2, delay: index * 0.03 }}
-                    >
-                      <OrderItemCard
-                        order={order}
-                        item={item}
-                        isFirstItemInOrder={isFirstItemInOrder}
-                        onStatusChange={handleItemStatusUpdate}
-                        onRefund={handleItemRefund}
-                        onRefundOrder={handleRefund}
+              {/* Mobile/Tablet Card View - Grouped by Label */}
+              <div className="lg:hidden space-y-6">
+                {groupedItems.map((group) => (
+                  <div key={group.labelName} className="space-y-3">
+                    {/* Simpler mobile header */}
+                    <div className="flex items-center gap-3 px-2">
+                      <div
+                        className="w-1 h-6 rounded-full"
+                        style={{ backgroundColor: group.labelColor }}
                       />
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
+                      <h3 className="text-sm font-semibold text-foreground">
+                        {group.labelName}
+                      </h3>
+                      <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-accent/40 text-muted-foreground">
+                        {group.items.length}
+                      </span>
+                    </div>
+
+                    {/* Cards grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <AnimatePresence>
+                        {group.items.map(({ order, item, isFirstItemInOrder }, index) => (
+                          <motion.div
+                            key={`${order.id}-${item.id}`}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            transition={{ duration: 0.2, delay: index * 0.03 }}
+                          >
+                            <OrderItemCard
+                              order={order}
+                              item={item}
+                              isFirstItemInOrder={isFirstItemInOrder}
+                              onStatusChange={handleItemStatusUpdate}
+                              onRefund={handleItemRefund}
+                              onRefundOrder={handleRefund}
+                            />
+                          </motion.div>
+                        ))}
+                      </AnimatePresence>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}

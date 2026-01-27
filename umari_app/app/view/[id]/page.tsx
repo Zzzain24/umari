@@ -52,9 +52,9 @@ export default async function ViewMenuPage({ params }: PageProps) {
   // Transform data for display
   const itemsWithOptions = menuItems.map(item => {
     const itemOptions = (menuItemOptions || [])
-      .filter(opt => opt.menu_item_id === item.id)
+      .filter(opt => opt.menu_item_id === item.id && opt.id)
       .map(opt => ({
-        id: opt.id,
+        id: opt.id!,
         name: opt.name,
         options: opt.options as Array<{ value: string; price?: number }>,
         is_required: opt.is_required,

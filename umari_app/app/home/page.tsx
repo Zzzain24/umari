@@ -21,6 +21,7 @@ export default async function HomePage() {
     .select(`
       id,
       name,
+      user_id,
       created_at,
       updated_at,
       menu_items(count)

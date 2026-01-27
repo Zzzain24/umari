@@ -104,7 +104,7 @@ export async function createMenu(data: CreateMenuData) {
     const allOptions: Array<{
       menu_item_id: string
       name: string
-      options: string[]
+      options: Array<{ value: string; price?: number }>
       is_required: boolean
     }> = []
 

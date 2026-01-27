@@ -69,7 +69,12 @@ export interface MenuItemForCart {
   allow_special_instructions?: boolean
   label_color?: string
   label_name?: string
-  options?: MenuItemOption[]
+  options?: Array<{
+    id: string
+    name: string
+    options: MenuItemOptionValue[]
+    is_required: boolean
+  }>
 }
 
 export interface CartContextType {

@@ -88,7 +88,7 @@ export async function disconnectStripeAccount(): Promise<{ success: boolean; err
 
     // Initialize Stripe
     const stripe = new Stripe(secretKey, {
-      apiVersion: '2024-12-18.acacia',
+      apiVersion: '2025-12-15.clover',
     })
 
     // Deauthorize on Stripe

@@ -53,7 +53,7 @@ function checkRateLimit(request: NextRequest): NextResponse | null {
   const clientIP = getClientIP(request.headers)
 
   // Determine rate limit config based on endpoint
-  let config = RATE_LIMITS.api
+  let config: { limit: number; windowSeconds: number } = RATE_LIMITS.api
   let identifier = `api:${clientIP}`
 
   if (pathname.includes('/orders/lookup') || pathname.includes('/checkout/')) {

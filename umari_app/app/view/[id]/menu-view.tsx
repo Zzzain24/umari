@@ -1,10 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect } from "react"
 import { MenuItemView } from "./menu-item-view"
-import { QRCodeDisplay } from "@/components/ui/qr-code-display"
-import { Separator } from "@/components/ui/separator"
 import { CartProvider } from "@/contexts/cart-context"
 import { FloatingCartButton } from "./floating-cart-button"
 import { CartSheet } from "./cart-sheet"
@@ -17,11 +14,6 @@ interface MenuViewProps {
 }
 
 export function MenuView({ menuName, items, menuId }: MenuViewProps) {
-  const [fullUrl, setFullUrl] = useState('')
-
-  useEffect(() => {
-    setFullUrl(`${window.location.origin}/view/${menuId}`)
-  }, [menuId])
 
   return (
     <CartProvider menuId={menuId} menuItems={items}>
@@ -40,21 +32,6 @@ export function MenuView({ menuName, items, menuId }: MenuViewProps) {
               items.map((item) => (
                 <MenuItemView key={item.id} item={item} />
               ))
-            )}
-          </div>
-
-          <Separator className="my-8" />
-
-          <div className="flex flex-col items-center space-y-4">
-            <h2 className="text-lg font-semibold text-foreground">
-              Scan to View Menu
-            </h2>
-            {fullUrl && (
-              <QRCodeDisplay
-                url={fullUrl}
-                menuName={menuName}
-                size={200}
-              />
             )}
           </div>
         </div>

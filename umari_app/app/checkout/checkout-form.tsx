@@ -576,7 +576,6 @@ function PaymentFormContent({
               wallets: {
                 applePay: 'auto',
                 googlePay: 'auto',
-                cashapp: 'auto',
               },
             }}
           />

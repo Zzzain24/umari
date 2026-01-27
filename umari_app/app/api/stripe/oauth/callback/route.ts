@@ -3,7 +3,7 @@ import Stripe from 'stripe'
 import { createClient } from '@/lib/supabase/server'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-12-18.acacia',
+  apiVersion: '2025-12-15.clover',
 })
 
 export async function GET(request: NextRequest) {
@@ -64,6 +64,11 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch account details from Stripe
+    if (!response.stripe_user_id) {
+      return NextResponse.redirect(
+        new URL('/payments?error=invalid_account', request.url)
+      )
+    }
     const account = await stripe.accounts.retrieve(response.stripe_user_id)
 
     // Update account status

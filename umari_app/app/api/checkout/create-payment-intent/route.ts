@@ -222,6 +222,7 @@ export async function POST(request: NextRequest) {
         currency: paymentSettings.default_currency || 'usd',
         automatic_payment_methods: {
           enabled: true,
+          allow_redirects: 'never', // Blocks Klarna and other redirect-based methods
         },
         on_behalf_of: stripeAccount.stripe_account_id,
         transfer_data: {
@@ -244,6 +245,7 @@ export async function POST(request: NextRequest) {
           currency: paymentSettings.default_currency || 'usd',
           automatic_payment_methods: {
             enabled: true,
+            allow_redirects: 'never', // Blocks Klarna and other redirect-based methods
           },
           application_fee_amount: applicationFeeInCents,
           metadata: {

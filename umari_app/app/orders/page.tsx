@@ -28,6 +28,15 @@ export default async function OrdersPage() {
 
   const orders = ordersData || []
 
+  // Fetch menus for this business user
+  const { data: menusData } = await supabase
+    .from('menus')
+    .select('id, name, created_at')
+    .eq('user_id', user.id)
+    .order('name', { ascending: true })
+
+  const menus = menusData || []
+
   // Enrich orders with label_name from menu_items if missing
   // Collect menuItemIds that need label_name lookup
   const menuItemIdsToLookup = new Set<string>()
@@ -95,7 +104,7 @@ export default async function OrdersPage() {
   return (
     <div className="min-h-screen bg-background pt-24">
       <Navbar />
-      <OrdersList initialOrders={enrichedOrders} userId={user.id} />
+      <OrdersList initialOrders={enrichedOrders} userId={user.id} initialMenus={menus} />
     </div>
   )
 }

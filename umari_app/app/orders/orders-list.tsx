@@ -26,9 +26,10 @@ import { LabelGroupHeader } from "./label-group-header"
 interface OrdersListProps {
   initialOrders: Order[]
   userId: string
+  initialMenus: Array<{ id: string; name: string; created_at: string }>
 }
 
-export function OrdersList({ initialOrders, userId }: OrdersListProps) {
+export function OrdersList({ initialOrders, userId, initialMenus }: OrdersListProps) {
   const { toast } = useToast()
   const [orders, setOrders] = useState<Order[]>(initialOrders)
   const [isLoading, setIsLoading] = useState(false)
@@ -39,13 +40,24 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
   })
   const [statusFilter, setStatusFilter] = useState<('received' | 'ready' | 'cancelled')[]>([])
   const [labelFilter, setLabelFilter] = useState<string[]>([])
+  const [menuFilter, setMenuFilter] = useState<string[]>([])
 
-  // Extract unique label names from all orders
+  // Extract unique label names from menu-filtered orders (dynamic based on menu filter)
   const availableLabels = useMemo(() => {
+    // First apply menu filter to get relevant orders
+    const relevantOrders = menuFilter.length === 0
+      ? orders
+      : orders.filter(order => {
+          if (order.menu_id === null) {
+            return menuFilter.includes('no-menu')
+          }
+          return menuFilter.includes(order.menu_id)
+        })
+
+    // Extract labels from filtered orders
     const labelMap = new Map<string, { name: string; color: string }>()
-    orders.forEach(order =>
+    relevantOrders.forEach(order =>
       order.items.forEach(item => {
-        // Only add label if it actually exists (not null/undefined/empty)
         if (item.label_name && item.label_name.trim() !== '') {
           const labelName = item.label_name
           const labelColor = item.label_color || '#9CA3AF'
@@ -53,11 +65,10 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
             labelMap.set(labelName, { name: labelName, color: labelColor })
           }
         }
-        // Note: We're not adding 'Uncategorized' here - only show actual labels
       })
     )
     return Array.from(labelMap.values())
-  }, [orders])
+  }, [orders, menuFilter])
 
   // Filter orders by search query and group items by label
   const { groupedItems, totalItemCount } = useMemo(() => {
@@ -70,10 +81,21 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
         )
       : orders
 
-    // Flatten all orders to items (including cancelled/refunded)
-    const allItemsFlat = flattenOrdersToItems(searchFilteredOrders)
+    // Apply MENU filter at order level
+    const menuFilteredOrders = menuFilter.length === 0
+      ? searchFilteredOrders
+      : searchFilteredOrders.filter(order => {
+          // Handle null menu_id - include when "no-menu" is selected
+          if (order.menu_id === null) {
+            return menuFilter.includes('no-menu')
+          }
+          return menuFilter.includes(order.menu_id)
+        })
 
-    // Apply item-level filters
+    // Flatten to items
+    const allItemsFlat = flattenOrdersToItems(menuFilteredOrders)
+
+    // Apply item-level filters (status, label)
     const filterItems = (items: ReturnType<typeof flattenOrdersToItems>) => {
       return items.filter(({ order, item }) => {
         const itemStatus = getItemStatus(item, order.order_status)
@@ -92,7 +114,7 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
       groupedItems: grouped,
       totalItemCount: filteredItems.length
     }
-  }, [orders, searchQuery, statusFilter, labelFilter])
+  }, [orders, searchQuery, statusFilter, labelFilter, menuFilter])
 
   const handleDateRangeChange = async (range: DateRange | undefined) => {
     setDateRange(range)
@@ -408,12 +430,16 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
           onSearchChange={setSearchQuery}
           statusFilter={statusFilter}
           labelFilter={labelFilter}
+          menuFilter={menuFilter}
           availableLabels={availableLabels}
+          availableMenus={initialMenus}
           onStatusFilterChange={setStatusFilter}
           onLabelFilterChange={setLabelFilter}
+          onMenuFilterChange={setMenuFilter}
           onClearFilters={() => {
             setStatusFilter([])
             setLabelFilter([])
+            setMenuFilter([])
           }}
         />
         <div className="mt-8">
@@ -424,7 +450,7 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
   }
 
   // Empty state - no search/filter results
-  if (totalItemCount === 0 && (searchQuery.trim() || statusFilter.length > 0 || labelFilter.length > 0)) {
+  if (totalItemCount === 0 && (searchQuery.trim() || statusFilter.length > 0 || labelFilter.length > 0 || menuFilter.length > 0)) {
     return (
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Header
@@ -436,12 +462,16 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
           onSearchChange={setSearchQuery}
           statusFilter={statusFilter}
           labelFilter={labelFilter}
+          menuFilter={menuFilter}
           availableLabels={availableLabels}
+          availableMenus={initialMenus}
           onStatusFilterChange={setStatusFilter}
           onLabelFilterChange={setLabelFilter}
+          onMenuFilterChange={setMenuFilter}
           onClearFilters={() => {
             setStatusFilter([])
             setLabelFilter([])
+            setMenuFilter([])
           }}
         />
         <div className="mt-8 text-center py-12">
@@ -454,6 +484,7 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
               setSearchQuery("")
               setStatusFilter([])
               setLabelFilter([])
+              setMenuFilter([])
             }}
             className="mt-2"
           >
@@ -476,12 +507,16 @@ export function OrdersList({ initialOrders, userId }: OrdersListProps) {
         isLoading={isLoading}
         statusFilter={statusFilter}
         labelFilter={labelFilter}
+        menuFilter={menuFilter}
         availableLabels={availableLabels}
+        availableMenus={initialMenus}
         onStatusFilterChange={setStatusFilter}
         onLabelFilterChange={setLabelFilter}
+        onMenuFilterChange={setMenuFilter}
         onClearFilters={() => {
           setStatusFilter([])
           setLabelFilter([])
+          setMenuFilter([])
         }}
       />
 
@@ -652,9 +687,12 @@ interface HeaderProps {
   isLoading?: boolean
   statusFilter: ('received' | 'ready' | 'cancelled')[]
   labelFilter: string[]
+  menuFilter: string[]
   availableLabels: Array<{ name: string; color: string }>
+  availableMenus: Array<{ id: string; name: string; created_at: string }>
   onStatusFilterChange: (statuses: ('received' | 'ready' | 'cancelled')[]) => void
   onLabelFilterChange: (labels: string[]) => void
+  onMenuFilterChange: (menuIds: string[]) => void
   onClearFilters: () => void
 }
 
@@ -668,9 +706,12 @@ function Header({
   isLoading,
   statusFilter,
   labelFilter,
+  menuFilter,
   availableLabels,
+  availableMenus,
   onStatusFilterChange,
   onLabelFilterChange,
+  onMenuFilterChange,
   onClearFilters
 }: HeaderProps) {
   return (
@@ -703,9 +744,12 @@ function Header({
           <OrderFilterPopover
             statusFilter={statusFilter}
             labelFilter={labelFilter}
+            menuFilter={menuFilter}
             availableLabels={availableLabels}
+            availableMenus={availableMenus}
             onStatusFilterChange={onStatusFilterChange}
             onLabelFilterChange={onLabelFilterChange}
+            onMenuFilterChange={onMenuFilterChange}
             onClearFilters={onClearFilters}
           />
           <DateRangePicker value={dateRange} onChange={onDateRangeChange} />

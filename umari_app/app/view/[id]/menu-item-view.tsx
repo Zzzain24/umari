@@ -31,7 +31,7 @@ interface MenuItemViewProps {
 
 export function MenuItemView({ item }: MenuItemViewProps) {
   const { addToCart } = useCart()
-  const [quantity, setQuantity] = useState(1)
+  const [quantity, setQuantity] = useState(0)
   const [selectedOptions, setSelectedOptions] = useState<SelectedOption[]>([])
   const [specialInstructions, setSpecialInstructions] = useState("")
 
@@ -40,11 +40,14 @@ export function MenuItemView({ item }: MenuItemViewProps) {
     if (item.is_sold_out) {
       return false
     }
+    if (quantity === 0) {
+      return false
+    }
     if (!item.options || item.options.length === 0) {
       return true
     }
     return validateRequiredOptions(item.options, selectedOptions)
-  }, [item.options, item.is_sold_out, selectedOptions])
+  }, [item.options, item.is_sold_out, selectedOptions, quantity])
 
   // Calculate options price separately
   const optionsPrice = useMemo(() => {
@@ -71,7 +74,7 @@ export function MenuItemView({ item }: MenuItemViewProps) {
     })
 
     // Reset quantity and special instructions
-    setQuantity(1)
+    setQuantity(0)
     setSpecialInstructions("")
   }
 
@@ -113,7 +116,7 @@ export function MenuItemView({ item }: MenuItemViewProps) {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-muted-foreground mb-2">Quantity</p>
-            <QuantitySelector quantity={quantity} onChange={setQuantity} />
+            <QuantitySelector quantity={quantity} onChange={setQuantity} min={0} />
           </div>
 
           <div className="text-right">
@@ -146,9 +149,11 @@ export function MenuItemView({ item }: MenuItemViewProps) {
         >
           {item.is_sold_out
             ? "Sold Out"
-            : !isValid
-              ? "Select required options"
-              : "Add to Cart"
+            : quantity === 0
+              ? "Select quantity"
+              : !isValid
+                ? "Select required options"
+                : "Add to Cart"
           }
         </Button>
       </div>

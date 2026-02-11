@@ -122,7 +122,9 @@ export function MenuItemView({ item }: MenuItemViewProps) {
           <div className="text-right">
             <p className="text-sm text-muted-foreground mb-2">Price</p>
             <p className="text-2xl font-bold text-foreground">
-              ${(item.price + optionsPrice).toFixed(2)}
+              {quantity === 0
+                ? `$${(item.price + optionsPrice).toFixed(2)}`
+                : `$${totalPrice.toFixed(2)}`}
             </p>
           </div>
         </div>

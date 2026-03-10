@@ -71,44 +71,44 @@ export function LandingNavbar() {
           <span className="text-lg font-bold text-foreground">Umari</span>
         </a>
 
-        <div className="absolute inset-0 hidden flex-1 flex-row items-center justify-center space-x-2 text-sm font-medium text-muted-foreground transition duration-200 hover:text-foreground md:flex md:space-x-2">
+        <div className="absolute inset-0 hidden flex-1 flex-row items-center justify-center text-sm font-medium text-muted-foreground transition duration-200 hover:text-foreground md:flex">
           <Link
             href="/#demo"
             onClick={(e) => handleNavClick(e, "demo")}
-            className="relative px-4 py-2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+            className="relative px-3 py-2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
           >
             <span className="relative z-20">Demo</span>
           </Link>
           <Link
             href="/#features"
             onClick={(e) => handleNavClick(e, "features")}
-            className="relative px-4 py-2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+            className="relative px-3 py-2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
           >
             <span className="relative z-20">Features</span>
           </Link>
           <Link
             href="/#pricing"
             onClick={(e) => handleNavClick(e, "pricing")}
-            className="relative px-4 py-2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+            className="relative px-3 py-2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
           >
             <span className="relative z-20">Pricing</span>
           </Link>
           <Link
             href="/#faq"
             onClick={(e) => handleNavClick(e, "faq")}
-            className="relative px-4 py-2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+            className="relative px-3 py-2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
           >
             <span className="relative z-20">FAQ</span>
           </Link>
           <Link
             href="/track-order"
-            className="relative px-4 py-2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+            className="relative px-3 py-2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
           >
             <span className="relative z-20">Track Order</span>
           </Link>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 z-50 pl-2 border-l border-border/40">
 
           <Link
             href="/login"

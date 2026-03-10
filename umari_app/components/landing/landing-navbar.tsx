@@ -73,6 +73,13 @@ export function LandingNavbar() {
 
         <div className="absolute inset-0 hidden flex-1 flex-row items-center justify-center space-x-2 text-sm font-medium text-muted-foreground transition duration-200 hover:text-foreground md:flex md:space-x-2">
           <Link
+            href="/#demo"
+            onClick={(e) => handleNavClick(e, "demo")}
+            className="relative px-4 py-2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+          >
+            <span className="relative z-20">Demo</span>
+          </Link>
+          <Link
             href="/#features"
             onClick={(e) => handleNavClick(e, "features")}
             className="relative px-4 py-2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
@@ -150,6 +157,16 @@ export function LandingNavbar() {
         <div className="fixed inset-0 z-[9998] bg-black/50 backdrop-blur-sm md:hidden">
           <div className="absolute top-25 left-6 right-6 max-w-sm mx-auto bg-background/95 backdrop-blur-md border border-border/50 rounded-2xl shadow-2xl p-6">
             <nav className="flex flex-col space-y-4">
+              <Link
+                href="/#demo"
+                onClick={(e) => {
+                  if (isLandingPage) e.preventDefault()
+                  handleMobileNavClick("demo")
+                }}
+                className="text-left px-4 py-3 text-lg font-medium text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-background/50"
+              >
+                Demo
+              </Link>
               <Link
                 href="/#features"
                 onClick={(e) => {

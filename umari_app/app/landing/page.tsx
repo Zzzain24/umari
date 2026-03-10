@@ -6,6 +6,7 @@ import { PricingSection } from "@/components/landing/pricing-section"
 import { FAQSection } from "@/components/landing/faq-section"
 import { StickyFooter } from "@/components/landing/sticky-footer"
 import { LandingNavbar } from "@/components/landing/landing-navbar"
+import { DemoVideo } from "@/components/landing/demo-video"
 
 export default function Landing() {
   useEffect(() => {
@@ -28,6 +29,11 @@ export default function Landing() {
 
       {/* Hero Section */}
       <Hero />
+
+      {/* Demo Video Section */}
+      <div id="demo">
+        <DemoVideo />
+      </div>
 
       {/* Features Section */}
       <div id="features">

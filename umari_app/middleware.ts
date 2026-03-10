@@ -33,7 +33,7 @@ function addSecurityHeaders(response: NextResponse): void {
     "font-src 'self' https://fonts.gstatic.com; " +
     "img-src 'self' data: blob: https:; " +
     "connect-src 'self' https://*.supabase.co https://api.stripe.com wss://*.supabase.co; " +
-    "frame-src 'self' https://js.stripe.com https://hooks.stripe.com; " +
+    "frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://www.youtube.com https://www.youtube-nocookie.com; " +
     "object-src 'none'; " +
     "base-uri 'self';"
   )

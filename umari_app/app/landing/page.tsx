@@ -1,12 +1,14 @@
 "use client"
 import { useEffect } from "react"
+import dynamic from "next/dynamic"
 import Hero from "@/components/landing/hero"
 import Features from "@/components/landing/features"
 import { PricingSection } from "@/components/landing/pricing-section"
 import { FAQSection } from "@/components/landing/faq-section"
 import { StickyFooter } from "@/components/landing/sticky-footer"
 import { LandingNavbar } from "@/components/landing/landing-navbar"
-import { DemoVideo } from "@/components/landing/demo-video"
+
+const DemoVideo = dynamic(() => import("@/components/landing/demo-video").then(m => m.DemoVideo), { ssr: false })
 
 export default function Landing() {
   useEffect(() => {

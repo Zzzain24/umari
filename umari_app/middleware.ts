@@ -28,11 +28,11 @@ function addSecurityHeaders(response: NextResponse): void {
   response.headers.set(
     'Content-Security-Policy',
     "default-src 'self'; " +
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://www.googletagmanager.com; " +
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://www.googletagmanager.com https://www.youtube.com https://www.youtube-nocookie.com https://va.vercel-scripts.com; " +
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
     "font-src 'self' https://fonts.gstatic.com; " +
     "img-src 'self' data: blob: https:; " +
-    "connect-src 'self' https://*.supabase.co https://api.stripe.com wss://*.supabase.co; " +
+    "connect-src 'self' https://*.supabase.co https://api.stripe.com wss://*.supabase.co https://noembed.com https://cdn.plyr.io; " +
     "frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://www.youtube.com https://www.youtube-nocookie.com; " +
     "object-src 'none'; " +
     "base-uri 'self';"

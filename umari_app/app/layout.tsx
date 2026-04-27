@@ -27,9 +27,9 @@ export const metadata: Metadata = {
       "Create digital menus, accept orders, and get paid instantly. Perfect for coffee carts, food vendors, pop-ups, and small businesses.",
     images: [
       {
-        url: "/images/umari-logo.png",
-        width: 512,
-        height: 512,
+        url: "/images/Open_Graph.png",
+        width: 1200,
+        height: 630,
         alt: "Umari - Digital Menu & Ordering Platform",
       },
     ],
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     title: "Umari - Digital Menus & Instant Ordering",
     description:
       "Create digital menus, accept orders, and get paid instantly. No app required for customers.",
-    images: ["/images/umari-logo.png"],
+    images: ["/images/Open_Graph.png"],
   },
 }
 

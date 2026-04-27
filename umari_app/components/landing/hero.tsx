@@ -1,7 +1,6 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { useState, useEffect } from "react"
 import Link from "next/link"
 
 interface HeroProps {
@@ -9,16 +8,6 @@ interface HeroProps {
 }
 
 export default function Hero({ showCTA = true }: HeroProps) {
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  if (!mounted) {
-    return null
-  }
-
   return (
     <>
       <section className="relative overflow-hidden min-h-screen flex flex-col">
